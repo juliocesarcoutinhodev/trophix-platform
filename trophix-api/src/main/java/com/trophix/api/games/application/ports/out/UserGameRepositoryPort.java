@@ -17,4 +17,7 @@ public interface UserGameRepositoryPort {
      * and ordered by most recently played.
      */
     Page<UserGameSummary> findByUsername(String username, Pageable pageable);
+
+    /** Same as {@link #findByUsername(String, Pageable)} but for the user id. */
+    Page<UserGameSummary> findByUserId(java.util.UUID userId, Pageable pageable);
 }

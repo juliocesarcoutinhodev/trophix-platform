@@ -1,0 +1,128 @@
+<main class="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
+  <!-- Header: perfil -->
+  <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-center gap-4">
+        @if (profile()?.avatarUrl) {
+          <img
+            [src]="profile()?.avatarUrl!"
+            alt="avatar"
+            class="h-16 w-16 rounded-full border-2 border-violet-600 object-cover"
+          />
+        } @else {
+          <div class="flex h-16 w-16 items-center justify-center rounded-full bg-violet-600 text-2xl font-bold text-white">
+            {{ (profile()?.username ?? '?').slice(0, 1).toUpperCase() }}
+          </div>
+        }
+        <div>
+          <h1 class="text-2xl font-bold text-slate-100">{{ profile()?.username ?? 'Carregando...' }}</h1>
+          <p class="mt-1 inline-flex items-center gap-2 rounded-lg bg-violet-600/15 px-2.5 py-1 text-sm font-semibold text-violet-300">
+            Nível {{ profile()?.psnLevel ?? '—' }}
+            @if (profile()?.levelProgress != null) {
+              <span class="font-normal text-violet-400/80">• {{ profile()?.levelProgress }}% p/ o próximo</span>
+            }
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          (click)="syncPsn()"
+          [disabled]="syncing()"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          @if (syncing()) {
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+            Sincronizando...
+          } @else {
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Sincronizar PSN
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (syncError()) {
+      <p class="mt-4 rounded-lg border border-red-900 bg-red-950/40 px-4 py-2.5 text-sm text-red-400">
+        {{ syncError() }}
+      </p>
+    }
+
+    <!-- Totais de troféus -->
+    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+        <p class="text-2xl font-bold text-slate-100">{{ profile()?.totalPlatinum ?? '—' }}</p>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Platinum</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+        <p class="text-2xl font-bold text-slate-100">{{ profile()?.totalGold ?? '—' }}</p>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Gold</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+        <p class="text-2xl font-bold text-slate-100">{{ profile()?.totalSilver ?? '—' }}</p>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Silver</p>
+      </div>
+      <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-center">
+        <p class="text-2xl font-bold text-slate-100">{{ profile()?.totalBronze ?? '—' }}</p>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Bronze</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Jogos recentes -->
+  <section class="mt-8">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-100">Jogos Recentes</h2>
+      <span class="text-sm text-slate-400">{{ games().length }} jogos</span>
+    </div>
+
+    @if (loadingGames()) {
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        @for (_ of [1, 2, 3, 4, 5, 6, 7, 8]; track $index) {
+          <div class="h-40 animate-pulse rounded-xl border border-slate-800 bg-slate-900"></div>
+        }
+      </div>
+    } @else if (games().length === 0) {
+      <div class="rounded-xl border border-slate-800 bg-slate-900 p-10 text-center">
+        <p class="text-slate-400">Nenhum jogo sincronizado ainda.</p>
+        <p class="mt-1 text-sm text-slate-500">Clique em "Sincronizar PSN" para carregar seu histórico.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        @for (game of games(); track game.gameId) {
+          <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700">
+            <div class="relative aspect-video bg-slate-950">
+              @if (game.imageUrl) {
+                <img [src]="game.imageUrl" [alt]="game.name" class="h-full w-full object-cover" loading="lazy" />
+              }
+              <span class="absolute right-2 top-2 rounded bg-slate-950/80 px-1.5 py-0.5 text-[10px] font-bold text-slate-300">
+                {{ game.platform }}
+              </span>
+            </div>
+            <div class="p-3">
+              <h3 class="truncate text-sm font-semibold text-slate-100" [title]="game.name">{{ game.name }}</h3>
+              <div class="mt-3">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                  <span>{{ game.earnedTrophies }}/{{ game.totalTrophies }}</span>
+                  <span>{{ game.progressPercentage }}%</span>
+                </div>
+                <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    class="h-full rounded-full bg-violet-500"
+                    [style.width.%]="game.progressPercentage"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>

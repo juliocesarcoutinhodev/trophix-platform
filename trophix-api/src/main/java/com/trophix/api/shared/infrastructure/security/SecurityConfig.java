@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/link-request", "/api/users/link-validate").permitAll()
+                        // Rotas /me exigem autenticação (antes dos padrões públicos)
+                        .requestMatchers("/api/users/me/**").authenticated()
                         // Perfis públicos: visíveis sem autenticação
                         .requestMatchers(HttpMethod.GET, "/api/users/*/profile", "/api/users/*/games").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trophies/*/guides").permitAll()

@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class UserGameJpaAdapter implements UserGameRepositoryPort {
@@ -43,6 +46,14 @@ public class UserGameJpaAdapter implements UserGameRepositoryPort {
     public Page<UserGameSummary> findByUsername(String username, Pageable pageable) {
         return springDataRepository
                 .findByUser_UsernameOrderByLastPlayedAtDesc(username, pageable)
+                .map(mapper::toSummary);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserGameSummary> findByUserId(UUID userId, Pageable pageable) {
+        return springDataRepository
+                .findByUser_IdOrderByLastPlayedAtDesc(userId, pageable)
                 .map(mapper::toSummary);
     }
 }

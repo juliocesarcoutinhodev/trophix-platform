@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class GetUserGamesUseCaseImpl implements GetUserGamesUseCase {
@@ -17,5 +19,10 @@ public class GetUserGamesUseCaseImpl implements GetUserGamesUseCase {
     @Override
     public Page<UserGameSummary> getGames(String username, Pageable pageable) {
         return userGameRepository.findByUsername(username, pageable);
+    }
+
+    @Override
+    public Page<UserGameSummary> getGamesByUserId(UUID userId, Pageable pageable) {
+        return userGameRepository.findByUserId(userId, pageable);
     }
 }

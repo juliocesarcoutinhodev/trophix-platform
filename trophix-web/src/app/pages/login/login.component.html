@@ -1,0 +1,55 @@
+<main class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
+  <div class="rounded-2xl border border-slate-800 bg-slate-900 p-8">
+    <div class="mb-6 text-center">
+      <h1 class="text-2xl font-black tracking-tight text-slate-100">Entrar no TROPHIX</h1>
+      <p class="mt-1 text-sm text-slate-400">Acesse com o e-mail cadastrado</p>
+    </div>
+
+    @if (error()) {
+      <p class="mb-4 rounded-lg border border-red-900 bg-red-950/40 px-4 py-2.5 text-sm text-red-400">
+        {{ error() }}
+      </p>
+    }
+
+    <form (ngSubmit)="submit()" class="space-y-4">
+      <div>
+        <label for="email" class="mb-1 block text-sm font-medium text-slate-300">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          required
+          [(ngModel)]="email"
+          name="email"
+          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
+          placeholder="voce@exemplo.com"
+        />
+      </div>
+
+      <div>
+        <label for="password" class="mb-1 block text-sm font-medium text-slate-300">Senha</label>
+        <input
+          id="password"
+          type="password"
+          required
+          [(ngModel)]="password"
+          name="password"
+          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {{ loading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-400">
+      Ainda não tem conta?
+      <a routerLink="/register" class="font-semibold text-violet-400 hover:text-violet-300">Criar conta</a>
+    </p>
+  </div>
+</main>

@@ -42,6 +42,22 @@ public class UserProfileController {
                 "Sincronização iniciada. Os dados serão atualizados em segundo plano."));
     }
 
+    @GetMapping("/me/profile")
+    public ResponseEntity<UserProfileResponse> getMyProfile(@AuthenticationPrincipal String userId) {
+        User user = getUserProfileUseCase.getProfileByUserId(UUID.fromString(userId));
+        return ResponseEntity.ok(userWebMapper.toUserProfileResponse(user));
+    }
+
+    @GetMapping("/me/games")
+    public ResponseEntity<Page<UserGameResponse>> getMyGames(
+            @AuthenticationPrincipal String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Page<UserGameSummary> games = getUserGamesUseCase.getGamesByUserId(
+                UUID.fromString(userId), PageRequest.of(Math.max(page, 0), Math.min(size, 100)));
+        return ResponseEntity.ok(games.map(userWebMapper::toUserGameResponse));
+    }
+
     @GetMapping("/{username}/profile")
     public ResponseEntity<UserProfileResponse> getProfile(@PathVariable String username) {
         User user = getUserProfileUseCase.getProfile(username);

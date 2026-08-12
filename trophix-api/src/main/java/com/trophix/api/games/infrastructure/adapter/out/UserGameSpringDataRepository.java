@@ -19,4 +19,7 @@ public interface UserGameSpringDataRepository extends JpaRepository<UserGameEnti
      */
     @EntityGraph(attributePaths = {"game"})
     Page<UserGameEntity> findByUser_UsernameOrderByLastPlayedAtDesc(String username, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"game"})
+    Page<UserGameEntity> findByUser_IdOrderByLastPlayedAtDesc(UUID userId, Pageable pageable);
 }
