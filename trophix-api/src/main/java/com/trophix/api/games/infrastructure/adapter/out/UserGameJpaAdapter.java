@@ -2,8 +2,11 @@ package com.trophix.api.games.infrastructure.adapter.out;
 
 import com.trophix.api.games.application.ports.out.UserGameRepositoryPort;
 import com.trophix.api.games.model.UserGame;
+import com.trophix.api.games.model.UserGameSummary;
 import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ public class UserGameJpaAdapter implements UserGameRepositoryPort {
     private final UserGameSpringDataRepository springDataRepository;
     private final UserSpringDataRepository userSpringDataRepository;
     private final GameSpringDataRepository gameSpringDataRepository;
+    private final UserGameMapper mapper;
 
     @Override
     @Transactional
@@ -32,5 +36,13 @@ public class UserGameJpaAdapter implements UserGameRepositoryPort {
         entity.setLastPlayedAt(userGame.lastPlayedAt());
 
         springDataRepository.save(entity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserGameSummary> findByUsername(String username, Pageable pageable) {
+        return springDataRepository
+                .findByUser_UsernameOrderByLastPlayedAtDesc(username, pageable)
+                .map(mapper::toSummary);
     }
 }

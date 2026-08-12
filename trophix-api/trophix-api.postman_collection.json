@@ -31,6 +31,12 @@
       "value": "019ff719-43bb-7603-b045-e4e7815d6ae3",
       "type": "string",
       "description": "UUID do usuário (obtenha na resposta do registro ou no banco)"
+    },
+    {
+      "key": "gameId",
+      "value": "019ff741-f2d1-76c4-9de8-55d098fd4d32",
+      "type": "string",
+      "description": "UUID do jogo (obtenha na resposta de /api/users/{username}/games)"
     }
   ],
   "item": [
@@ -54,22 +60,22 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "register-completion"]
             },
-            "description": "Finaliza o cadastro do usuário vinculado à PSN: define e-mail, senha (BCrypt) e a role ROLE_USER.\n\nRespostas:\n- 200: cadastro realizado\n- 400: dados inválidos (mensagens em PT-BR)\n- 409: e-mail já em uso"
+            "description": "Finaliza o cadastro do usuário vinculado à PSN: busca o avatar na PSN, define e-mail, senha (BCrypt) e a role ROLE_USER.\n\nRespostas:\n- 201: usuário criado/atualizado com dados (id, psnId, email, avatarUrl, roles)\n- 400: dados inválidos (mensagens em PT-BR)\n- 404: perfil PSN inexistente/privado\n- 409: e-mail já em uso"
           },
           "response": [
             {
-              "name": "Cadastro realizado (200)",
+              "name": "Usuário criado (201)",
               "originalRequest": {
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{}" },
                 "url": { "raw": "{{baseUrl}}/api/auth/register-completion", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register-completion"] }
               },
-              "status": "OK",
-              "code": 200,
+              "status": "Created",
+              "code": 201,
               "_postman_previewlanguage": "json",
               "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
-              "body": "{\n    \"message\": \"Cadastro finalizado com sucesso!\"\n}"
+              "body": "{\n    \"id\": \"019ff741-ed4e-75ec-94e2-c73c4b54354f\",\n    \"psnId\": \"Cout1nh030\",\n    \"email\": \"tester@trophix.com\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\",\n    \"roles\": [\"ROLE_USER\"]\n}"
             },
             {
               "name": "Dados inválidos (400)",
@@ -294,6 +300,127 @@
               "status": "Forbidden",
               "code": 403,
               "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Sincronizar Perfil e Jogos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", "sync"]
+            },
+            "description": "Sincroniza o perfil PSN (accountId, nível, progresso e totais de troféus) e o histórico de jogos do usuário autenticado, persistindo no PostgreSQL (tabelas games e user_games).\n\nRota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nRespostas:\n- 200: Perfil sincronizado com sucesso!\n- 403: sem cookie de autenticação\n- 404: usuário não encontrado / perfil PSN inexistente\n- 502: falha ao consultar a PSN"
+          },
+          "response": [
+            {
+              "name": "Sincronizado com sucesso (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/users/me/sync", "host": ["{{baseUrl}}"], "path": ["api", "users", "me", "sync"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"message\": \"Perfil sincronizado com sucesso!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Perfil do Jogador (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{psnId}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{psnId}}", "profile"]
+            },
+            "description": "Retorna o perfil público do jogador (nível, progresso e totais de troféus). Rota pública, sem necessidade de login.\n\nRespostas:\n- 200: perfil encontrado\n- 404: usuário não encontrado"
+          },
+          "response": [
+            {
+              "name": "Perfil encontrado (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/users/{{psnId}}/profile", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{psnId}}", "profile"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"username\": \"Cout1nh030\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\",\n    \"psnLevel\": 333,\n    \"levelProgress\": 58,\n    \"totalPlatinum\": 55,\n    \"totalGold\": 187,\n    \"totalSilver\": 660,\n    \"totalBronze\": 2469\n}"
+            }
+          ]
+        },
+        {
+          "name": "Jogos do Jogador (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{psnId}}/games?page=0&size=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{psnId}}", "games"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "5" }
+              ]
+            },
+            "description": "Retorna a lista paginada de jogos do jogador, ordenada pela última vez jogada (descendente). Rota pública, sem necessidade de login.\n\nQuery params:\n- page (default 0)\n- size (default 20, máx 100)\n\nRespostas:\n- 200: página com a lista de jogos\n- 404: usuário não encontrado"
+          },
+          "response": [
+            {
+              "name": "Página de jogos (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/users/{{psnId}}/games?page=0&size=5", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{psnId}}", "games"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"content\": [\n        {\n            \"gameId\": \"019ff741-f2b8-7238-9cdd-787a0e577226\",\n            \"name\": \"Demon's Souls\",\n            \"imageUrl\": \"https://psnobj.prod.dl.playstation.net/psnobj/NPWR20277_00/24a85438-84fe-467e-a144-40750a8169a0.png\",\n            \"platform\": \"PS5\",\n            \"progressPercentage\": 2,\n            \"earnedTrophies\": 2,\n            \"totalTrophies\": 37,\n            \"lastPlayedAt\": \"2026-08-12T03:03:44Z\"\n        }\n    ],\n    \"pageable\": { \"pageNumber\": 0, \"pageSize\": 5 },\n    \"totalElements\": 109,\n    \"totalPages\": 22,\n    \"number\": 0,\n    \"size\": 5,\n    \"first\": true,\n    \"last\": false,\n    \"empty\": false\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Sincronizar Troféus de um Jogo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/games/{{gameId}}/sync-trophies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "games", "{{gameId}}", "sync-trophies"]
+            },
+            "description": "Sincroniza o catálogo de troféus do jogo (via sidecar) e registra os troféus conquistados pelo usuário autenticado, persistindo nas tabelas trophies e user_trophies.\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\nO gameId é obtido pela resposta de /api/users/{username}/games.\n\nRespostas:\n- 200: Troféus sincronizados com sucesso!\n- 403: sem cookie de autenticação\n- 404: usuário/jogo não encontrado\n- 400: perfil não sincronizado (accountId ausente)"
+          },
+          "response": [
+            {
+              "name": "Sincronizado com sucesso (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/games/{{gameId}}/sync-trophies", "host": ["{{baseUrl}}"], "path": ["api", "games", "{{gameId}}", "sync-trophies"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"message\": \"Troféus sincronizados com sucesso!\"\n}"
             }
           ]
         }

@@ -137,6 +137,59 @@
       ]
     },
     {
+      "name": "Troféus Conquistados do Jogador",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus-conquistados/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus-conquistados", "{{accountId}}"]
+        },
+        "description": "Retorna o status de conquista (e a data) de cada troféu do jogo para um jogador específico.\nO accountId é obtido pela resposta do endpoint Resumo de Nível e Troféus do Jogador.\n\nRespostas:\n- 200: array com idTrofeu, conquistado (boolean) e conquistadoEm (ISO ou null)\n- 404: jogo ou usuário inexistente na PSN\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Conquistados encontrados (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus-conquistados/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus-conquistados", "{{accountId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "[\n    {\n        \"idTrofeu\": 0,\n        \"conquistado\": true,\n        \"conquistadoEm\": \"2026-08-04T10:23:58Z\"\n    },\n    {\n        \"idTrofeu\": 1,\n        \"conquistado\": false,\n        \"conquistadoEm\": null\n    }\n]"
+        },
+        {
+          "name": "Jogo ou usuário inexistente (404)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus-conquistados/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus-conquistados", "{{accountId}}"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"Jogo ou usuario nao encontrado na PSN\"\n}"
+        }
+      ]
+    },
+    {
       "name": "Resumo de Nível e Troféus do Jogador",
       "request": {
         "method": "GET",
