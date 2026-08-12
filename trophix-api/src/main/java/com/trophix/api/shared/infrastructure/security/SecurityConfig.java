@@ -66,6 +66,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/link-request", "/api/users/link-validate").permitAll()
                         // Perfis públicos: visíveis sem autenticação
                         .requestMatchers(HttpMethod.GET, "/api/users/*/profile", "/api/users/*/games").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/trophies/*/guides").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/games/np/*/guides").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/games/*/trophies").permitAll()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação

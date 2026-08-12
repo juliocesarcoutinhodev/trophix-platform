@@ -12,6 +12,10 @@ trophix:
     cookie-secure: true
   cors:
     allowed-origin: ${TROPHIX_CORS_ORIGIN}
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    psn-id: ${ADMIN_PSN_ID:}
 
 logging:
   level:

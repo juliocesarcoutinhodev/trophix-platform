@@ -52,6 +52,12 @@ public class TrophyJpaAdapter implements TrophyRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<Trophy> findById(UUID trophyId) {
+        return springDataRepository.findById(trophyId).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<Trophy> findByGameIdAndPsnTrophyId(UUID gameId, Integer psnTrophyId) {
         return springDataRepository.findByGameIdAndPsnTrophyId(gameId, psnTrophyId).map(mapper::toDomain);
     }

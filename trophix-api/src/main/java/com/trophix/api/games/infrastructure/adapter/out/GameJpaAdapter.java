@@ -26,4 +26,9 @@ public class GameJpaAdapter implements GameRepositoryPort {
     public Optional<Game> findById(UUID gameId) {
         return springDataRepository.findById(gameId).map(mapper::toDomain);
     }
+
+    @Override
+    public Optional<Game> findByNpCommunicationId(String npCommunicationId) {
+        return springDataRepository.findByNpCommunicationId(npCommunicationId).map(mapper::toDomain);
+    }
 }

@@ -16,5 +16,7 @@ public interface TrophyRepositoryPort {
 
     List<Trophy> findByGameId(UUID gameId);
 
+    Optional<Trophy> findById(UUID trophyId);
+
     Optional<Trophy> findByGameIdAndPsnTrophyId(UUID gameId, Integer psnTrophyId);
 }

@@ -14,4 +14,6 @@ public interface GameRepositoryPort {
     Game saveIfNotExists(Game game);
 
     Optional<Game> findById(UUID gameId);
+
+    Optional<Game> findByNpCommunicationId(String npCommunicationId);
 }

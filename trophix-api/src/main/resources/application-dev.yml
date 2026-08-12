@@ -14,6 +14,10 @@ spring:
 trophix:
   jwt:
     cookie-secure: false
+  admin:
+    email: admin@trophix.com
+    password: admin123
+    psn-id: TrophixAdmin
 
 logging:
   level:
