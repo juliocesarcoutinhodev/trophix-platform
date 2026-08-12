@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: trophix-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-trophix}
+      POSTGRES_USER: ${POSTGRES_USER:-trophix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trophix}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trophix} -d ${POSTGRES_DB:-trophix}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  psn-sidecar:
+    build: ./trophix-psn-sidecar
+    container_name: trophix-psn-sidecar
+    environment:
+      NPSSO_TOKEN: ${NPSSO_TOKEN:?Defina NPSSO_TOKEN no arquivo .env da raiz}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

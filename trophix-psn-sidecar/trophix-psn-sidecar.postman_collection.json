@@ -1,0 +1,246 @@
+{
+  "info": {
+    "name": "Trophix PSN Sidecar",
+    "description": "Coleção para testar o microsserviço sidecar Trophix-PSN (Node.js/Express).\n\nPré-requisito: sidecar rodando com `npm start` e NPSSO configurado no .env.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "psnId",
+      "value": "Cout1nh030",
+      "type": "string",
+      "description": "Online ID de um usuário PSN (público)"
+    },
+    {
+      "key": "npCommunicationId",
+      "value": "PPSA01234",
+      "type": "string",
+      "description": "ID de comunicação do jogo. PS5 começa com PPSA, PS4 com CUSA, PS3 com NPUA/NPJB, PS Vita com PCS"
+    },
+    {
+      "key": "accountId",
+      "value": "962157895908076652",
+      "type": "string",
+      "description": "ID numérico da conta PSN. Obtenha pela resposta do endpoint Resumo de Nível e Troféus do Jogador"
+    }
+  ],
+  "item": [
+    {
+      "name": "Validar Perfil de Usuário",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/perfil/{{psnId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "perfil", "{{psnId}}"]
+        },
+        "description": "Retorna o perfil público do usuário: psnId, aboutMe e avatarUrl.\n\nRespostas:\n- 200: perfil encontrado\n- 404: perfil privado ou inexistente\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Perfil encontrado (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/{{psnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "perfil", "{{psnId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"psnId\": \"julio\",\n    \"aboutMe\": \"Sou um gamer\",\n    \"avatarUrl\": \"https://psncst-ei.secure.playstation.com/avatar/THM/60b.png\"\n}"
+        },
+        {
+          "name": "Perfil privado ou inexistente (404)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/perfil/{{psnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "perfil", "{{psnId}}"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"Perfil nao encontrado ou privado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Lista de Troféus de um Jogo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus"]
+        },
+        "description": "Retorna a lista base de troféus do jogo (grupo all, inclui DLCs).\nO npCommunicationId é obtido de sites como https://psnprofiles.com ou np.playstation.com.\n\nRespostas:\n- 200: array de troféus\n- 404: jogo inexistente na PSN\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Troféus encontrados (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "[\n    {\n        \"idTrofeu\": 1,\n        \"nome\": \"Primeiro Troféu\",\n        \"descricao\": \"Descrição do troféu\",\n        \"tipo\": \"Gold\",\n        \"iconeUrl\": \"https://psn-trophies.gtimg.jp/trophies/PPSA01234_00/trophy01.png\"\n    },\n    {\n        \"idTrofeu\": 2,\n        \"nome\": \"Segundo Troféu\",\n        \"descricao\": \"Descrição do troféu\",\n        \"tipo\": \"Silver\",\n        \"iconeUrl\": \"https://psn-trophies.gtimg.jp/trophies/PPSA01234_00/trophy02.png\"\n    }\n]"
+        },
+        {
+          "name": "Jogo inexistente (404)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/trofeus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "trofeus"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"Jogo nao encontrado na PSN\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Resumo de Nível e Troféus do Jogador",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/resumo/{{psnId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "resumo", "{{psnId}}"]
+        },
+        "description": "Retorna o resumo do jogador: accountId, nível, progresso para o próximo nível e contagem de troféus por tipo.\n\nRespostas:\n- 200: resumo encontrado\n- 404: perfil privado ou inexistente\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Resumo encontrado (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resumo/{{psnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resumo", "{{psnId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"accountId\": \"962157895908076652\",\n    \"nivel\": 458,\n    \"progresso\": 65,\n    \"trofeus\": {\n        \"bronze\": 1234,\n        \"prata\": 567,\n        \"ouro\": 89,\n        \"platina\": 12\n    }\n}"
+        },
+        {
+          "name": "Perfil privado ou inexistente (404)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resumo/{{psnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resumo", "{{psnId}}"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"Perfil nao encontrado ou privado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Jogos Jogados pelo Usuário",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/jogos-usuario/{{accountId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "jogos-usuario", "{{accountId}}"]
+        },
+        "description": "Retorna o histórico de jogos do usuário, com progresso e troféus de cada título.\nDica: pegue o accountId pela resposta do endpoint Resumo de Nível e Troféus do Jogador.\n\nRespostas:\n- 200: array de jogos\n- 404: conta inexistente ou privada\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Jogos encontrados (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos-usuario/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos-usuario", "{{accountId}}"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "[\n    {\n        \"npCommunicationId\": \"NPWR04828_00\",\n        \"nome\": \"The Witcher 3: Wild Hunt\",\n        \"imagemUrl\": \"https://psn-trophies.gtimg.jp/trophies/NPWR04828_00/tb/icon-400.png\",\n        \"plataforma\": [\"PS4\"],\n        \"progresso\": 100,\n        \"trofeusConquistados\": 78,\n        \"trofeusTotais\": 78,\n        \"ultimaJogadaEm\": \"2023-05-14T21:00:00Z\",\n        \"trofeus\": {\n            \"bronze\": 52,\n            \"prata\": 18,\n            \"ouro\": 4,\n            \"platina\": 1\n        }\n    }\n]"
+        },
+        {
+          "name": "Conta inexistente ou privada (404)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos-usuario/{{accountId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos-usuario", "{{accountId}}"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"Conta nao encontrada ou privada\"\n}"
+        }
+      ]
+    }
+  ]
+}

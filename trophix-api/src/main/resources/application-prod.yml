@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+trophix:
+  jwt:
+    cookie-secure: true
+  cors:
+    allowed-origin: ${TROPHIX_CORS_ORIGIN}
+
+logging:
+  level:
+    root: WARN
+    com.trophix.api: WARN
+  structured:
+    format:
+      name: ecs
+  file:
+    name: logs/trophix-api.log
+
+server:
+  shutdown: graceful

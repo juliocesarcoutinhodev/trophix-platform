@@ -1,0 +1,303 @@
+{
+  "info": {
+    "name": "Trophix API",
+    "description": "Coleção para testar a Trophix API (Spring Boot 4 / Java 25).\n\nPré-requisito: API rodando em `mvn spring-boot:run` (porta 8080) e Postgres via docker-compose.\n\nFluxo de autenticação: o login devolve o JWT em um cookie HttpOnly (não no corpo). O Postman armazena o cookie automaticamente no Cookie Jar de `localhost:8080`, então as rotas protegidas (ex: GET /api/users/:userId) enviam o cookie sozinhas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "psnId",
+      "value": "Cout1nh030",
+      "type": "string",
+      "description": "Online ID da conta PSN a ser vinculada"
+    },
+    {
+      "key": "email",
+      "value": "tester@trophix.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "senhaForte123",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "019ff719-43bb-7603-b045-e4e7815d6ae3",
+      "type": "string",
+      "description": "UUID do usuário (obtenha na resposta do registro ou no banco)"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Finalizar Cadastro",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"psnId\": \"{{psnId}}\",\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register-completion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register-completion"]
+            },
+            "description": "Finaliza o cadastro do usuário vinculado à PSN: define e-mail, senha (BCrypt) e a role ROLE_USER.\n\nRespostas:\n- 200: cadastro realizado\n- 400: dados inválidos (mensagens em PT-BR)\n- 409: e-mail já em uso"
+          },
+          "response": [
+            {
+              "name": "Cadastro realizado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/register-completion", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register-completion"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"message\": \"Cadastro finalizado com sucesso!\"\n}"
+            },
+            {
+              "name": "Dados inválidos (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/register-completion", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register-completion"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"timestamp\": \"2026-08-12T17:52:57.853Z\",\n    \"status\": 400,\n    \"message\": \"Dados invalidos na requisicao: email: Informe um e-mail válido; password: Informe a senha\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Autentica e devolve o JWT em um cookie HttpOnly (SameSite=Strict), sem corpo na resposta.\nO Postman guarda o cookie no Cookie Jar e o envia automaticamente nas próximas requisições a localhost:8080.\n\nRespostas:\n- 200: cookie trophix_jwt definido\n- 400: Credenciais inválidas"
+          },
+          "response": [
+            {
+              "name": "Login OK (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Set-Cookie", "value": "trophix_jwt=<token_jwt_gerado_no_login>; Path=/; Max-Age=86400; HttpOnly; SameSite=Strict" }
+              ],
+              "body": ""
+            },
+            {
+              "name": "Credenciais inválidas (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"timestamp\": \"2026-08-12T17:50:56.215Z\",\n    \"status\": 400,\n    \"message\": \"Credenciais inválidas.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Invalida o cookie definindo Max-Age=0.\n\nResposta: 200 sem corpo."
+          },
+          "response": [
+            {
+              "name": "Logout OK (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Set-Cookie", "value": "trophix_jwt=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict" }
+              ],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Solicitar Vínculo PSN",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"psnId\": \"{{psnId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/link-request",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "link-request"]
+            },
+            "description": "Gera um token de verificação (TRFX-XXXX, válido por 15 minutos) que deve ser colocado no \"About Me\" do perfil PSN do jogador.\n\nRespostas:\n- 200: token gerado\n- 400: psnId em branco"
+          },
+          "response": [
+            {
+              "name": "Token gerado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/users/link-request", "host": ["{{baseUrl}}"], "path": ["api", "users", "link-request"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"token\": \"TRFX-9640\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validar Vínculo PSN",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"psnId\": \"{{psnId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/link-validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "link-validate"]
+            },
+            "description": "Confere se o token está no \"About Me\" do perfil PSN (via sidecar) e, se sim, aprova e consome o ticket.\n\nRespostas:\n- 200: Conta vinculada com sucesso!\n- 400: token não encontrado no perfil / token expirado\n- 404: solicitação não encontrada\n- 404: usuário inexistente na PSN"
+          },
+          "response": [
+            {
+              "name": "Vinculado com sucesso (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/users/link-validate", "host": ["{{baseUrl}}"], "path": ["api", "users", "link-validate"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"psnId\": \"Cout1nh030\",\n    \"message\": \"Conta vinculada com sucesso!\"\n}"
+            },
+            {
+              "name": "Token não encontrado (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": { "raw": "{{baseUrl}}/api/users/link-validate", "host": ["{{baseUrl}}"], "path": ["api", "users", "link-validate"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"timestamp\": \"2026-08-12T15:43:18.591Z\",\n    \"status\": 400,\n    \"message\": \"Token de verificacao nao encontrado no perfil publico da PSN.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar Usuário",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            },
+            "description": "Retorna os dados do usuário. Rota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nRespostas:\n- 200: usuário encontrado\n- 401/403: sem cookie de autenticação\n- 404: usuário inexistente"
+          },
+          "response": [
+            {
+              "name": "Usuário encontrado (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+              "body": "{\n    \"id\": \"019ff719-43bb-7603-b045-e4e7815d6ae3\",\n    \"username\": \"Cout1nh030\",\n    \"email\": \"tester@trophix.com\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\"\n}"
+            },
+            {
+              "name": "Não autenticado (403)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "body": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

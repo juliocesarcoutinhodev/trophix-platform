@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: trophix-api
+  profiles:
+    active: dev
+  config:
+    import: "optional:file:.env[.properties]"
+  jpa:
+    open-in-view: false
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+
+trophix:
+  sidecar:
+    base-url: http://localhost:3000
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: PT24H
+  cors:
+    allowed-origin: http://localhost:4200

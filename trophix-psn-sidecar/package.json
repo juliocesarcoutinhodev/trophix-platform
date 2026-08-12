@@ -1,0 +1,19 @@
+{
+  "name": "trophix-psn-sidecar",
+  "version": "1.0.0",
+  "description": "Microsserviço sidecar (Node.js/Express) que faz a ponte entre a PSN e o backend Java Spring Boot do Trophix.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "psn-api": "^2.18.0"
+  }
+}

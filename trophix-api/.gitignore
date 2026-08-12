@@ -1,0 +1,11 @@
+target/
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Segredos: o .env JAMAIS deve ir para o versionamento
+.env
+.env.*
+!.env.example

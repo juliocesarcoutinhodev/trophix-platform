@@ -1,0 +1,25 @@
+package com.trophix.api.auth.infrastructure.adapter.out;
+
+import com.trophix.api.shared.infrastructure.persistence.UuidV7Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.UUID;
+
+@Entity
+@Table(name = "roles")
+@Getter
+@Setter
+public class RoleJpaEntity {
+
+    @Id
+    @UuidV7Id
+    private UUID id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String name;
+}

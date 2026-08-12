@@ -1,0 +1,36 @@
+package com.trophix.api.games.infrastructure.adapter.out;
+
+import com.trophix.api.games.application.ports.out.UserGameRepositoryPort;
+import com.trophix.api.games.model.UserGame;
+import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
+@RequiredArgsConstructor
+public class UserGameJpaAdapter implements UserGameRepositoryPort {
+
+    private final UserGameSpringDataRepository springDataRepository;
+    private final UserSpringDataRepository userSpringDataRepository;
+    private final GameSpringDataRepository gameSpringDataRepository;
+
+    @Override
+    @Transactional
+    public void saveOrUpdate(UserGame userGame) {
+        UserGameEntity entity = springDataRepository
+                .findByUserIdAndGameId(userGame.userId(), userGame.gameId())
+                .orElseGet(() -> {
+                    UserGameEntity created = new UserGameEntity();
+                    created.setUser(userSpringDataRepository.getReferenceById(userGame.userId()));
+                    created.setGame(gameSpringDataRepository.getReferenceById(userGame.gameId()));
+                    return created;
+                });
+
+        entity.setProgressPercentage(userGame.progressPercentage());
+        entity.setEarnedTrophies(userGame.earnedTrophies());
+        entity.setLastPlayedAt(userGame.lastPlayedAt());
+
+        springDataRepository.save(entity);
+    }
+}

@@ -1,0 +1,28 @@
+package com.trophix.api.auth.infrastructure.adapter.out;
+
+import com.trophix.api.auth.application.ports.out.PasswordEncoderPort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+/**
+ * Adapter that wraps Spring Security's BCryptPasswordEncoder behind
+ * the application-layer PasswordEncoderPort, keeping use cases free
+ * of Spring Security dependencies.
+ */
+@Component
+@RequiredArgsConstructor
+public class BcryptPasswordEncoderAdapter implements PasswordEncoderPort {
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public String encode(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    @Override
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+}
