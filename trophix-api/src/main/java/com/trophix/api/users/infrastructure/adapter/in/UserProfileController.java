@@ -37,8 +37,9 @@ public class UserProfileController {
 
     @PostMapping("/me/sync")
     public ResponseEntity<SyncProfileResponse> sync(@AuthenticationPrincipal String userId) {
-        String message = syncUserProfileUseCase.sync(UUID.fromString(userId));
-        return ResponseEntity.ok(new SyncProfileResponse(message));
+        syncUserProfileUseCase.requestSync(UUID.fromString(userId));
+        return ResponseEntity.accepted().body(new SyncProfileResponse(
+                "Sincronização iniciada. Os dados serão atualizados em segundo plano."));
     }
 
     @GetMapping("/{username}/profile")

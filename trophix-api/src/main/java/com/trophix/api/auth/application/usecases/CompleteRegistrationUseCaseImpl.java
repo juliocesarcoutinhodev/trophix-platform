@@ -55,10 +55,11 @@ public class CompleteRegistrationUseCaseImpl implements CompleteRegistrationUseC
                         Set.of(userRole),
                         existing.accountId(), existing.psnLevel(), existing.levelProgress(),
                         existing.totalPlatinum(), existing.totalGold(),
-                        existing.totalSilver(), existing.totalBronze())
+                        existing.totalSilver(), existing.totalBronze(),
+                        existing.lastSyncedAt())
                 : new User(UuidV7.generate(), command.psnId(), command.email(),
                         hashedPassword, avatarUrl, Set.of(userRole),
-                        null, null, null, null, null, null, null);
+                        null, null, null, null, null, null, null, null);
 
         User savedUser = userRepository.save(userToSave);
         log.info("Cadastro finalizado para psnId={} email={}", command.psnId(), command.email());

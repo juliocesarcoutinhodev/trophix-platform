@@ -1,7 +1,12 @@
 package com.trophix.api.users.infrastructure.adapter.out;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,4 +15,11 @@ public interface UserSpringDataRepository extends JpaRepository<UserJpaEntity, U
     Optional<UserJpaEntity> findByUsername(String username);
 
     Optional<UserJpaEntity> findByEmail(String email);
+
+    @Modifying
+    @Query("update UserJpaEntity u set u.lastSyncedAt = :when where u.id = :id")
+    void updateLastSyncedAt(@Param("id") UUID id, @Param("when") Instant when);
+
+    @Query("select u.id from UserJpaEntity u where u.lastSyncedAt is not null and u.lastSyncedAt >= :since")
+    List<UUID> findActiveUserIds(@Param("since") Instant since);
 }

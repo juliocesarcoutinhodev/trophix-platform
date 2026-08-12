@@ -56,6 +56,8 @@ public class UserJpaEntity {
 
     private Integer totalBronze;
 
+    private Instant lastSyncedAt;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

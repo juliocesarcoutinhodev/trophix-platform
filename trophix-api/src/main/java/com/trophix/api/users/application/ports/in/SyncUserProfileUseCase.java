@@ -5,10 +5,12 @@ import java.util.UUID;
 public interface SyncUserProfileUseCase {
 
     /**
-     * Synchronizes the user's PSN profile summary and game history.
+     * Validates the manual sync cooldown, stamps last_synced_at and
+     * dispatches the heavy synchronization to the background. Returns
+     * immediately (HTTP 202).
      *
-     * @param userId the authenticated user's id
-     * @return success message in Brazilian Portuguese
+     * @throws com.trophix.api.shared.exception.SyncCooldownException
+     *         when the last sync happened less than the cooldown ago
      */
-    String sync(UUID userId);
+    void requestSync(UUID userId);
 }

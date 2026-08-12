@@ -29,7 +29,8 @@ public class UserMapper {
                 entity.getTotalPlatinum(),
                 entity.getTotalGold(),
                 entity.getTotalSilver(),
-                entity.getTotalBronze());
+                entity.getTotalBronze(),
+                entity.getLastSyncedAt());
     }
 
     /**
@@ -51,6 +52,7 @@ public class UserMapper {
         entity.setTotalGold(user.totalGold());
         entity.setTotalSilver(user.totalSilver());
         entity.setTotalBronze(user.totalBronze());
+        entity.setLastSyncedAt(user.lastSyncedAt());
         return entity;
     }
 

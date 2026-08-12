@@ -1,22 +1,17 @@
 package com.trophix.api.users.application.usecases;
 
-import com.trophix.api.games.application.ports.out.GameRepositoryPort;
-import com.trophix.api.games.application.ports.out.UserGameRepositoryPort;
-import com.trophix.api.games.model.Game;
-import com.trophix.api.games.model.UserGame;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
+import com.trophix.api.shared.exception.SyncCooldownException;
+import com.trophix.api.users.application.async.UserProfileSyncExecutor;
 import com.trophix.api.users.application.ports.in.SyncUserProfileUseCase;
-import com.trophix.api.users.application.ports.out.PsnSyncPort;
 import com.trophix.api.users.application.ports.out.UserRepository;
-import com.trophix.api.users.model.PsnProfileSummary;
-import com.trophix.api.users.model.PsnUserGame;
 import com.trophix.api.users.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Component
@@ -24,41 +19,42 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SyncUserProfileUseCaseImpl implements SyncUserProfileUseCase {
 
+    private static final Duration SYNC_COOLDOWN = Duration.ofMinutes(15);
+
     private final UserRepository userRepository;
-    private final PsnSyncPort psnSync;
-    private final GameRepositoryPort gameRepository;
-    private final UserGameRepositoryPort userGameRepository;
+    private final UserProfileSyncExecutor syncExecutor;
 
     @Override
-    @Transactional
-    public String sync(UUID userId) {
+    public void requestSync(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        PsnProfileSummary summary = psnSync.fetchProfileSummary(user.username());
+        assertNotInCooldown(user);
 
-        String accountId = user.accountId() != null ? user.accountId() : summary.accountId();
-        User updatedUser = new User(
-                user.id(), user.username(), user.email(), user.password(), user.avatarUrl(),
-                user.roles(),
-                accountId,
-                summary.level(), summary.progress(),
-                summary.platinum(), summary.gold(), summary.silver(), summary.bronze());
-        userRepository.save(updatedUser);
+        userRepository.updateLastSyncedAt(userId, Instant.now());
+        syncExecutor.syncProfileAsync(userId);
 
-        List<PsnUserGame> games = psnSync.fetchUserGames(accountId);
+        log.info("Sincronização agendada para userId={}", userId);
+    }
 
-        for (PsnUserGame game : games) {
-            Game persistedGame = gameRepository.saveIfNotExists(Game.create(
-                    game.npCommunicationId(), game.name(), game.imageUrl(),
-                    game.platform(), game.totalTrophies()));
-
-            userGameRepository.saveOrUpdate(UserGame.create(
-                    userId, persistedGame.id(),
-                    game.progress(), game.earnedTrophies(), game.lastPlayedAt()));
+    private void assertNotInCooldown(User user) {
+        Instant lastSyncedAt = user.lastSyncedAt();
+        if (lastSyncedAt == null) {
+            return;
         }
 
-        log.info("Perfil sincronizado para userId={} jogosProcessados={}", userId, games.size());
-        return "Perfil sincronizado com sucesso!";
+        Duration elapsed = Duration.between(lastSyncedAt, Instant.now());
+        if (elapsed.compareTo(SYNC_COOLDOWN) >= 0) {
+            return;
+        }
+
+        long secondsLeft = SYNC_COOLDOWN.minus(elapsed).getSeconds();
+        long minutesRemaining = Math.max(1, (secondsLeft + 59) / 60);
+        String minutesLabel = minutesRemaining > 1 ? "minutos." : "minuto.";
+
+        throw new SyncCooldownException(
+                "Você sincronizou seus dados recentemente. Tente novamente em "
+                        + minutesRemaining + " " + minutesLabel,
+                minutesRemaining);
     }
 }

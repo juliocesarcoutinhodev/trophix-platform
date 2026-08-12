@@ -60,6 +60,12 @@ public class GlobalExceptionHandler {
                         "Acesso negado. Você não tem permissão para esta ação."));
     }
 
+    @ExceptionHandler(SyncCooldownException.class)
+    public ResponseEntity<ErrorResponse> handleSyncCooldown(SyncCooldownException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ErrorResponse.of(HttpStatus.TOO_MANY_REQUESTS.value(), ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()

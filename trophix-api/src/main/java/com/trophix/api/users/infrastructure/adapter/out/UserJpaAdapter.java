@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -53,6 +55,7 @@ public class UserJpaAdapter implements UserRepository {
                     existing.setTotalGold(user.totalGold());
                     existing.setTotalSilver(user.totalSilver());
                     existing.setTotalBronze(user.totalBronze());
+                    existing.setLastSyncedAt(user.lastSyncedAt());
                     setManagedRoles(existing, user.roles());
                     return existing;
                 })
@@ -64,6 +67,18 @@ public class UserJpaAdapter implements UserRepository {
                 });
 
         return mapper.toDomain(springDataRepository.save(entity));
+    }
+
+    @Override
+    @Transactional
+    public void updateLastSyncedAt(UUID userId, Instant lastSyncedAt) {
+        springDataRepository.updateLastSyncedAt(userId, lastSyncedAt);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UUID> findActiveUserIds(Instant since) {
+        return springDataRepository.findActiveUserIds(since);
     }
 
     /**

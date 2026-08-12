@@ -72,7 +72,7 @@ public class AdminUserDataInitializer implements ApplicationRunner {
                 passwordEncoder.encode(adminPassword),
                 null,
                 Set.of(adminRole),
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null);
 
         userRepository.save(admin);
         log.info("Usuário administrador criado: {}", adminEmail);
