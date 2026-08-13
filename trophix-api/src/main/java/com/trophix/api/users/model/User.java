@@ -3,6 +3,7 @@ package com.trophix.api.users.model;
 import com.trophix.api.auth.model.Role;
 import com.trophix.api.shared.domain.UuidV7;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -42,5 +43,17 @@ public record User(
     public static User createFromPsn(String psnId, String avatarUrl) {
         return new User(UuidV7.generate(), psnId, null, null, avatarUrl, Set.of(),
                 null, null, null, null, null, null, null, null);
+    }
+
+    /** Whether the last sync happened within the given cooldown window. */
+    public boolean isInSyncCooldown(Duration cooldown, Instant now) {
+        return lastSyncedAt != null
+                && Duration.between(lastSyncedAt, now).compareTo(cooldown) < 0;
+    }
+
+    /** Whole minutes remaining in the cooldown window (min 1). */
+    public long syncCooldownMinutesLeft(Duration cooldown, Instant now) {
+        long secondsLeft = cooldown.minus(Duration.between(lastSyncedAt, now)).getSeconds();
+        return Math.max(1, (secondsLeft + 59) / 60);
     }
 }

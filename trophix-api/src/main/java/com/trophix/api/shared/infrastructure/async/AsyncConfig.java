@@ -1,30 +1,13 @@
 package com.trophix.api.shared.infrastructure.async;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import java.util.concurrent.Executor;
 
 /**
- * Enables async processing and scheduling with a dedicated bounded pool
- * for the PSN synchronization tasks.
+ * Enables scheduling for the daily PSN sync. Asynchronous processing now
+ * runs through the RabbitMQ sync queue consumer instead of an in-memory pool.
  */
 @Configuration
-@EnableAsync
 @EnableScheduling
 public class AsyncConfig {
-
-    @Bean("syncTaskExecutor")
-    public Executor syncTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("sync-");
-        executor.initialize();
-        return executor;
-    }
 }

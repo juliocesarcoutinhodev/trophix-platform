@@ -1,9 +1,9 @@
 package com.trophix.api.trophies.infrastructure.adapter.in;
 
 import com.trophix.api.games.application.ports.out.GameRepositoryPort;
+import com.trophix.api.shared.application.ports.out.SyncJobPublisher;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
 import com.trophix.api.trophies.application.ports.in.GetMyTrophiesUseCase;
-import com.trophix.api.trophies.application.ports.in.SyncGameTrophiesUseCase;
 import com.trophix.api.trophies.application.ports.out.TrophyRepositoryPort;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.MessageResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyResponse;
@@ -26,18 +26,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GameTrophyController {
 
-    private final SyncGameTrophiesUseCase syncGameTrophiesUseCase;
     private final TrophyRepositoryPort trophyRepository;
     private final GameRepositoryPort gameRepository;
     private final GetMyTrophiesUseCase getMyTrophiesUseCase;
+    private final SyncJobPublisher syncJobPublisher;
     private final TrophyWebMapper trophyWebMapper;
 
     @PostMapping("/{gameId}/sync-trophies")
     public ResponseEntity<MessageResponse> syncTrophies(
             @AuthenticationPrincipal String userId,
             @PathVariable UUID gameId) {
-        String message = syncGameTrophiesUseCase.sync(UUID.fromString(userId), gameId);
-        return ResponseEntity.ok(new MessageResponse(message));
+        syncJobPublisher.publishTrophySync(UUID.fromString(userId), gameId);
+        return ResponseEntity.accepted().body(new MessageResponse(
+                "Sincronização de troféus iniciada. Os dados serão atualizados em segundo plano."));
     }
 
     @GetMapping("/{gameId}/trophies")

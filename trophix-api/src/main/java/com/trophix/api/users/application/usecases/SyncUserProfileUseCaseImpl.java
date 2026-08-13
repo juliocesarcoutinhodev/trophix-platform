@@ -1,8 +1,8 @@
 package com.trophix.api.users.application.usecases;
 
+import com.trophix.api.shared.application.ports.out.SyncJobPublisher;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
 import com.trophix.api.shared.exception.SyncCooldownException;
-import com.trophix.api.users.application.async.UserProfileSyncExecutor;
 import com.trophix.api.users.application.ports.in.SyncUserProfileUseCase;
 import com.trophix.api.users.application.ports.out.UserRepository;
 import com.trophix.api.users.model.User;
@@ -22,7 +22,7 @@ public class SyncUserProfileUseCaseImpl implements SyncUserProfileUseCase {
     private static final Duration SYNC_COOLDOWN = Duration.ofMinutes(15);
 
     private final UserRepository userRepository;
-    private final UserProfileSyncExecutor syncExecutor;
+    private final SyncJobPublisher syncJobPublisher;
 
     @Override
     public void requestSync(UUID userId) {
@@ -31,25 +31,17 @@ public class SyncUserProfileUseCaseImpl implements SyncUserProfileUseCase {
 
         assertNotInCooldown(user);
 
-        userRepository.updateLastSyncedAt(userId, Instant.now());
-        syncExecutor.syncProfileAsync(userId);
+        syncJobPublisher.publishProfileSync(userId);
 
-        log.info("Sincronização agendada para userId={}", userId);
+        log.info("Job de sincronização publicado para userId={}", userId);
     }
 
     private void assertNotInCooldown(User user) {
-        Instant lastSyncedAt = user.lastSyncedAt();
-        if (lastSyncedAt == null) {
+        if (!user.isInSyncCooldown(SYNC_COOLDOWN, Instant.now())) {
             return;
         }
 
-        Duration elapsed = Duration.between(lastSyncedAt, Instant.now());
-        if (elapsed.compareTo(SYNC_COOLDOWN) >= 0) {
-            return;
-        }
-
-        long secondsLeft = SYNC_COOLDOWN.minus(elapsed).getSeconds();
-        long minutesRemaining = Math.max(1, (secondsLeft + 59) / 60);
+        long minutesRemaining = user.syncCooldownMinutesLeft(SYNC_COOLDOWN, Instant.now());
         String minutesLabel = minutesRemaining > 1 ? "minutos." : "minuto.";
 
         throw new SyncCooldownException(

@@ -44,7 +44,10 @@ docker compose up -d --build
 | Serviço       | Container           | Porta            | Descrição |
 | ------------- | ------------------- | ---------------- | --------- |
 | `postgres`    | `trophix-postgres`  | `localhost:5432` | PostgreSQL 18, volume `postgres-data` |
+| `rabbitmq`    | `trophix-rabbitmq`  | `5672` (AMQP) / `15672` (console) | Fila de sincronização assíncrona |
 | `psn-sidecar` | `trophix-psn-sidecar` | `localhost:3000` | Autentica na PSN e expõe os dados do jogador |
+
+Console do RabbitMQ: `http://localhost:15672` (`trophix`/`trophix`, configurável por `RABBITMQ_USER`/`RABBITMQ_PASSWORD`).
 
 O sidecar faz **cache em memória** das respostas de troféus (TTL configurável via `TROFEUS_CACHE_TTL_MS`, default 10 min), então a PSN não é consultada a cada requisição — o que deixa barato o sync automático da página de detalhes do jogo.
 
@@ -88,6 +91,23 @@ A API consulta o sidecar via `RestClient` com **timeouts** e um **circuit breake
 
 Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto o circuito está fechado, 503 quando ele abre) em vez de pendurar threads; os endpoints de leitura continuam servindo os dados já persistidos no Postgres. 404s legítimos (ex.: usuário inexistente na PSN) não abrem o circuito.
 
+## Sincronização assíncrona (fila RabbitMQ)
+
+Os syncs de perfil/jogos (on-demand e diário) e de troféus por jogo são **assíncronos via RabbitMQ**, desacoplando a entrada HTTP do processamento pesado:
+
+```
+Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix.sync.queue) ──► @RabbitListener (worker Spring)
+                                                                                        │
+                                                                                        ▼
+                                                    use cases de sync ──► sidecar ──► PSN ──► Postgres
+```
+
+- `POST /api/users/me/sync` e `POST /api/games/{gameId}/sync-trophies` respondem `202` e apenas **publicam um job** (`SyncJob`: `PROFILE_SYNC` ou `TROPHY_SYNC`).
+- O worker (`shared/infrastructure/amqp/SyncJobConsumer`) consome a fila (prefetch 1, 2-4 consumers) e executa os mesmos use cases existentes.
+- **Cooldown de 15 min validado no consumer** (autoritativo) — o scheduler publica livremente e jobs em cooldown são ignorados; o HTTP também valida para responder 429 ao usuário.
+- **Retry + DLQ**: falhas transitórias do sidecar (`PsnServiceException`/circuito aberto) são reentregues até 3 vezes com backoff; erros permanentes (usuário/jogo inexistente, sem `accountId`) são logados e descartados; jobs esgotados caem na `trophix.sync.queue.dlq`.
+- **Idempotência**: os upserts são seguros de reprocessar; `lastSyncedAt` é atualizado somente após o sync bem-sucedido.
+
 ## Variáveis de ambiente
 
 ### `.env` da raiz (docker-compose)
@@ -99,6 +119,7 @@ Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto
 | `POSTGRES_PASSWORD` | não (default `trophix`) | Senha do banco |
 | `NPSSO_TOKEN`     | **sim**     | Token PSN de 64 caracteres |
 | `TROFEUS_CACHE_TTL_MS` | não (default `600000`) | Cache do sidecar p/ troféus (ms) |
+| `RABBITMQ_USER` / `RABBITMQ_PASSWORD` | não (default `trophix`/`trophix`) | Credenciais do RabbitMQ |
 
 > NPSSO: obtenha em `https://ca.account.sony.com/api/v1/ssocookie` logado na PSN. Vale como senha e expira (~60 dias); o sidecar renova access/refresh sozinho depois do boot.
 
@@ -136,7 +157,7 @@ Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto
 | ------ | ---- | ------ | --------- |
 | POST | `/api/users/link-request` | público | Gera token `TRFX-XXXX` (15 min) p/ pôr no About Me |
 | POST | `/api/users/link-validate` | público | Valida o token no perfil e consome o ticket |
-| POST | `/api/users/me/sync` | autenticado | Sincroniza nível/totais + jogos (assíncrono, via sidecar) |
+| POST | `/api/users/me/sync` | autenticado | Sincroniza nível/totais + jogos (202, assíncrono via fila) |
 | GET | `/api/users/me/profile` | autenticado | Perfil do usuário logado |
 | GET | `/api/users/me/games` | autenticado | Jogos do usuário logado (paginado) |
 | GET | `/api/users/{username}/profile` | público | Perfil público (nível, progresso, totais) |
@@ -146,7 +167,7 @@ Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto
 ### Games / Troféus
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
-| POST | `/api/games/{gameId}/sync-trophies` | autenticado | Sincroniza catálogo de troféus + conquistas do usuário |
+| POST | `/api/games/{gameId}/sync-trophies` | autenticado | Sincroniza catálogo de troféus + conquistas (202, assíncrono via fila) |
 | GET | `/api/games/{gameId}/detail` | autenticado | Detalhe do jogo p/ o usuário logado (progresso + contagem por raridade) |
 | GET | `/api/games/{gameId}/my-trophies` | autenticado | Catálogo do jogo com status de conquista (earned/earnedAt) |
 | GET | `/api/games/{gameId}/trophies` | público | Lista os troféus do jogo (com o UUID interno) |
@@ -165,8 +186,8 @@ Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto
 
 1. **Vínculo da conta PSN** — `link-request` gera `TRFX-XXXX`; o jogador coloca no *About Me*; `link-validate` confere a propriedade.
 2. **Cadastro** — email + senha + role `ROLE_USER`; avatar buscado na PSN.
-3. **Sync do perfil** — `POST /api/users/me/sync` atualiza nível/totais e o histórico de jogos (`user_games`), de forma assíncrona (202), com cooldown de 15 min e agendamento diário às 04:00.
-4. **Sync de troféus por jogo** — `POST /api/games/{gameId}/sync-trophies` persiste o catálogo (`trophies`) e as conquistas com data (`user_trophies`). O sidecar serve respostas com cache, e a página de detalhes dispara esse sync automaticamente a cada visita.
+3. **Sync do perfil** — `POST /api/users/me/sync` enfileira o sync (202) e o worker atualiza nível/totais e o histórico de jogos (`user_games`), com cooldown de 15 min validado no consumer e agendamento diário às 04:00.
+4. **Sync de troféus por jogo** — `POST /api/games/{gameId}/sync-trophies` enfileira (202) e o worker persiste o catálogo (`trophies`) e as conquistas com data (`user_trophies`). O sidecar serve respostas com cache, e a página de detalhes dispara esse sync automaticamente a cada visita.
 5. **Detalhes do jogo** — a página `/jogos/:id` mostra capa, plataforma, progresso e a contagem de Platina/Ouro/Prata/Bronze conquistadas (`GET /api/games/{gameId}/detail`), além da lista de troféus com `earned`/`earnedAt` (`GET /api/games/{gameId}/my-trophies`). O sync silencioso mantém os dados atualizados sem ação do usuário.
 6. **Guias** — roadmaps por jogo e dicas por troféu, submetidos com status `PENDING`, moderados por admin, com votação anti-fraude (contador atômico + `UNIQUE (guide_id, user_id)`).
 7. **Consulta pública** — dica de chefe via `GET /api/trophies/{trophyId}/guides`; roadmap de 40h via `GET /api/games/np/{npCommunicationId}/guides`.

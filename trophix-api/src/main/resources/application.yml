@@ -9,6 +9,24 @@ spring:
     open-in-view: false
   jackson:
     default-property-inclusion: non_null
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:trophix}
+    password: ${RABBITMQ_PASSWORD:trophix}
+    listener:
+      simple:
+        concurrency: 2
+        max-concurrency: 4
+        prefetch: 1
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2s
+          multiplier: 2
+          max-interval: 30s
+          stateless: true
 
 server:
   port: 8080

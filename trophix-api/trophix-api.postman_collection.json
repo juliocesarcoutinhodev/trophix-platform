@@ -599,7 +599,7 @@
                 "sync"
               ]
             },
-            "description": "Sincroniza o perfil PSN (accountId, nível, progresso e totais de troféus) e o histórico de jogos do usuário autenticado, persistindo no PostgreSQL (tabelas games e user_games).\n\nRota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nRespostas:\n- 200: Perfil sincronizado com sucesso!\n- 403: sem cookie de autenticação\n- 404: usuário não encontrado / perfil PSN inexistente\n- 502: falha ao consultar a PSN"
+            "description": "Sincroniza o perfil PSN (accountId, nível, progresso e totais de troféus) e o histórico de jogos do usuário autenticado, persistindo no PostgreSQL (tabelas games e user_games). Processamento assíncrono via RabbitMQ; o Postgres é atualizado em segundo plano.\n\nRota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nRespostas:\n- 202: Sincronização iniciada (processada em segundo plano)\n- 403: sem cookie de autenticação\n- 404: usuário não encontrado / perfil PSN inexistente\n- 429: em cooldown (15 min)\n- 502/503: sidecar indisponível"
           },
           "response": [
             {
@@ -767,7 +767,7 @@
                 "sync-trophies"
               ]
             },
-            "description": "Sincroniza o catálogo de troféus do jogo (via sidecar) e registra os troféus conquistados pelo usuário autenticado, persistindo nas tabelas trophies e user_trophies.\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\nO gameId é obtido pela resposta de /api/users/{username}/games.\n\nRespostas:\n- 200: Troféus sincronizados com sucesso!\n- 403: sem cookie de autenticação\n- 404: usuário/jogo não encontrado\n- 400: perfil não sincronizado (accountId ausente)"
+            "description": "Sincroniza o catálogo de troféus do jogo (via sidecar) e registra os troféus conquistados pelo usuário autenticado, persistindo nas tabelas trophies e user_trophies. Processamento assíncrono via RabbitMQ.\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\nO gameId é obtido pela resposta de /api/users/{username}/games.\n\nRespostas:\n- 202: Sincronização de troféus iniciada (processada em segundo plano)\n- 403: sem cookie de autenticação\n- 404: usuário/jogo não encontrado\n- 502/503: sidecar indisponível"
           },
           "response": [
             {

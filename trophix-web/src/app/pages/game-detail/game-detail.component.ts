@@ -58,6 +58,8 @@ export class GameDetailComponent implements OnInit {
   private async syncTrophiesSilently(gameId: string): Promise<void> {
     try {
       await firstValueFrom(this.api.syncGameTrophies(gameId));
+      // O sync agora é assíncrono (fila): aguarda o worker processar antes de recarregar.
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await this.fetchGame(gameId);
     } catch {
       // Mantém os dados já exibidos; a sincronização será tentada novamente na próxima visita.

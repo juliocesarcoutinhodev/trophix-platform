@@ -17,6 +17,22 @@ services:
       retries: 10
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: trophix-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-trophix}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-trophix}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   psn-sidecar:
     build: ./trophix-psn-sidecar
     container_name: trophix-psn-sidecar
