@@ -1,13 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiService } from '../../core/services/api.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { UserGame, UserProfile } from '../../core/models/api.models';
+import { PlatformFormatPipe } from '../../core/pipes/platform-format.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
+  imports: [PlatformFormatPipe, RouterLink],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {

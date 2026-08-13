@@ -820,6 +820,46 @@
             }
           },
           "description": "Retorna a lista de trofeus do jogo persistidos no banco (apos o sync), com o UUID interno (id) usado para criar guias de trofeu.\n\nRota publica, sem necessidade de login.\n\nRespostas:\n- 200: lista de trofeus (id, psnTrophyId, name, description, type, iconUrl)\n- 404: jogo nao encontrado\n\nObs: se a lista vier vazia, execute antes o POST /api/games/{gameId}/sync-trophies"
+        },
+        {
+          "name": "Detalhes do Jogo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/games/{{gameId}}/detail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "games",
+                "{{gameId}}",
+                "detail"
+              ]
+            }
+          },
+          "description": "Retorna os detalhes do jogo para o usuário autenticado: metadados (nome, imagem, plataforma), progresso (earnedTrophies/totalTrophies/progressPercentage) e a contagem de troféus conquistados por raridade (platinum, gold, silver, bronze) neste jogo.\n\nUsado pela página de detalhes do jogo no front-end (rota /jogos/{id}).\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\nO gameId é obtido pela resposta de /api/users/{username}/games.\n\nRespostas:\n- 200: detalhes do jogo (com o objeto rarity)\n- 403: sem cookie de autenticação\n- 404: jogo não encontrado no catálogo do usuário"
+        },
+        {
+          "name": "Meus Troféus do Jogo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/games/{{gameId}}/my-trophies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "games",
+                "{{gameId}}",
+                "my-trophies"
+              ]
+            }
+          },
+          "description": "Retorna o catálogo de troféus do jogo enriquecido com o status de conquista do usuário autenticado: cada troféu traz earned (true/false) e earnedAt (data da conquista, quando aplicável).\n\nUsado pela página de detalhes do jogo no front-end para marcar troféus conquistados/bloqueados.\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\nO gameId é obtido pela resposta de /api/users/{username}/games.\n\nRespostas:\n- 200: lista de troféus (id, psnTrophyId, name, description, type, iconUrl, earned, earnedAt)\n- 403: sem cookie de autenticação\n- 404: jogo não encontrado\n\nObs: se a lista vier vazia, execute antes o POST /api/games/{gameId}/sync-trophies"
         }
       ]
     },

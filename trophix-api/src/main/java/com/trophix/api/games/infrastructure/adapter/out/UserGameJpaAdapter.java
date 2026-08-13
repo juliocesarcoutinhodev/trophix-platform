@@ -51,6 +51,12 @@ public class UserGameJpaAdapter implements UserGameRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<UserGameSummary> findByUserIdAndGameId(UUID userId, UUID gameId) {
+        return springDataRepository.findByUserIdAndGameId(userId, gameId).map(mapper::toSummary);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<UserGameSummary> findByUserId(UUID userId, Pageable pageable) {
         return springDataRepository
                 .findByUser_IdOrderByLastPlayedAtDesc(userId, pageable)

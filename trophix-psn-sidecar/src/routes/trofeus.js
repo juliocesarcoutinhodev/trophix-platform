@@ -1,6 +1,8 @@
 const express = require("express");
 const { getTitleTrophies, getUserTrophiesEarnedForTitle } = require("psn-api");
 const { withAuthorization, isNotFoundError } = require("../psnClient");
+const { createCache } = require("../cache");
+const config = require("../config");
 
 const router = express.Router();
 
@@ -12,6 +14,25 @@ const TIPO_TROFEU = {
 };
 
 const serviceCache = new Map();
+const dataCache = createCache(config.trophyCacheTtlMs);
+
+async function cachedFetch(key, fetchFn) {
+  const cached = dataCache.get(key);
+  if (cached !== undefined) return cached;
+
+  try {
+    const value = await fetchFn();
+    dataCache.set(key, value);
+    return value;
+  } catch (error) {
+    const stale = dataCache.getStale(key);
+    if (stale !== undefined) {
+      console.log(`[trofeus] ${key}: falha ao atualizar (${error.message}); servindo cache expirado.`);
+      return stale;
+    }
+    throw error;
+  }
+}
 
 async function withServiceProbe(auth, npCommunicationId, fetchFn) {
   const id = npCommunicationId.toUpperCase();
@@ -23,7 +44,14 @@ async function withServiceProbe(auth, npCommunicationId, fetchFn) {
 
   let lastError = null;
   for (const serviceName of servicos) {
-    const response = await fetchFn(auth, id, serviceName);
+    let response;
+    try {
+      response = await fetchFn(auth, id, serviceName);
+    } catch (error) {
+      lastError = error;
+      console.log(`[trofeus] ${id}: servico "${serviceName}" falhou (${error.message}).`);
+      continue;
+    }
     if (!response.error) {
       serviceCache.set(id, serviceName);
       return response.trophies;
@@ -32,7 +60,7 @@ async function withServiceProbe(auth, npCommunicationId, fetchFn) {
     console.log(`[trofeus] ${id}: servico "${serviceName}" falhou (${response.error.message}).`);
   }
 
-  throw new Error(lastError.message || "Unexpected Error");
+  throw new Error(lastError?.message || "Unexpected Error");
 }
 
 const fetchTrophies = (auth, npCommunicationId) =>
@@ -47,20 +75,23 @@ const fetchEarnedTrophies = (auth, accountId, npCommunicationId) =>
 
 router.get("/api/jogos/:npCommunicationId/trofeus", async (req, res) => {
   const { npCommunicationId } = req.params;
+  const cacheKey = `catalog:${npCommunicationId.toUpperCase()}`;
   console.log(`[trofeus] GET /api/jogos/${npCommunicationId}/trofeus`);
 
   try {
-    const { result } = await withAuthorization((auth) =>
-      fetchTrophies(auth, npCommunicationId)
-    );
+    const trofeus = await cachedFetch(cacheKey, async () => {
+      const { result } = await withAuthorization((auth) =>
+        fetchTrophies(auth, npCommunicationId)
+      );
 
-    const trofeus = result.map((t) => ({
-      idTrofeu: t.trophyId,
-      nome: t.trophyName,
-      descricao: t.trophyDetail,
-      tipo: TIPO_TROFEU[t.trophyType] ?? t.trophyType,
-      iconeUrl: t.trophyIconUrl
-    }));
+      return result.map((t) => ({
+        idTrofeu: t.trophyId,
+        nome: t.trophyName,
+        descricao: t.trophyDetail,
+        tipo: TIPO_TROFEU[t.trophyType] ?? t.trophyType,
+        iconeUrl: t.trophyIconUrl
+      }));
+    });
 
     res.json(trofeus);
   } catch (error) {
@@ -75,18 +106,21 @@ router.get("/api/jogos/:npCommunicationId/trofeus", async (req, res) => {
 
 router.get("/api/jogos/:npCommunicationId/trofeus-conquistados/:accountId", async (req, res) => {
   const { npCommunicationId, accountId } = req.params;
+  const cacheKey = `earned:${npCommunicationId.toUpperCase()}:${accountId}`;
   console.log(`[trofeus] GET /api/jogos/${npCommunicationId}/trofeus-conquistados/${accountId}`);
 
   try {
-    const { result } = await withAuthorization((auth) =>
-      fetchEarnedTrophies(auth, accountId, npCommunicationId)
-    );
+    const conquistados = await cachedFetch(cacheKey, async () => {
+      const { result } = await withAuthorization((auth) =>
+        fetchEarnedTrophies(auth, accountId, npCommunicationId)
+      );
 
-    const conquistados = result.map((t) => ({
-      idTrofeu: t.trophyId,
-      conquistado: Boolean(t.earned),
-      conquistadoEm: t.earnedDateTime || null
-    }));
+      return result.map((t) => ({
+        idTrofeu: t.trophyId,
+        conquistado: Boolean(t.earned),
+        conquistadoEm: t.earnedDateTime || null
+      }));
+    });
 
     res.json(conquistados);
   } catch (error) {

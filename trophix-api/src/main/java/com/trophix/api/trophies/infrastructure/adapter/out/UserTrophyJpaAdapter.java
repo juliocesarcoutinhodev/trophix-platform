@@ -7,7 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,5 +38,17 @@ public class UserTrophyJpaAdapter implements UserTrophyRepositoryPort {
             entity.setEarnedAt(userTrophy.earnedAt());
             springDataRepository.save(entity);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, Instant> findEarnedAtByUserIdAndTrophyIds(UUID userId, List<UUID> trophyIds) {
+        if (trophyIds.isEmpty()) {
+            return Map.of();
+        }
+        return springDataRepository.findByUserIdAndTrophy_IdIn(userId, trophyIds).stream()
+                .collect(Collectors.toMap(
+                        entity -> entity.getTrophy().getId(),
+                        UserTrophyEntity::getEarnedAt));
     }
 }

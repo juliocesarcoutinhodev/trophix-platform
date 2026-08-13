@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
+import { ComingSoonComponent } from './pages/coming-soon/coming-soon.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { GameDetailComponent } from './pages/game-detail/game-detail.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
-import { ComingSoonComponent } from './pages/coming-soon/coming-soon.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [authGuard] },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'games', component: ComingSoonComponent, data: { title: 'Games' } },
   { path: 'trophies', component: ComingSoonComponent, data: { title: 'Trophies' } },
   { path: 'guides', component: ComingSoonComponent, data: { title: 'Guides' } },
+  { path: 'jogos/:id', component: GameDetailComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' },
 ];
