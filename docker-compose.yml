@@ -22,6 +22,7 @@ services:
     container_name: trophix-psn-sidecar
     environment:
       NPSSO_TOKEN: ${NPSSO_TOKEN:?Defina NPSSO_TOKEN no arquivo .env da raiz}
+      TROFEUS_CACHE_TTL_MS: ${TROFEUS_CACHE_TTL_MS:-600000}
     ports:
       - "3000:3000"
     depends_on:

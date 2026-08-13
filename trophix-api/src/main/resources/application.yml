@@ -16,6 +16,12 @@ server:
 trophix:
   sidecar:
     base-url: http://localhost:3000
+    connect-timeout: 2s
+    read-timeout: 5s
+    circuit-breaker:
+      failure-threshold: 5
+      open-timeout: 30s
+      half-open-max-calls: 3
   jwt:
     secret: ${JWT_SECRET}
     expiration: PT24H

@@ -38,6 +38,12 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_GATEWAY.value(), ex.getMessage()));
     }
 
+    @ExceptionHandler(CircuitOpenException.class)
+    public ResponseEntity<ErrorResponse> handleCircuitOpen(CircuitOpenException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getMessage()));
+    }
+
     @ExceptionHandler(DataIntegrityException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

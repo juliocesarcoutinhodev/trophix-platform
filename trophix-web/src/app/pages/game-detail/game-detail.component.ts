@@ -22,8 +22,6 @@ export class GameDetailComponent implements OnInit {
   protected readonly trophies = signal<TrophyStatus[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly syncing = signal(false);
-  protected readonly syncError = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
     const gameId = this.route.snapshot.paramMap.get('id');
@@ -62,23 +60,7 @@ export class GameDetailComponent implements OnInit {
       await firstValueFrom(this.api.syncGameTrophies(gameId));
       await this.fetchGame(gameId);
     } catch {
-      // Mantém os dados já exibidos; o botão manual permite forçar a sincronização.
-    }
-  }
-
-  async syncTrophies(): Promise<void> {
-    if (this.syncing()) return;
-    const gameId = this.route.snapshot.paramMap.get('id');
-    if (!gameId) return;
-    this.syncing.set(true);
-    this.syncError.set(null);
-    try {
-      await firstValueFrom(this.api.syncGameTrophies(gameId));
-      await this.fetchGame(gameId);
-    } catch (error) {
-      this.syncError.set(apiErrorMessage(error, 'Falha ao sincronizar os troféus. Tente novamente.'));
-    } finally {
-      this.syncing.set(false);
+      // Mantém os dados já exibidos; a sincronização será tentada novamente na próxima visita.
     }
   }
 
