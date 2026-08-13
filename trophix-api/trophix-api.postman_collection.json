@@ -1063,6 +1063,28 @@
             }
           },
           "description": "Retorna o detalhe de um guia aprovado pelo seu UUID interno, enriquecido com gameName, imageUrl, authorName e currentUserVoted (true se o usuário logado já votou).\n\nRota pública, sem necessidade de login.\n\nRespostas:\n- 200: guia (id, gameId, gameName, imageUrl, authorId, authorName, title, description, content, videoUrl, status, upvotesCount, currentUserVoted, createdAt, updatedAt)\n- 404: guia não encontrado (ou ainda não aprovado)"
+        },
+        {
+          "name": "Dicas de Trofeus do Autor (por Jogo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/games/{{gameId}}/authors/{{userId}}/trophy-guides",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "games",
+                "{{gameId}}",
+                "authors",
+                "{{userId}}",
+                "trophy-guides"
+              ]
+            }
+          },
+          "description": "Retorna todas as dicas de troféus (guias com trophyId, sem gameId) aprovadas de um autor para os troféus de um jogo, carregadas de uma vez (JOIN Guide com Trophy, sem N+1).\n\nRota pública, sem necessidade de login.\n\nRespostas:\n- 200: lista de guias (id, trophyId, authorId, title, description, content, videoUrl, status, upvotesCount, createdAt, updatedAt)\n- 404: jogo inexistente"
         }
       ]
     }

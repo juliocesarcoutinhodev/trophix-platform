@@ -26,6 +26,13 @@ public interface GuideRepositoryPort {
      */
     List<Guide> findLatestRoadmapsByStatus(GuideStatus status, int limit);
 
+    /**
+     * Returns the trophy tips (guides with a trophy target, no game target)
+     * authored by a user for the trophies of a game, ordered by trophy and
+     * creation date.
+     */
+    List<Guide> findTrophyTipsByAuthorAndGame(UUID gameId, UUID authorId, GuideStatus status);
+
     /** Atomic counter update: avoids lost updates under concurrent voting. */
     void incrementUpvotesCount(UUID guideId);
 

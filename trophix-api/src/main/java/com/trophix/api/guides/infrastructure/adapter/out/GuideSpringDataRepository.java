@@ -19,6 +19,18 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
     @Query("select g from GuideEntity g where g.trophy is null and g.status = :status order by g.createdAt desc")
     List<GuideEntity> findLatestRoadmaps(@Param("status") GuideStatus status, Pageable pageable);
 
+    @Query("""
+            select g from GuideEntity g
+            where g.game is null
+              and g.trophy.game.id = :gameId
+              and g.author.id = :authorId
+              and g.status = :status
+            order by g.trophy.psnTrophyId asc, g.createdAt asc""")
+    List<GuideEntity> findTrophyTipsByAuthorAndGame(
+            @Param("gameId") UUID gameId,
+            @Param("authorId") UUID authorId,
+            @Param("status") GuideStatus status);
+
     @Modifying
     @Query("update GuideEntity g set g.upvotesCount = g.upvotesCount + 1 where g.id = :id")
     void incrementUpvotesCount(@Param("id") UUID id);

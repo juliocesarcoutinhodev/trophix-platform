@@ -193,6 +193,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | POST | `/api/guides/{guideId}/vote` | autenticado | Vota/desvota (toggle, 1 voto por usuário) |
 | GET | `/api/trophies/{trophyId}/guides` | público | Dicas aprovadas daquele troféu (id, title, description, content, ...) |
 | GET | `/api/games/np/{npCommunicationId}/guides` | público | Roadmaps aprovados daquele jogo (id, title, description, content, ...) |
+| GET | `/api/games/{gameId}/authors/{authorId}/trophy-guides` | público | Dicas de troféus aprovadas do autor naquele jogo (1 query, JOIN Guide↔Trophy) |
 | GET | `/api/guides?limit=20` | público | Últimos roadmaps aprovados (sem trophyId), ordenados por criação desc, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
 | GET | `/api/guides/{guideId}` | público | Detalhe de um guia aprovado, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
 

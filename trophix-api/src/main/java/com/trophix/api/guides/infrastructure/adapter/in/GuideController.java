@@ -1,5 +1,6 @@
 package com.trophix.api.guides.infrastructure.adapter.in;
 
+import com.trophix.api.guides.application.ports.in.GetAuthorTrophyGuidesUseCase;
 import com.trophix.api.guides.application.ports.in.GetGameGuidesUseCase;
 import com.trophix.api.guides.application.ports.in.GetGuideByIdUseCase;
 import com.trophix.api.guides.application.ports.in.GetLatestGuidesUseCase;
@@ -42,6 +43,7 @@ public class GuideController {
     private final GetGameGuidesUseCase getGameGuidesUseCase;
     private final GetLatestGuidesUseCase getLatestGuidesUseCase;
     private final GetGuideByIdUseCase getGuideByIdUseCase;
+    private final GetAuthorTrophyGuidesUseCase getAuthorTrophyGuidesUseCase;
     private final GuideWebMapper guideWebMapper;
     private final AuthenticatedUser authenticatedUser;
 
@@ -116,6 +118,16 @@ public class GuideController {
     @GetMapping("/api/games/np/{npCommunicationId}/guides")
     public ResponseEntity<List<GuideResponse>> getGameGuides(@PathVariable String npCommunicationId) {
         List<GuideResponse> guides = getGameGuidesUseCase.getApprovedGuides(npCommunicationId).stream()
+                .map(guideWebMapper::toGuideResponse)
+                .toList();
+        return ResponseEntity.ok(guides);
+    }
+
+    @GetMapping("/api/games/{gameId}/authors/{authorId}/trophy-guides")
+    public ResponseEntity<List<GuideResponse>> getAuthorTrophyGuides(
+            @PathVariable UUID gameId,
+            @PathVariable UUID authorId) {
+        List<GuideResponse> guides = getAuthorTrophyGuidesUseCase.getAuthorTrophyGuides(gameId, authorId).stream()
                 .map(guideWebMapper::toGuideResponse)
                 .toList();
         return ResponseEntity.ok(guides);

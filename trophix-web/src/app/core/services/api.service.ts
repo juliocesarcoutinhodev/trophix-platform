@@ -62,6 +62,19 @@ export class ApiService {
     return this.http.get<TrophyStatus[]>(`/api/games/${gameId}/my-trophies`);
   }
 
+  // ---- Trophies (Tips/Guides) ----
+  getTrophyGuides(trophyId: string) {
+    return this.http.get<GuideResponse[]>(`/api/trophies/${trophyId}/guides`);
+  }
+
+  getAuthorTrophyGuides(gameId: string, authorId: string) {
+    return this.http.get<GuideResponse[]>(`/api/games/${gameId}/authors/${authorId}/trophy-guides`);
+  }
+
+  submitTrophyGuide(trophyId: string, request: SubmitGuideRequest) {
+    return this.http.post<MessageResponse>(`/api/trophies/${trophyId}/guides`, request);
+  }
+
   syncGameTrophies(gameId: string) {
     return this.http.post<MessageResponse>(`/api/games/${gameId}/sync-trophies`, {});
   }

@@ -80,6 +80,13 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Guide> findTrophyTipsByAuthorAndGame(UUID gameId, UUID authorId, GuideStatus status) {
+        return springDataRepository.findTrophyTipsByAuthorAndGame(gameId, authorId, status)
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     @Transactional
     public void incrementUpvotesCount(UUID guideId) {
         springDataRepository.incrementUpvotesCount(guideId);

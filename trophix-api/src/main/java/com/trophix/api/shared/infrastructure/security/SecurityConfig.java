@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/trophies/*/guides").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/games/np/*/guides").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/games/*/trophies").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/games/*/authors/*/trophy-guides").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/guides/**").permitAll()
                         .anyRequest().authenticated())
 
