@@ -45,3 +45,16 @@ trophix:
     expiration: PT24H
   cors:
     allowed-origin: http://localhost:4200
+  rate-limit:
+    enabled: true
+    trust-forwarded-header: false
+    limits:
+      auth:
+        capacity: 10
+        refill-per-minute: 20
+      public-read:
+        capacity: 60
+        refill-per-minute: 120
+      default:
+        capacity: 300
+        refill-per-minute: 600

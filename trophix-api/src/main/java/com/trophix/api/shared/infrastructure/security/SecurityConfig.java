@@ -1,5 +1,6 @@
 package com.trophix.api.shared.infrastructure.security;
 
+import com.trophix.api.shared.infrastructure.ratelimit.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +41,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            JwtAuthenticationFilter jwtFilter) throws Exception {
+            JwtAuthenticationFilter jwtFilter,
+            RateLimitFilter rateLimitFilter) throws Exception {
 
         return http
                 // CORS — configured below
@@ -75,6 +77,9 @@ public class SecurityConfig {
 
                 // Filtro JWT executa antes do filtro padrão de autenticação
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Rate limit (anti brute-force / scraper) antes de qualquer auth
+                .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
 
                 .build();
     }
