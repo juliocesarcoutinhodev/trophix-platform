@@ -1,0 +1,111 @@
+<main class="mx-auto max-w-5xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-100">Criar Guia de Troféus</h1>
+    <p class="mt-2 text-slate-400">Compartilhe seu conhecimento e ajude a comunidade a platinar.</p>
+  </div>
+
+  <form (ngSubmit)="saveGuide()" class="space-y-6">
+    <!-- Informações Básicas -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+      <h2 class="mb-4 text-xl font-bold text-slate-100">Informações Básicas</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Título do Guia</label>
+          <input
+            type="text"
+            [ngModel]="title()"
+            (ngModelChange)="title.set($event)"
+            name="title"
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+            placeholder="Ex: Guia de Troféus Demon's Souls"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Breve Descrição</label>
+          <input
+            type="text"
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            name="description"
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+            placeholder="Ex: O guia completo para platinar em menos de 30 horas..."
+          />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Detonado em Vídeo (Opcional)</label>
+          <input
+            type="url"
+            [ngModel]="videoUrl()"
+            (ngModelChange)="videoUrl.set($event)"
+            name="videoUrl"
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+            placeholder="Link do YouTube"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap / Corpo do Guia -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900">
+      <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+        <h2 class="text-xl font-bold text-slate-100">Roadmap / Conteúdo</h2>
+        <div class="flex rounded-lg bg-slate-950 p-1">
+          <button
+            type="button"
+            (click)="activeTab.set('write')"
+            [class.bg-slate-800]="activeTab() === 'write'"
+            [class.text-slate-100]="activeTab() === 'write'"
+            [class.text-slate-500]="activeTab() !== 'write'"
+            class="rounded-md px-4 py-1.5 text-sm font-semibold transition-colors"
+          >
+            Escrever
+          </button>
+          <button
+            type="button"
+            (click)="activeTab.set('preview')"
+            [class.bg-slate-800]="activeTab() === 'preview'"
+            [class.text-slate-100]="activeTab() === 'preview'"
+            [class.text-slate-500]="activeTab() !== 'preview'"
+            class="rounded-md px-4 py-1.5 text-sm font-semibold transition-colors"
+          >
+            Visualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        @if (activeTab() === 'write') {
+          <textarea
+            [ngModel]="content()"
+            (ngModelChange)="content.set($event)"
+            name="content"
+            rows="15"
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+            placeholder="Use Markdown para escrever o seu guia.&#10;&#10;Exemplo:&#10;## Fase 1: Zere o Jogo&#10;Na primeira fase você vai focar em completar a campanha..."
+          ></textarea>
+        } @else {
+          <div class="prose prose-invert max-w-full rounded-lg border border-slate-800 bg-slate-950 px-6 py-4 min-h-[350px]">
+            @if (content().trim() === '') {
+              <p class="text-slate-500 italic">Nada para visualizar ainda.</p>
+            } @else {
+              <div [innerHTML]="parsedContent()"></div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Botões -->
+    <div class="flex justify-end gap-4">
+      <a routerLink="/" class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-300 hover:text-white">
+        Cancelar
+      </a>
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+      >
+        Publicar Guia
+      </button>
+    </div>
+  </form>
+</main>

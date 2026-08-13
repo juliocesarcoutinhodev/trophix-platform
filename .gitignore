@@ -4,3 +4,22 @@
 
 node_modules/
 *.log
+
+# Ferramentas de IA (instruções, configs e históricos de assistentes)
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+CODEX.md
+.opencode/
+.claude/
+.cursor/
+.cursorrules
+.codex/
+.copilot/
+.github/copilot-instructions.md
+.aider*
+.continue/
+.gemini/
+.roo/
+.windsurf/
+.aichat/
