@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
@@ -10,7 +11,7 @@ import { PlatformFormatPipe } from '../../core/pipes/platform-format.pipe';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [PlatformFormatPipe, RouterLink],
+  imports: [PlatformFormatPipe, RouterLink, DatePipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -21,6 +22,7 @@ export class DashboardComponent implements OnInit {
   protected readonly loadingGames = signal(true);
   protected readonly syncing = signal(false);
   protected readonly syncError = signal<string | null>(null);
+  protected readonly viewMode = signal<'grid' | 'list'>('grid');
 
   async ngOnInit(): Promise<void> {
     await Promise.all([this.loadProfile(), this.loadGames()]);

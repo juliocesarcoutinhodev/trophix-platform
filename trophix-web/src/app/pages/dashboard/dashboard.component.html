@@ -1,7 +1,18 @@
 <main class="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
   <!-- Header: perfil -->
-  <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+  <section class="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+    @if (games().length > 0 && games()[0]?.imageUrl) {
+      <img
+        [src]="games()[0].imageUrl!"
+        alt=""
+        class="absolute inset-0 h-full w-full scale-125 object-cover opacity-40 blur-[40px]"
+        loading="lazy"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+    }
+
+    <div class="relative z-10 p-6">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
       <div class="flex items-center gap-4">
         @if (profile()?.avatarUrl) {
           <img
@@ -73,13 +84,44 @@
         <p class="mt-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Bronze</p>
       </div>
     </div>
+    </div>
   </section>
 
   <!-- Jogos recentes -->
   <section class="mt-8">
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-bold text-slate-100">Jogos Recentes</h2>
-      <span class="text-sm text-slate-400">{{ games().length }} jogos</span>
+      <div class="flex items-center gap-4">
+        <h2 class="text-lg font-bold text-slate-100">Jogos Recentes</h2>
+        <span class="hidden text-sm text-slate-400 sm:inline-block">{{ games().length }} jogos</span>
+      </div>
+      <div class="flex items-center rounded-lg border border-slate-800 bg-slate-900 p-1">
+        <button
+          type="button"
+          (click)="viewMode.set('grid')"
+          [class.bg-slate-800]="viewMode() === 'grid'"
+          [class.text-slate-100]="viewMode() === 'grid'"
+          [class.text-slate-500]="viewMode() !== 'grid'"
+          class="rounded-md px-2.5 py-1.5 transition-colors hover:text-slate-200"
+          title="Ver em Grade"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          (click)="viewMode.set('list')"
+          [class.bg-slate-800]="viewMode() === 'list'"
+          [class.text-slate-100]="viewMode() === 'list'"
+          [class.text-slate-500]="viewMode() !== 'list'"
+          class="rounded-md px-2.5 py-1.5 transition-colors hover:text-slate-200"
+          title="Ver em Lista"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     @if (loadingGames()) {
@@ -94,38 +136,82 @@
         <p class="mt-1 text-sm text-slate-500">Clique em "Sincronizar PSN" para carregar seu histórico.</p>
       </div>
     } @else {
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        @for (game of games(); track game.gameId) {
-          <a
-            [routerLink]="['/jogos', game.gameId]"
-            class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700"
-          >
-            <div class="relative aspect-video bg-slate-950">
-              @if (game.imageUrl) {
-                <img [src]="game.imageUrl" [alt]="game.name" class="h-full w-full object-cover" loading="lazy" />
-              }
-              <span class="absolute right-2 top-2 rounded bg-slate-950/80 px-1.5 py-0.5 text-[10px] font-bold text-slate-300">
-                {{ game.platform | platformFormat }}
-              </span>
-            </div>
-            <div class="p-3">
-              <h3 class="truncate text-sm font-semibold text-slate-100" [title]="game.name">{{ game.name }}</h3>
-              <div class="mt-3">
-                <div class="flex items-center justify-between text-xs text-slate-400">
-                  <span>{{ game.earnedTrophies }}/{{ game.totalTrophies }}</span>
-                  <span>{{ game.progressPercentage }}%</span>
-                </div>
-                <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                  <div
-                    class="h-full rounded-full bg-violet-500"
-                    [style.width.%]="game.progressPercentage"
-                  ></div>
+      @if (viewMode() === 'grid') {
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          @for (game of games(); track game.gameId) {
+            <a
+              [routerLink]="['/jogos', game.gameId]"
+              class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700"
+            >
+              <div class="relative aspect-square bg-slate-950">
+                @if (game.imageUrl) {
+                  <img [src]="game.imageUrl" [alt]="game.name" class="h-full w-full object-cover" loading="lazy" />
+                }
+                <span class="absolute right-2 top-2 z-10 rounded bg-slate-950/80 px-1.5 py-0.5 text-[10px] font-bold text-slate-300">
+                  {{ game.platform | platformFormat }}
+                </span>
+              </div>
+              <div class="p-3">
+                <h3 class="truncate text-sm font-semibold text-slate-100" [title]="game.name">{{ game.name }}</h3>
+                <div class="mt-3">
+                  <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>{{ game.earnedTrophies }}/{{ game.totalTrophies }}</span>
+                    <span>{{ game.progressPercentage }}%</span>
+                  </div>
+                  <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      class="h-full rounded-full bg-violet-500"
+                      [style.width.%]="game.progressPercentage"
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </a>
-        }
-      </div>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (game of games(); track game.gameId) {
+            <a
+              [routerLink]="['/jogos', game.gameId]"
+              class="flex items-center gap-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-3 transition-colors hover:border-violet-700 sm:p-4"
+            >
+              <div class="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-950 sm:h-24 sm:w-24">
+                @if (game.imageUrl) {
+                  <img [src]="game.imageUrl" [alt]="game.name" class="h-full w-full object-cover" loading="lazy" />
+                }
+              </div>
+              
+              <div class="flex min-w-0 flex-1 flex-col justify-between sm:flex-row sm:items-center">
+                <div class="min-w-0 sm:w-1/2">
+                  <h3 class="truncate text-base font-bold text-slate-100" [title]="game.name">{{ game.name }}</h3>
+                  <div class="mt-1.5 flex items-center gap-3 text-sm text-slate-400">
+                    <span class="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-300">
+                      {{ game.platform | platformFormat }}
+                    </span>
+                    @if (game.lastPlayedAt) {
+                      <span class="truncate text-xs">Atualizado em {{ game.lastPlayedAt | date:'dd/MM/yyyy' }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="mt-3 sm:mt-0 sm:w-1/3 sm:text-right">
+                  <div class="flex items-center justify-between text-xs text-slate-400 sm:justify-end sm:gap-4">
+                    <span>{{ game.earnedTrophies }} de {{ game.totalTrophies }} Troféus</span>
+                    <span class="font-bold text-slate-300">{{ game.progressPercentage }}%</span>
+                  </div>
+                  <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      class="h-full rounded-full bg-violet-500"
+                      [style.width.%]="game.progressPercentage"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      }
     }
   </section>
 </main>
