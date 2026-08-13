@@ -26,7 +26,7 @@ trophix-platform/
         └── pages/              # dashboard, login, register, game-detail, coming-soon
 ```
 
-**Padrões:** Clean Architecture / Hexagonal em cada módulo (`model` / `application` com ports+usecases / `infrastructure` com adapters), Código em inglês + mensagens de retorno em Português-BR, UUIDv7 nas PKs, Flyway para migrações, 12-Factor (credenciais via `.env`). No front: components standalone, signals, tema dark e Tailwind CSS v4.
+**Padrões:** Clean Architecture / Hexagonal em cada módulo (`model` / `application` com ports+usecases / `infrastructure` com adapters), Código em inglês + mensagens de retorno em Português-BR, UUIDv7 nas PKs, Flyway para migrações, 12-Factor (credenciais via `.env`). Conversões DTO → Command e Domain → Response via **MapStruct** (`@Mapper(componentModel = "spring")`) para manter os controllers limpos (apenas orquestram `mapper.toCommand()` → `useCase` → `mapper.toResponse()`). No front: components standalone, signals, tema dark e Tailwind CSS v4.
 
 ## Pré-requisitos
 
@@ -90,6 +90,18 @@ A API consulta o sidecar via `RestClient` com **timeouts** e um **circuit breake
 | `trophix.sidecar.circuit-breaker.half-open-max-calls` | `3` | Probes no estado meio-aberto |
 
 Quando o sidecar está fora, as operações de sync falham rápido (502 enquanto o circuito está fechado, 503 quando ele abre) em vez de pendurar threads; os endpoints de leitura continuam servindo os dados já persistidos no Postgres. 404s legítimos (ex.: usuário inexistente na PSN) não abrem o circuito.
+
+## Rate limiting
+
+Filtro token-bucket na cadeia do Spring Security (antes da autenticação), por IP do cliente + grupo de rota:
+
+| Grupo | Rotas | Limite (capacidade / refill) |
+| ----- | ----- | ---------------------------- |
+| `auth` | `POST /api/auth/login`, `/register-completion`, `/api/users/link-request`, `/link-validate` | 10 / 20 por min (anti força bruta) |
+| `public-read` | `GET /api/users/*/profile`, `/api/users/*/games`, `/api/trophies/*/guides`, `/api/games/np/*/guides`, `/api/games/*/trophies` | 60 / 120 por min (anti scraper) |
+| `default` | demais rotas `/api` (autenticadas) | 300 / 600 por min |
+
+Excesso responde `429` com corpo PT-BR e header `Retry-After`. Configurável em `trophix.rate-limit.*` (`application.yml`), incluindo `enabled` e `trust-forwarded-header` (usar quando houver proxy atrás). O limiter é em memória (por instância) — para múltiplas instâncias, migrar para Redis ou aplicar no gateway (Nginx) no edge.
 
 ## Sincronização assíncrona (fila RabbitMQ)
 
@@ -175,12 +187,12 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 ### Guias
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
-| POST | `/api/games/{gameId}/guides` | autenticado | Submete roadmap do jogo (PENDING) |
-| POST | `/api/trophies/{trophyId}/guides` | autenticado | Submete dica de troféu (PENDING) |
+| POST | `/api/games/{gameId}/guides` | autenticado | Submete roadmap do jogo (`title`/`content` obrigatórios, PENDING) |
+| POST | `/api/trophies/{trophyId}/guides` | autenticado | Submete dica de troféu (`title`/`content` obrigatórios, PENDING) |
 | PATCH | `/api/guides/{guideId}/review?action=APPROVE|REJECT` | **ROLE_ADMIN** | Modera o guia |
 | POST | `/api/guides/{guideId}/vote` | autenticado | Vota/desvota (toggle, 1 voto por usuário) |
-| GET | `/api/trophies/{trophyId}/guides` | público | Dicas aprovadas daquele troféu |
-| GET | `/api/games/np/{npCommunicationId}/guides` | público | Roadmaps aprovados daquele jogo |
+| GET | `/api/trophies/{trophyId}/guides` | público | Dicas aprovadas daquele troféu (id, title, description, content, ...) |
+| GET | `/api/games/np/{npCommunicationId}/guides` | público | Roadmaps aprovados daquele jogo (id, title, description, content, ...) |
 
 ## Fluxo do produto
 
@@ -189,7 +201,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 3. **Sync do perfil** — `POST /api/users/me/sync` enfileira o sync (202) e o worker atualiza nível/totais e o histórico de jogos (`user_games`), com cooldown de 15 min validado no consumer e agendamento diário às 04:00.
 4. **Sync de troféus por jogo** — `POST /api/games/{gameId}/sync-trophies` enfileira (202) e o worker persiste o catálogo (`trophies`) e as conquistas com data (`user_trophies`). O sidecar serve respostas com cache, e a página de detalhes dispara esse sync automaticamente a cada visita.
 5. **Detalhes do jogo** — a página `/jogos/:id` mostra capa, plataforma, progresso e a contagem de Platina/Ouro/Prata/Bronze conquistadas (`GET /api/games/{gameId}/detail`), além da lista de troféus com `earned`/`earnedAt` (`GET /api/games/{gameId}/my-trophies`). O sync silencioso mantém os dados atualizados sem ação do usuário.
-6. **Guias** — roadmaps por jogo e dicas por troféu, submetidos com status `PENDING`, moderados por admin, com votação anti-fraude (contador atômico + `UNIQUE (guide_id, user_id)`).
+6. **Guias** — roadmaps por jogo e dicas por troféu, cada um com `title`/`description`/`content`, submetidos com status `PENDING`, moderados por admin, com votação anti-fraude (contador atômico + `UNIQUE (guide_id, user_id)`).
 7. **Consulta pública** — dica de chefe via `GET /api/trophies/{trophyId}/guides`; roadmap de 40h via `GET /api/games/np/{npCommunicationId}/guides`.
 
 ## Collections Postman

@@ -45,7 +45,7 @@ public class GuideController {
             @PathVariable UUID gameId,
             @Valid @RequestBody SubmitGuideRequest request) {
         String message = submitGuideUseCase.submit(UUID.fromString(userId),
-                new SubmitGuideUseCase.SubmitGuideCommand(null, gameId, request.content(), request.videoUrl()));
+                guideWebMapper.toGameGuideCommand(request, gameId));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(guideWebMapper.toMessageResponse(message));
     }
@@ -56,7 +56,7 @@ public class GuideController {
             @PathVariable UUID trophyId,
             @Valid @RequestBody SubmitGuideRequest request) {
         String message = submitGuideUseCase.submit(UUID.fromString(userId),
-                new SubmitGuideUseCase.SubmitGuideCommand(trophyId, null, request.content(), request.videoUrl()));
+                guideWebMapper.toTrophyGuideCommand(request, trophyId));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(guideWebMapper.toMessageResponse(message));
     }
@@ -76,8 +76,7 @@ public class GuideController {
             @AuthenticationPrincipal String userId,
             @PathVariable UUID guideId) {
         VoteGuideUseCase.VoteResult result = voteGuideUseCase.vote(guideId, UUID.fromString(userId));
-        return ResponseEntity.ok(guideWebMapper.toVoteResponse(
-                result.voted(), result.upvotesCount(), result.message()));
+        return ResponseEntity.ok(guideWebMapper.toVoteResponse(result));
     }
 
     @GetMapping("/api/trophies/{trophyId}/guides")

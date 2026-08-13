@@ -8,6 +8,8 @@ public record GuideResponse(
         UUID trophyId,
         UUID gameId,
         UUID authorId,
+        String title,
+        String description,
         String content,
         String videoUrl,
         String status,

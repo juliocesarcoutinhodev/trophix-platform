@@ -12,6 +12,12 @@ public interface SubmitGuideUseCase {
      */
     String submit(UUID authorId, SubmitGuideCommand command);
 
-    record SubmitGuideCommand(UUID trophyId, UUID gameId, String content, String videoUrl) {
+    record SubmitGuideCommand(
+            UUID trophyId,
+            UUID gameId,
+            String title,
+            String description,
+            String content,
+            String videoUrl) {
     }
 }

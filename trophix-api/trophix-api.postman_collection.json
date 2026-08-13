@@ -878,7 +878,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"content\": \"Guia do trofeu\",\n    \"videoUrl\": \"https://youtu.be/abc\"\n}",
+              "raw": "{\n    \"title\": \"Titulo do guia\",\n    \"description\": \"Descricao do guia\",\n    \"content\": \"Guia do trofeu\",\n    \"videoUrl\": \"https://youtu.be/abc\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -898,7 +898,7 @@
               ]
             }
           },
-          "description": "Submete um roadmap (guia de jogo) para o jogo identificado pelo gameId na URL. Status inicial PENDING.\n\nRota protegida: exige o cookie de autenticacao.\n\nRespostas:\n- 201: guia submetido\n- 400: conteudo vazio\n- 404: jogo inexistente"
+          "description": "Submete um roadmap (guia de jogo) para o jogo identificado pelo gameId na URL. Campos obrigatorios: title e content. Status inicial PENDING.\n\nRota protegida: exige o cookie de autenticacao.\n\nRespostas:\n- 201: guia submetido\n- 400: titulo/conteudo vazio\n- 404: jogo inexistente"
         },
         {
           "name": "Submeter Guia de Trofeu",
@@ -912,7 +912,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"content\": \"Guia do trofeu\",\n    \"videoUrl\": \"https://youtu.be/abc\"\n}",
+              "raw": "{\n    \"title\": \"Titulo do guia\",\n    \"description\": \"Descricao do guia\",\n    \"content\": \"Guia do trofeu\",\n    \"videoUrl\": \"https://youtu.be/abc\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -932,7 +932,7 @@
               ]
             }
           },
-          "description": "Submete um guia para o trofeu identificado pelo trophyId na URL. Status inicial PENDING.\n\nRota protegida: exige o cookie de autenticacao.\n\nRespostas:\n- 201: guia submetido\n- 400: conteudo vazio\n- 404: trofeu inexistente"
+          "description": "Submete um guia para o trofeu identificado pelo trophyId na URL. Campos obrigatorios: title e content. Status inicial PENDING.\n\nRota protegida: exige o cookie de autenticacao.\n\nRespostas:\n- 201: guia submetido\n- 400: titulo/conteudo vazio\n- 404: trofeu inexistente"
         },
         {
           "name": "Moderar Guia (Admin)",

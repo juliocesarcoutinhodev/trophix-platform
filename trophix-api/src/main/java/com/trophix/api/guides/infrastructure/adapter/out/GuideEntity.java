@@ -44,6 +44,12 @@ public class GuideEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private UserJpaEntity author;
 
+    @Column(nullable = false, length = 255)
+    private String title;
+
+    @Column(length = 1000)
+    private String description;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 

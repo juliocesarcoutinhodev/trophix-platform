@@ -36,6 +36,8 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
             entity.setGame(gameSpringDataRepository.getReferenceById(guide.gameId()));
         }
         entity.setAuthor(userSpringDataRepository.getReferenceById(guide.authorId()));
+        entity.setTitle(guide.title());
+        entity.setDescription(guide.description());
         entity.setContent(guide.content());
         entity.setVideoUrl(guide.videoUrl());
         entity.setStatus(guide.status());

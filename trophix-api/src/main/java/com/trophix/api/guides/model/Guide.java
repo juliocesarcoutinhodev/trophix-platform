@@ -14,6 +14,8 @@ public record Guide(
         UUID trophyId,
         UUID gameId,
         UUID authorId,
+        String title,
+        String description,
         String content,
         String videoUrl,
         GuideStatus status,
@@ -22,9 +24,9 @@ public record Guide(
         Instant updatedAt) {
 
     public static Guide create(UUID trophyId, UUID gameId, UUID authorId,
-                               String content, String videoUrl) {
+                               String title, String description, String content, String videoUrl) {
         Instant now = Instant.now();
-        return new Guide(UuidV7.generate(), trophyId, gameId, authorId, content, videoUrl,
-                GuideStatus.PENDING, 0, now, now);
+        return new Guide(UuidV7.generate(), trophyId, gameId, authorId, title, description,
+                content, videoUrl, GuideStatus.PENDING, 0, now, now);
     }
 }

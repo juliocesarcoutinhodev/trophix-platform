@@ -12,6 +12,8 @@ public class GuideMapper {
                 entity.getTrophy() != null ? entity.getTrophy().getId() : null,
                 entity.getGame() != null ? entity.getGame().getId() : null,
                 entity.getAuthor().getId(),
+                entity.getTitle(),
+                entity.getDescription(),
                 entity.getContent(),
                 entity.getVideoUrl(),
                 entity.getStatus(),

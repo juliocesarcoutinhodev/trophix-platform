@@ -26,6 +26,10 @@ public class SubmitGuideUseCaseImpl implements SubmitGuideUseCase {
     @Override
     @Transactional
     public String submit(UUID authorId, SubmitGuideCommand command) {
+        if (command.title() == null || command.title().isBlank()) {
+            throw new BusinessException("O título do guia é obrigatório.");
+        }
+
         if (command.content() == null || command.content().isBlank()) {
             throw new BusinessException("O conteúdo do guia não pode estar vazio.");
         }
@@ -45,11 +49,11 @@ public class SubmitGuideUseCaseImpl implements SubmitGuideUseCase {
         }
 
         Guide guide = Guide.create(command.trophyId(), command.gameId(), authorId,
-                command.content().trim(), command.videoUrl());
+                command.title().trim(), command.description(), command.content().trim(), command.videoUrl());
         guideRepository.save(guide);
 
-        log.info("Guia submetido authorId={} trophyId={} gameId={}",
-                authorId, command.trophyId(), command.gameId());
+        log.info("Guia submetido authorId={} trophyId={} gameId={} title={}",
+                authorId, command.trophyId(), command.gameId(), guide.title());
         return "Guia submetido com sucesso e aguardando aprovação.";
     }
 }
