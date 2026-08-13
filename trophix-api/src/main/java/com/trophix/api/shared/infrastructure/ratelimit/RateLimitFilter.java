@@ -41,7 +41,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             "/api/users/*/games",
             "/api/trophies/*/guides",
             "/api/games/np/*/guides",
-            "/api/games/*/trophies");
+            "/api/games/*/trophies",
+            "/api/guides/**");
 
     private final RateLimitProperties properties;
     private final Map<String, RateLimiter> limiters;

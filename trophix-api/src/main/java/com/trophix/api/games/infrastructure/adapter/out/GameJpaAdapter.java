@@ -4,9 +4,14 @@ import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.model.Game;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,6 +21,7 @@ public class GameJpaAdapter implements GameRepositoryPort {
     private final GameMapper mapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Game saveIfNotExists(Game game) {
         return springDataRepository.findByNpCommunicationId(game.npCommunicationId())
                 .map(mapper::toDomain)
@@ -23,12 +29,25 @@ public class GameJpaAdapter implements GameRepositoryPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Game> findById(UUID gameId) {
         return springDataRepository.findById(gameId).map(mapper::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Game> findByNpCommunicationId(String npCommunicationId) {
         return springDataRepository.findByNpCommunicationId(npCommunicationId).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, Game> findAllByIds(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return springDataRepository.findAllById(ids).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toMap(Game::id, Function.identity()));
     }
 }

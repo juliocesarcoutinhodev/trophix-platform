@@ -2,6 +2,8 @@ package com.trophix.api.games.application.ports.out;
 
 import com.trophix.api.games.model.Game;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,7 @@ public interface GameRepositoryPort {
     Optional<Game> findById(UUID gameId);
 
     Optional<Game> findByNpCommunicationId(String npCommunicationId);
+
+    /** Batch lookup by id, keyed by game id. Missing ids are simply absent. */
+    Map<UUID, Game> findAllByIds(Collection<UUID> ids);
 }

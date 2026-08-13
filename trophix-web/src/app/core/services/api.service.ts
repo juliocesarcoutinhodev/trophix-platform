@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
-import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile } from '../models/api.models';
+import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -54,11 +54,32 @@ export class ApiService {
     return this.http.get<GameDetail>(`/api/games/${gameId}/detail`);
   }
 
+  getGameTrophies(gameId: string) {
+    return this.http.get<TrophyStatus[]>(`/api/games/${gameId}/trophies`);
+  }
+
   getMyTrophies(gameId: string) {
     return this.http.get<TrophyStatus[]>(`/api/games/${gameId}/my-trophies`);
   }
 
   syncGameTrophies(gameId: string) {
     return this.http.post<MessageResponse>(`/api/games/${gameId}/sync-trophies`, {});
+  }
+
+  // ---- Guides ----
+  getLatestGuides() {
+    return this.http.get<GuideResponse[]>('/api/guides');
+  }
+
+  getGuideById(guideId: string) {
+    return this.http.get<GuideResponse>(`/api/guides/${guideId}`);
+  }
+
+  voteGuide(guideId: string) {
+    return this.http.post<VoteResponse>(`/api/guides/${guideId}/vote`, {});
+  }
+
+  submitGameGuide(gameId: string, request: SubmitGuideRequest) {
+    return this.http.post<MessageResponse>(`/api/games/${gameId}/guides`, request);
   }
 }

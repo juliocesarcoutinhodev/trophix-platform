@@ -1,6 +1,8 @@
 package com.trophix.api.guides.infrastructure.adapter.in;
 
 import com.trophix.api.guides.application.ports.in.GetGameGuidesUseCase;
+import com.trophix.api.guides.application.ports.in.GetGuideByIdUseCase;
+import com.trophix.api.guides.application.ports.in.GetLatestGuidesUseCase;
 import com.trophix.api.guides.application.ports.in.GetTrophyGuidesUseCase;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.application.ports.in.SubmitGuideUseCase;
@@ -11,6 +13,7 @@ import com.trophix.api.guides.infrastructure.adapter.in.dto.SubmitGuideRequest;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.VoteResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;
 import com.trophix.api.guides.model.Guide;
+import com.trophix.api.shared.infrastructure.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,7 +40,30 @@ public class GuideController {
     private final VoteGuideUseCase voteGuideUseCase;
     private final GetTrophyGuidesUseCase getTrophyGuidesUseCase;
     private final GetGameGuidesUseCase getGameGuidesUseCase;
+    private final GetLatestGuidesUseCase getLatestGuidesUseCase;
+    private final GetGuideByIdUseCase getGuideByIdUseCase;
     private final GuideWebMapper guideWebMapper;
+    private final AuthenticatedUser authenticatedUser;
+
+    @GetMapping("/api/guides")
+    public ResponseEntity<List<GuideResponse>> getLatestRoadmaps(
+            @AuthenticationPrincipal String userId,
+            @RequestParam(defaultValue = "20") int limit) {
+        List<GuideResponse> guides = getLatestGuidesUseCase.getLatestRoadmaps(limit,
+                        authenticatedUser.optionalId(userId).orElse(null)).stream()
+                .map(guideWebMapper::toGuideResponse)
+                .toList();
+        return ResponseEntity.ok(guides);
+    }
+
+    @GetMapping("/api/guides/{guideId}")
+    public ResponseEntity<GuideResponse> getGuideById(
+            @AuthenticationPrincipal String userId,
+            @PathVariable UUID guideId) {
+        GuideResponse guide = guideWebMapper.toGuideResponse(
+                getGuideByIdUseCase.getGuide(guideId, authenticatedUser.optionalId(userId).orElse(null)));
+        return ResponseEntity.ok(guide);
+    }
 
     @PostMapping("/api/games/{gameId}/guides")
     public ResponseEntity<MessageResponse> submitGameGuide(

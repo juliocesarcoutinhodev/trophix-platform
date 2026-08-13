@@ -1020,6 +1020,49 @@
             }
           },
           "description": "Retorna os roadmaps (guias de jogo) APROVADOS do jogo identificado pelo npCommunicationId da PSN, ordenados por upvotes (descendente).\n\nRota publica, sem necessidade de login.\n\nRespostas:\n- 200: lista de guias APPROVED\n- 404: jogo nao encontrado"
+        },
+        {
+          "name": "Guias Recentes (Roadmaps)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/guides?limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "guides"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "description": "Retorna os últimos roadmaps aprovados (guias de jogo, sem trophyId) de forma global, ordenados por data de criação (mais recentes primeiro), enriquecidos com gameName, imageUrl, authorName e currentUserVoted (true se o usuário logado já votou).\n\nRota pública, sem necessidade de login.\n\nQuery param:\n- limit (default 20, máx 50)\n\nRespostas:\n- 200: lista de guias (id, gameId, gameName, imageUrl, authorId, authorName, title, description, content, videoUrl, status, upvotesCount, currentUserVoted, createdAt, updatedAt)"
+        },
+        {
+          "name": "Detalhes de um Guia",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/guides/{{guideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "guides",
+                "{{guideId}}"
+              ]
+            }
+          },
+          "description": "Retorna o detalhe de um guia aprovado pelo seu UUID interno, enriquecido com gameName, imageUrl, authorName e currentUserVoted (true se o usuário logado já votou).\n\nRota pública, sem necessidade de login.\n\nRespostas:\n- 200: guia (id, gameId, gameName, imageUrl, authorId, authorName, title, description, content, videoUrl, status, upvotesCount, currentUserVoted, createdAt, updatedAt)\n- 404: guia não encontrado (ou ainda não aprovado)"
         }
       ]
     }

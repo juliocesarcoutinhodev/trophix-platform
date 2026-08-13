@@ -1,0 +1,132 @@
+<main class="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="h-10 w-10 animate-spin rounded-full border-b-2 border-t-2 border-violet-500"></div>
+    </div>
+  } @else if (guide(); as g) {
+    <!-- HEADER -->
+    <div class="mb-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
+      <div class="relative h-48 w-full bg-slate-950 sm:h-64">
+        <!-- Imagem borrada de fundo -->
+        <img [src]="g.imageUrl || 'https://via.placeholder.com/1200x400/0f172a/6d28d9?text=Guia'" class="absolute inset-0 h-full w-full object-cover opacity-30 blur-md transition-opacity duration-1000">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+        
+        <!-- Conteúdo do Header (Capa + Textos) -->
+        <div class="absolute bottom-0 left-0 flex flex-col items-start gap-6 p-6 sm:flex-row sm:items-end sm:p-8">
+          <img [src]="g.imageUrl || 'https://via.placeholder.com/300x300'" class="h-28 w-28 shrink-0 rounded-xl shadow-2xl ring-4 ring-slate-950 sm:h-36 sm:w-36">
+          <div class="pb-2">
+            <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">{{ g.gameName || 'Jogo Não Especificado' }}</span>
+            <h1 class="mt-3 text-3xl font-bold leading-tight text-slate-100 sm:text-4xl">{{ g.title }}</h1>
+            <div class="mt-4 flex flex-wrap items-center gap-3 text-sm font-medium text-slate-300">
+              <span class="flex items-center gap-1.5"><svg class="h-5 w-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>{{ g.authorName || 'Autor' }}</span>
+              <span class="text-slate-600">•</span>
+              <span>{{ g.createdAt | date:'dd/MM/yyyy' }}</span>
+              <span class="text-slate-600">•</span>
+              <span class="flex items-center gap-1.5 text-emerald-400"><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/></svg>{{ g.upvotesCount || 0 }} Curtidas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS DE NAVEGAÇÃO -->
+    <div class="mb-8 flex border-b border-slate-800">
+      <button 
+        (click)="activeTab.set('roadmap')" 
+        class="px-6 py-4 font-semibold transition-colors"
+        [class.border-b-2.border-violet-500.text-white]="activeTab() === 'roadmap'"
+        [class.text-slate-400.hover.text-slate-200]="activeTab() !== 'roadmap'"
+      >
+        Roadmap (Guia Geral)
+      </button>
+      <button 
+        (click)="activeTab.set('trophies')" 
+        class="px-6 py-4 font-semibold transition-colors"
+        [class.border-b-2.border-violet-500.text-white]="activeTab() === 'trophies'"
+        [class.text-slate-400.hover.text-slate-200]="activeTab() !== 'trophies'"
+      >
+        Troféus ({{ trophies().length }})
+      </button>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    @if (activeTab() === 'roadmap') {
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <!-- Markdown Renderizado -->
+        <div class="lg:col-span-2">
+          <div class="prose prose-invert prose-violet max-w-none rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-10" [innerHTML]="parsedContent()">
+          </div>
+        </div>
+        
+        <!-- Sidebar (Vídeo + Ações) -->
+        <div class="space-y-6">
+          @if (videoEmbedUrl()) {
+            <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
+              <div class="border-b border-slate-800 bg-slate-950 p-4">
+                <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                  <svg class="h-5 w-5 text-rose-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.501 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.377.55 9.377.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  Vídeo / Detonado
+                </h3>
+              </div>
+              <div class="aspect-video w-full bg-black">
+                <iframe [src]="videoEmbedUrl()" class="h-full w-full" frameborder="0" allowfullscreen></iframe>
+              </div>
+            </div>
+          }
+          
+          <div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
+            <h3 class="mb-4 font-bold text-slate-100">Avalie este guia</h3>
+            <button 
+              (click)="toggleVote()"
+              [disabled]="voting()"
+              class="flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold transition-colors ring-1 ring-inset disabled:opacity-50"
+              [class]="guide()?.currentUserVoted 
+                ? 'bg-emerald-500 text-slate-900 ring-emerald-500 hover:bg-emerald-400' 
+                : 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 hover:bg-emerald-500/20'"
+            >
+              @if (voting()) {
+                <div class="h-5 w-5 animate-spin rounded-full border-b-2 border-t-2" [class.border-slate-900]="guide()?.currentUserVoted" [class.border-emerald-500]="!guide()?.currentUserVoted"></div>
+              } @else {
+                <svg class="h-5 w-5" [attr.fill]="guide()?.currentUserVoted ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg>
+                {{ guide()?.currentUserVoted ? 'Curtido' : 'Curtir' }}
+              }
+            </button>
+            <p class="mt-3 text-center text-xs text-slate-500">Ajude o autor recomendando o conteúdo para a comunidade.</p>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- LISTA DE TROFÉUS -->
+      <div class="space-y-4">
+        @for (trophy of trophies(); track trophy.id) {
+          <div class="flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-900 p-4 transition-colors hover:border-slate-700 sm:flex-row sm:items-center">
+            <img [src]="trophy.iconUrl" class="h-20 w-20 shrink-0 rounded-lg bg-slate-950 p-1 ring-1 ring-slate-800">
+            <div class="flex-1">
+              <div class="flex items-center gap-3">
+                <h3 class="text-lg font-bold text-slate-100">{{ trophy.name }}</h3>
+                <span class="rounded bg-slate-800 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-slate-400 shadow-inner"
+                  [class.text-amber-500]="trophy.type === 'gold'"
+                  [class.text-slate-300]="trophy.type === 'silver'"
+                  [class.text-amber-700]="trophy.type === 'bronze'"
+                  [class.text-sky-400]="trophy.type === 'platinum'"
+                >
+                  {{ trophy.type }}
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-slate-400">{{ trophy.description }}</p>
+            </div>
+            <div class="flex shrink-0 sm:ml-4">
+              <button class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
+                Ver Dicas
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="rounded-xl border border-dashed border-slate-800 py-12 text-center text-slate-500">
+            Nenhum troféu sincronizado para este jogo ainda.
+          </div>
+        }
+      </div>
+    }
+  }
+</main>

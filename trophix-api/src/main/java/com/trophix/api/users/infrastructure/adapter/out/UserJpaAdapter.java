@@ -9,10 +9,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -79,6 +82,17 @@ public class UserJpaAdapter implements UserRepository {
     @Transactional(readOnly = true)
     public List<UUID> findActiveUserIds(Instant since) {
         return springDataRepository.findActiveUserIds(since);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, User> findAllByIds(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return springDataRepository.findAllById(ids).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toMap(User::id, Function.identity()));
     }
 
     /**

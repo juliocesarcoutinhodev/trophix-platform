@@ -1,6 +1,7 @@
 package com.trophix.api.guides.infrastructure.adapter.out;
 
 import com.trophix.api.guides.model.GuideStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,9 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 
     List<GuideEntity> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
+
+    @Query("select g from GuideEntity g where g.trophy is null and g.status = :status order by g.createdAt desc")
+    List<GuideEntity> findLatestRoadmaps(@Param("status") GuideStatus status, Pageable pageable);
 
     @Modifying
     @Query("update GuideEntity g set g.upvotesCount = g.upvotesCount + 1 where g.id = :id")

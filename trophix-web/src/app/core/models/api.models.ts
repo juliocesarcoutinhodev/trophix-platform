@@ -61,3 +61,34 @@ export interface TrophyStatus {
   earned: boolean;
   earnedAt: string | null;
 }
+
+export interface GuideResponse {
+  id: string;
+  trophyId: string | null;
+  gameId: string;
+  authorId: string;
+  authorName?: string;
+  gameName?: string;
+  imageUrl?: string;
+  title: string;
+  description: string;
+  content: string;
+  videoUrl: string | null;
+  status: string;
+  upvotesCount: number;
+  currentUserVoted?: boolean;
+  createdAt: string;
+}
+
+export interface SubmitGuideRequest {
+  title: string;
+  description: string;
+  content: string;
+  videoUrl?: string;
+}
+
+export interface VoteResponse {
+  voted: boolean;
+  upvotesCount: number;
+  message: string;
+}

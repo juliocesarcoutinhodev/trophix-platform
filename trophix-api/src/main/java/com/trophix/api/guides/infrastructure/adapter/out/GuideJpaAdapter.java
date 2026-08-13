@@ -7,6 +7,7 @@ import com.trophix.api.guides.model.GuideStatus;
 import com.trophix.api.trophies.infrastructure.adapter.out.TrophySpringDataRepository;
 import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +69,13 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     @Transactional(readOnly = true)
     public List<Guide> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status) {
         return springDataRepository.findByGameIdAndStatusOrderByUpvotesCountDesc(gameId, status)
+                .stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Guide> findLatestRoadmapsByStatus(GuideStatus status, int limit) {
+        return springDataRepository.findLatestRoadmaps(status, PageRequest.of(0, Math.max(1, limit)))
                 .stream().map(mapper::toDomain).toList();
     }
 

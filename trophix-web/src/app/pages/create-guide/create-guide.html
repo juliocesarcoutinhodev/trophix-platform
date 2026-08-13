@@ -9,8 +9,59 @@
     <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
       <h2 class="mb-4 text-xl font-bold text-slate-100">Informações Básicas</h2>
       <div class="space-y-4">
+        <div class="relative">
+          <label class="mb-1 block text-sm font-medium text-slate-300">Selecione o Jogo <span class="text-rose-500">*</span></label>
+          
+          <!-- Botão do Select Customizado -->
+          <button
+            type="button"
+            (click)="dropdownOpen.set(!dropdownOpen())"
+            class="flex w-full items-center justify-between rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-left text-slate-200 outline-none transition-colors focus:border-violet-600 focus:ring-1 focus:ring-violet-600"
+          >
+            @if (selectedGame()) {
+              <span class="flex items-center gap-3">
+                <img [src]="selectedGame()?.imageUrl" alt="" class="h-6 w-6 rounded object-cover" />
+                <span class="truncate">{{ selectedGame()?.name }} <span class="text-slate-500">({{ selectedGame()?.platform }})</span></span>
+              </span>
+            } @else {
+              <span class="text-slate-500">Escolha um jogo da sua biblioteca...</span>
+            }
+            <svg class="h-5 w-5 text-slate-500 transition-transform" [class.rotate-180]="dropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Menu Dropdown -->
+          @if (dropdownOpen()) {
+            <!-- Fundo invisível para fechar ao clicar fora -->
+            <div class="fixed inset-0 z-40" (click)="dropdownOpen.set(false)"></div>
+            
+            <div class="absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-slate-800 bg-slate-900 shadow-xl shadow-black/50">
+              <ul class="max-h-72 overflow-y-auto p-1">
+                @for (game of games(); track game.gameId) {
+                  <li>
+                    <button
+                      type="button"
+                      (click)="selectGame(game.gameId)"
+                      [class.bg-slate-800]="selectedGameId() === game.gameId"
+                      class="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+                    >
+                      <img [src]="game.imageUrl" alt="" class="h-8 w-8 shrink-0 rounded object-cover" />
+                      <div class="flex flex-col truncate">
+                        <span class="truncate font-medium" [class.text-white]="selectedGameId() === game.gameId">{{ game.name }}</span>
+                        <span class="text-xs text-slate-500">{{ game.platform }}</span>
+                      </div>
+                    </button>
+                  </li>
+                } @empty {
+                  <li class="p-4 text-center text-sm text-slate-500">Nenhum jogo encontrado.</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-300">Título do Guia</label>
+          <label class="mb-1 block text-sm font-medium text-slate-300">Título do Guia <span class="text-rose-500">*</span></label>
           <input
             type="text"
             [ngModel]="title()"
@@ -102,9 +153,10 @@
       </a>
       <button
         type="submit"
-        class="inline-flex items-center justify-center rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+        [disabled]="isSubmitting()"
+        class="inline-flex items-center justify-center rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Publicar Guia
+        {{ isSubmitting() ? 'Publicando...' : 'Publicar Guia' }}
       </button>
     </div>
   </form>

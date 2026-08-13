@@ -193,6 +193,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | POST | `/api/guides/{guideId}/vote` | autenticado | Vota/desvota (toggle, 1 voto por usuário) |
 | GET | `/api/trophies/{trophyId}/guides` | público | Dicas aprovadas daquele troféu (id, title, description, content, ...) |
 | GET | `/api/games/np/{npCommunicationId}/guides` | público | Roadmaps aprovados daquele jogo (id, title, description, content, ...) |
+| GET | `/api/guides?limit=20` | público | Últimos roadmaps aprovados (sem trophyId), ordenados por criação desc, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
+| GET | `/api/guides/{guideId}` | público | Detalhe de um guia aprovado, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
 
 ## Fluxo do produto
 
@@ -202,7 +204,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 4. **Sync de troféus por jogo** — `POST /api/games/{gameId}/sync-trophies` enfileira (202) e o worker persiste o catálogo (`trophies`) e as conquistas com data (`user_trophies`). O sidecar serve respostas com cache, e a página de detalhes dispara esse sync automaticamente a cada visita.
 5. **Detalhes do jogo** — a página `/jogos/:id` mostra capa, plataforma, progresso e a contagem de Platina/Ouro/Prata/Bronze conquistadas (`GET /api/games/{gameId}/detail`), além da lista de troféus com `earned`/`earnedAt` (`GET /api/games/{gameId}/my-trophies`). O sync silencioso mantém os dados atualizados sem ação do usuário.
 6. **Guias** — roadmaps por jogo e dicas por troféu, cada um com `title`/`description`/`content`, submetidos com status `PENDING`, moderados por admin, com votação anti-fraude (contador atômico + `UNIQUE (guide_id, user_id)`).
-7. **Consulta pública** — dica de chefe via `GET /api/trophies/{trophyId}/guides`; roadmap de 40h via `GET /api/games/np/{npCommunicationId}/guides`.
+7. **Consulta pública** — dica de chefe via `GET /api/trophies/{trophyId}/guides`; roadmap de 40h via `GET /api/games/np/{npCommunicationId}/guides`; últimos roadmaps via `GET /api/guides`.
 
 ## Collections Postman
 

@@ -1,0 +1,83 @@
+<main class="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
+  <div class="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-100">Guias da Comunidade</h1>
+      <p class="mt-2 text-slate-400">Descubra dicas, roadmaps completos e detone seus jogos favoritos.</p>
+    </div>
+    <a
+      routerLink="/create-guide"
+      class="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition-all hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-900/40"
+    >
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Novo Guia
+    </a>
+  </div>
+
+  <div class="flex flex-col gap-6">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-violet-500"></div>
+      </div>
+    } @else {
+      @for (guide of guides(); track guide.id) {
+        <a
+          [routerLink]="['/guides', guide.id]"
+          class="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700 sm:flex-row"
+        >
+          <div class="relative h-48 w-full shrink-0 overflow-hidden bg-slate-950 sm:h-auto sm:w-64">
+            <img
+              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover opacity-30 blur-md transition-transform duration-500 group-hover:scale-110"
+            />
+            <img
+              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+              [alt]="guide.gameName || 'Jogo'"
+              class="relative h-full w-full object-contain p-4 drop-shadow-xl"
+            />
+          </div>
+          
+          <div class="flex flex-1 flex-col justify-between p-6">
+            <div>
+              <div class="mb-3 flex items-center gap-3">
+                <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">
+                  Roadmap
+                </span>
+                <span class="text-sm font-semibold text-slate-400">{{ guide.gameName || 'Jogo Não Especificado' }}</span>
+              </div>
+              <h2 class="text-2xl font-bold text-slate-100 transition-colors group-hover:text-violet-400">
+                {{ guide.title }}
+              </h2>
+              <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-300">
+                {{ guide.description }}
+              </p>
+            </div>
+            
+            <div class="mt-6 flex items-center justify-between border-t border-slate-800/60 pt-4 text-sm text-slate-400">
+              <div class="flex items-center gap-2.5">
+                <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
+                  {{ (guide.authorName || 'A').charAt(0) }}
+                </div>
+                <span class="font-medium text-slate-200">{{ guide.authorName || 'Autor' }}</span>
+                <span class="px-1 text-slate-600">•</span>
+                <span>{{ guide.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-1 text-emerald-400">
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                </svg>
+                <span class="font-bold">{{ guide.upvotesCount || 0 }}</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      } @empty {
+        <div class="rounded-xl border border-dashed border-slate-800 py-12 text-center text-slate-500">
+          Nenhum guia criado ainda. Seja o primeiro!
+        </div>
+      }
+    }
+  </div>
+</main>

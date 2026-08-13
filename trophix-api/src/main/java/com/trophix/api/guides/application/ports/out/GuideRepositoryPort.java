@@ -19,6 +19,13 @@ public interface GuideRepositoryPort {
 
     List<Guide> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
 
+    /**
+     * Returns the latest game roadmaps (guides without a trophy target) for
+     * the given status, ordered by creation date (newest first), up to the
+     * informed limit.
+     */
+    List<Guide> findLatestRoadmapsByStatus(GuideStatus status, int limit);
+
     /** Atomic counter update: avoids lost updates under concurrent voting. */
     void incrementUpvotesCount(UUID guideId);
 

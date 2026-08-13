@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -37,5 +39,14 @@ public class GuideVoteJpaAdapter implements GuideVoteRepositoryPort {
     @Transactional
     public void deleteByGuideIdAndUserId(UUID guideId, UUID userId) {
         springDataRepository.deleteByGuideIdAndUserId(guideId, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<UUID> findVotedGuideIdsByUser(UUID userId, Collection<UUID> guideIds) {
+        if (guideIds.isEmpty()) {
+            return Set.of();
+        }
+        return springDataRepository.findVotedGuideIdsByUser(userId, guideIds);
     }
 }
