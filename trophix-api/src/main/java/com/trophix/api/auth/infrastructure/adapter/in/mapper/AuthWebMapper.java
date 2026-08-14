@@ -1,9 +1,13 @@
 package com.trophix.api.auth.infrastructure.adapter.in.mapper;
 
 import com.trophix.api.auth.application.ports.in.CompleteRegistrationUseCase;
+import com.trophix.api.auth.application.ports.in.ForgotPasswordUseCase;
 import com.trophix.api.auth.application.ports.in.LoginUseCase;
+import com.trophix.api.auth.application.ports.in.ResetPasswordUseCase;
+import com.trophix.api.auth.infrastructure.adapter.in.dto.ForgotPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.LoginRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.RegistrationRequest;
+import com.trophix.api.auth.infrastructure.adapter.in.dto.ResetPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.UserResponse;
 import com.trophix.api.auth.model.Role;
 import com.trophix.api.users.model.User;
@@ -25,6 +29,14 @@ public class AuthWebMapper {
 
     public LoginUseCase.LoginCommand toLoginCommand(LoginRequest request, String ipAddress, String userAgent) {
         return new LoginUseCase.LoginCommand(request.email(), request.password(), ipAddress, userAgent);
+    }
+
+    public ForgotPasswordUseCase.ForgotPasswordCommand toForgotPasswordCommand(ForgotPasswordRequest request) {
+        return new ForgotPasswordUseCase.ForgotPasswordCommand(request.email());
+    }
+
+    public ResetPasswordUseCase.ResetPasswordCommand toResetPasswordCommand(ResetPasswordRequest request) {
+        return new ResetPasswordUseCase.ResetPasswordCommand(request.token(), request.newPassword());
     }
 
     public UserResponse toUserResponse(User user) {

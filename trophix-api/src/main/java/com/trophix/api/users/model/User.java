@@ -51,6 +51,13 @@ public record User(
                 && Duration.between(lastSyncedAt, now).compareTo(cooldown) < 0;
     }
 
+    /** Returns a copy with the password replaced (used by password reset). */
+    public User withPassword(String newPassword) {
+        return new User(id, username, email, newPassword, avatarUrl, roles, accountId,
+                psnLevel, levelProgress, totalPlatinum, totalGold, totalSilver, totalBronze,
+                lastSyncedAt);
+    }
+
     /** Whole minutes remaining in the cooldown window (min 1). */
     public long syncCooldownMinutesLeft(Duration cooldown, Instant now) {
         long secondsLeft = cooldown.minus(Duration.between(lastSyncedAt, now)).getSeconds();

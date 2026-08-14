@@ -1,6 +1,6 @@
 # Trophix Platform
 
-Monorepo do ecossistema Trophix: plataforma de guias de troféus da PSN, com autenticação por cookie JWT, sincronização de perfis/jogos/troféus via um sidecar Node.js, e sistema de guias (roadmaps + dicas) com votação anti-fraude.
+Monorepo do ecossistema Trophix: plataforma de guias de troféus da PSN, com autenticação por cookies HttpOnly (JWT de acesso curto + refresh token opaco com rotação e detecção de reuso), sincronização de perfis/jogos/troféus via um sidecar Node.js, e sistema de guias (roadmaps + dicas) com votação anti-fraude.
 
 ## Arquitetura
 
@@ -46,8 +46,11 @@ docker compose up -d --build
 | `postgres`    | `trophix-postgres`  | `localhost:5432` | PostgreSQL 18, volume `postgres-data` |
 | `rabbitmq`    | `trophix-rabbitmq`  | `5672` (AMQP) / `15672` (console) | Fila de sincronização assíncrona |
 | `psn-sidecar` | `trophix-psn-sidecar` | `localhost:3000` | Autentica na PSN e expõe os dados do jogador |
+| `mailpit`     | `trophix-mailpit`   | `1025` (SMTP) / `8025` (UI) | Servidor de e-mail falso p/ testes (dev) |
 
 Console do RabbitMQ: `http://localhost:15672` (`trophix`/`trophix`, configurável por `RABBITMQ_USER`/`RABBITMQ_PASSWORD`).
+
+E-mails transacionais (ex.: redefinição de senha) são enviados no dev pelo **Mailpit** — a UI em `http://localhost:8025` mostra as mensagens recebidas (SMTP em `localhost:1025`, sem autenticação).
 
 O sidecar faz **cache em memória** das respostas de troféus (TTL configurável via `TROFEUS_CACHE_TTL_MS`, default 10 min), então a PSN não é consultada a cada requisição — o que deixa barato o sync automático da página de detalhes do jogo.
 
@@ -97,11 +100,60 @@ Filtro token-bucket na cadeia do Spring Security (antes da autenticação), por 
 
 | Grupo | Rotas | Limite (capacidade / refill) |
 | ----- | ----- | ---------------------------- |
-| `auth` | `POST /api/auth/login`, `/register-completion`, `/api/users/link-request`, `/link-validate` | 10 / 20 por min (anti força bruta) |
+| `auth` | `POST /api/auth/login`, `/register-completion`, `/refresh`, `/logout`, `/api/users/link-request`, `/link-validate` | 10 / 20 por min (anti força bruta) |
 | `public-read` | `GET /api/users/*/profile`, `/api/users/*/games`, `/api/trophies/*/guides`, `/api/games/np/*/guides`, `/api/games/*/trophies` | 60 / 120 por min (anti scraper) |
 | `default` | demais rotas `/api` (autenticadas) | 300 / 600 por min |
 
 Excesso responde `429` com corpo PT-BR e header `Retry-After`. Configurável em `trophix.rate-limit.*` (`application.yml`), incluindo `enabled` e `trust-forwarded-header` (usar quando houver proxy atrás). O limiter é em memória (por instância) — para múltiplas instâncias, migrar para Redis ou aplicar no gateway (Nginx) no edge.
+
+## Sessões com refresh token rotacionado
+
+Autenticação em dois níveis, seguindo as recomendações do OWASP e o modelo de rotação da Auth0 / Microsoft Entra:
+
+- **Access token** — JWT curto (`trophix.jwt.expiration`, default `PT1H`), sem estado, transportado no cookie `trophix_jwt` (`HttpOnly; SameSite=Strict; Path=/`).
+- **Refresh token** — valor **opaco** de 256 bits (CSPRNG) no cookie `trophix_refresh` (`HttpOnly; SameSite=Strict; Path=/api/auth`, viajando apenas nas rotas de auth). **Só o hash SHA-256 é persistido** na tabela `refresh_tokens`; o valor em claro nunca toca o banco.
+
+```
+login ──► access JWT (1h) + refresh opaco (30 dias)     [2 cookies HttpOnly]
+  │
+  ▼  (access expira)
+POST /api/auth/refresh ──► rotaciona: revoga o refresh usado e emite novo par
+  │                          na mesma família (TTL absoluto é renovado)
+  ▼
+logout ──► revoga a família inteira no servidor + limpa os 2 cookies
+```
+
+- **Rotação:** cada uso do refresh emite um novo par e invalida o anterior de forma atômica (transação + lock pessimista na linha), dentro da mesma **família** (`family_id`). Uma cadeia de rotações pode ser usada por todo o TTL.
+- **Detecção de reuso (anti-roubo):** apresentar um refresh **já rotacionado** indica vazamento — a **família inteira é revogada** e a API responde `401` ("Sessão comprometida"), obrigando novo login.
+- **Logout:** revoga a família no servidor e limpa os dois cookies (`Max-Age=0`).
+- **Expiração:** TTL absoluto por token (`trophix.refresh-token.expiration`, default `PT720H`) e, opcionalmente, idle timeout (`trophix.refresh-token.idle-timeout`, `PT0S` desabilita). Um job diário (03:30) purga tokens expirados com retenção de 7 dias para auditoria.
+- **Rate limiting:** `/api/auth/refresh` e `/api/auth/logout` estão no grupo `auth` (anti força bruta).
+
+> ⚠️ O cliente (SPA) deve **serializar** as chamadas de refresh (uma única em voo): duas renovações simultâneas do mesmo token disparam a detecção de reuso e encerram a sessão. O front-end ainda não consome `/api/auth/refresh` — pendência para adaptar o interceptor do `trophix-web`.
+
+## Redefinição de senha (esqueci minha senha)
+
+Fluxo anti-enumeração (a resposta de `forgot-password` é idêntica existindo ou não a conta):
+
+```
+POST /api/auth/forgot-password {email}
+  │  (se a conta tiver e-mail + senha)
+  ▼
+gera token UUIDv7 (hash SHA-256 salvo) → e-mail com link via SMTP (Mailpit no dev)
+  │  link: {TROPHIX_WEB_URL}/reset-password?token={token}
+  ▼
+POST /api/auth/reset-password {token, newPassword}
+  ├─ valida: token existe, não consumido, não expirado (TTL 1h, uso único)
+  ├─ re-hash da nova senha (BCrypt)
+  ├─ marca token como consumido
+  └─ revoga TODAS as sessões do usuário (famílias de refresh) — login obrigatório
+```
+
+- **Token** — UUIDv7 enviado no link; **apenas o hash SHA-256** é persistido (`password_reset_tokens`, migração V15). Nunca armazena o valor em claro.
+- **E-mail** — template HTML `trophix-api/src/main/resources/templates/email/password-reset.html` no padrão visual do front (dark slate + violeta), com fallback de texto puro e envio **assíncrono**.
+- **Config** — `trophix.password-reset.token-ttl` (default `PT1H`), `trophix.password-reset.frontend-url` (default `http://localhost:4200`), `trophix.mail.from` (default `no-reply@trophix.com`); SMTP via `spring.mail.*` (dev: `localhost:1025`, Mailpit).
+- **Rate limiting** — `forgot-password` e `reset-password` estão no grupo `auth` (anti força bruta). Job diário (03:45) purga tokens expirados/consumidos.
+- **Pendência front-end** — a rota `/reset-password?token=...` no `trophix-web` ainda não existe (criação a cargo do time de front).
 
 ## Sincronização assíncrona (fila RabbitMQ)
 
@@ -132,6 +184,9 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | `NPSSO_TOKEN`     | **sim**     | Token PSN de 64 caracteres |
 | `TROFEUS_CACHE_TTL_MS` | não (default `600000`) | Cache do sidecar p/ troféus (ms) |
 | `RABBITMQ_USER` / `RABBITMQ_PASSWORD` | não (default `trophix`/`trophix`) | Credenciais do RabbitMQ |
+| `MAIL_HOST` / `MAIL_PORT` | não (default `localhost`/`1025`) | SMTP (dev: Mailpit) |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` / `MAIL_FROM` | não (default vazio / `no-reply@trophix.com`) | SMTP opcional p/ auth e remetente |
+| `TROPHIX_WEB_URL` | não (default `http://localhost:4200`) | Base do link de redefinição de senha |
 
 > NPSSO: obtenha em `https://ca.account.sony.com/api/v1/ssocookie` logado na PSN. Vale como senha e expira (~60 dias); o sidecar renova access/refresh sozinho depois do boot.
 
@@ -161,8 +216,11 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
 | POST | `/api/auth/register-completion` | público | Finaliza cadastro (email/senha/role, busca avatar na PSN) |
-| POST | `/api/auth/login` | público | Login — devolve JWT em cookie HttpOnly |
-| POST | `/api/auth/logout` | autenticado | Invalida o cookie |
+| POST | `/api/auth/login` | público | Login — emite access JWT + refresh token (cookies HttpOnly) e cria a família de sessão |
+| POST | `/api/auth/refresh` | público | Rotaciona o refresh token (novo par, mesma família); reuso revoga a família (401) |
+| POST | `/api/auth/logout` | autenticado | Revoga a família de refresh tokens no servidor e limpa os cookies |
+| POST | `/api/auth/forgot-password` | público | Envia e-mail com link de redefinição (token UUIDv7, uso único, 1h) — resposta genérica p/ não vazar e-mails cadastrados |
+| POST | `/api/auth/reset-password` | público | Redefine a senha (valida o token, revoga todas as sessões do usuário) |
 
 ### Usuários / vínculo PSN
 | Método | Rota | Acesso | Descrição |

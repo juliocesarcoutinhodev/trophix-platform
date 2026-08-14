@@ -200,7 +200,7 @@
                 "login"
               ]
             },
-            "description": "Autentica e devolve o JWT em um cookie HttpOnly (SameSite=Strict), sem corpo na resposta.\nO Postman guarda o cookie no Cookie Jar e o envia automaticamente nas próximas requisições a localhost:8080.\n\nRespostas:\n- 200: cookie trophix_jwt definido\n- 400: Credenciais inválidas"
+            "description": "Autentica e devolve o par de cookies HttpOnly (SameSite=Strict): trophix_jwt (access JWT) e trophix_refresh (refresh token opaco, Path=/api/auth), sem corpo na resposta.\nO Postman guarda os cookies no Cookie Jar e os envia automaticamente nas próximas requisições.\n\nRespostas:\n- 200: cookies trophix_jwt + trophix_refresh definidos\n- 400: Credenciais inválidas"
           },
           "response": [
             {
@@ -234,7 +234,11 @@
               "header": [
                 {
                   "key": "Set-Cookie",
-                  "value": "trophix_jwt=<token_jwt_gerado_no_login>; Path=/; Max-Age=86400; HttpOnly; SameSite=Strict"
+                  "value": "trophix_jwt=<token_jwt>; Path=/; Max-Age=3600; HttpOnly; SameSite=Strict"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "trophix_refresh=<token_opaco>; Path=/api/auth; Max-Age=2592000; HttpOnly; SameSite=Strict"
                 }
               ],
               "body": ""
@@ -279,6 +283,86 @@
           ]
         },
         {
+          "name": "Refresh Token (rotação)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotaciona a sessão: o refresh token (cookie trophix_refresh, Path=/api/auth, enviado automaticamente nesta rota) é revogado e um novo par access+refresh é emitido na mesma família.\n\nUse quando o access JWT (1h) expirar. O Cookie Jar é atualizado automaticamente com o novo par.\n\nRespostas:\n- 200: novo par de cookies trophix_jwt + trophix_refresh\n- 401: sessão expirada / comprometida (reuso de token já rotacionado revoga a família)"
+          },
+          "response": [
+            {
+              "name": "Par rotacionado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "refresh"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Set-Cookie",
+                  "value": "trophix_jwt=<novo_token_jwt>; Path=/; Max-Age=3600; HttpOnly; SameSite=Strict"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "trophix_refresh=<novo_token_opaco>; Path=/api/auth; Max-Age=2592000; HttpOnly; SameSite=Strict"
+                }
+              ],
+              "body": ""
+            },
+            {
+              "name": "Sessão comprometida (401)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "refresh"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-14T12:21:16.978Z\",\n    \"status\": 401,\n    \"message\": \"Sessão comprometida. Faça login novamente.\"\n}"
+            }
+          ]
+        },
+        {
           "name": "Logout",
           "request": {
             "method": "POST",
@@ -294,7 +378,7 @@
                 "logout"
               ]
             },
-            "description": "Invalida o cookie definindo Max-Age=0.\n\nResposta: 200 sem corpo."
+            "description": "Revoga a família de refresh tokens no servidor e limpa os dois cookies (Max-Age=0).\n\nResposta: 200 sem corpo."
           },
           "response": [
             {
@@ -320,9 +404,194 @@
                 {
                   "key": "Set-Cookie",
                   "value": "trophix_jwt=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "trophix_refresh=; Path=/api/auth; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict"
                 }
               ],
               "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Esquecer Senha (forgot-password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Solicita a redefinição de senha. Se o e-mail estiver cadastrado, um link com token (UUIDv7, uso único, 1h) é enviado via e-mail (Mailpit no dev: http://localhost:8025). A resposta é genérica para não vazar quais e-mails existem.\n\nO link aponta para: {{TROPHIX_WEB_URL}}/reset-password?token=...\n\nRespostas:\n- 200: mensagem genérica (email enviado ou não)\n- 400: dados inválidos"
+          },
+          "response": [
+            {
+              "name": "Solicitação aceita (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/forgot-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "forgot-password"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Se o e-mail informado estiver cadastrado, você receberá um link de redefinição de senha.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Redefinir Senha (reset-password)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"{{resetToken}}\",\n    \"newPassword\": \"NovaSenha@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Conclui a redefinição de senha com o token recebido por e-mail (variável {{resetToken}} — obtenha no corpo do e-mail no Mailpit).\n\nValida o token (existente, não consumido, não expirado), atualiza a senha e revoga todas as sessões do usuário (login obrigatório).\n\nRespostas:\n- 200: senha redefinida\n- 400: link inválido/expirado ou senha fraca"
+          },
+          "response": [
+            {
+              "name": "Senha redefinida (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Senha redefinida com sucesso! Faça login novamente.\"\n}"
+            },
+            {
+              "name": "Link inválido/expirado (400)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-14T12:46:32.578Z\",\n    \"status\": 400,\n    \"message\": \"Link inválido ou expirado. Solicite um novo link.\"\n}"
             }
           ]
         }
@@ -630,6 +899,182 @@
                 }
               ],
               "body": "{\n    \"message\": \"Perfil sincronizado com sucesso!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Perfil do Usuário Logado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "profile"
+              ]
+            },
+            "description": "Retorna o perfil do usuário autenticado (nível, progresso e totais de troféus). Rota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nRespostas:\n- 200: perfil encontrado\n- 401/403: sem cookie de autenticação"
+          },
+          "response": [
+            {
+              "name": "Perfil encontrado (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "me",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"username\": \"Cout1nh030\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\",\n    \"psnLevel\": 333,\n    \"levelProgress\": 58,\n    \"totalPlatinum\": 55,\n    \"totalGold\": 187,\n    \"totalSilver\": 660,\n    \"totalBronze\": 2469\n}"
+            },
+            {
+              "name": "Não autenticado (403)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "me",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Jogos do Usuário Logado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/games?page=0&size=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Retorna a lista paginada de jogos do usuário autenticado, ordenada pela última vez jogada (descendente). Rota protegida: exige o cookie de autenticação (faça o Login antes; o Postman envia o cookie automaticamente).\n\nQuery params:\n- page (default 0)\n- size (default 12, máx 100)\n\nRespostas:\n- 200: página com a lista de jogos\n- 401/403: sem cookie de autenticação"
+          },
+          "response": [
+            {
+              "name": "Página de jogos (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/games?page=0&size=5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "me",
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"content\": [\n        {\n            \"gameId\": \"019ff741-f2b8-7238-9cdd-787a0e577226\",\n            \"name\": \"Demon's Souls\",\n            \"imageUrl\": \"https://psnobj.prod.dl.playstation.net/psnobj/NPWR20277_00/24a85438-84fe-467e-a144-40750a8169a0.png\",\n            \"platform\": \"PS5\",\n            \"progressPercentage\": 2,\n            \"earnedTrophies\": 2,\n            \"totalTrophies\": 37,\n            \"lastPlayedAt\": \"2026-08-12T03:03:44Z\"\n        }\n    ],\n    \"pageable\": { \"pageNumber\": 0, \"pageSize\": 5 },\n    \"totalElements\": 109,\n    \"totalPages\": 22,\n    \"number\": 0,\n    \"size\": 5,\n    \"first\": true,\n    \"last\": false,\n    \"empty\": false\n}"
+            },
+            {
+              "name": "Não autenticado (403)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/games?page=0&size=5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "me",
+                    "games"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "body": ""
             }
           ]
         },

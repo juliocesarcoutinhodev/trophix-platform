@@ -46,5 +46,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mailpit:
+    image: axllent/mailpit:v1.18
+    container_name: trophix-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
 volumes:
   postgres-data:
