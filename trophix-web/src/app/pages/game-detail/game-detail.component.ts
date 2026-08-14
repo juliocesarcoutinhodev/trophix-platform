@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { GameDetail, TrophyStatus } from '../../core/models/api.models';
@@ -11,7 +11,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 @Component({
   selector: 'app-game-detail',
   standalone: true,
-  imports: [DatePipe, PlatformFormatPipe],
+  imports: [DatePipe, PlatformFormatPipe, RouterLink],
   templateUrl: './game-detail.component.html',
 })
 export class GameDetailComponent implements OnInit {
@@ -86,11 +86,4 @@ export class GameDetailComponent implements OnInit {
     return badges[type] ?? 'border-slate-500/40 bg-slate-500/15 text-slate-300';
   }
 
-  openRoadmapForm(): void {
-    // TODO: abrir modal de submissão de roadmap do jogo.
-  }
-
-  openTrophyGuideForm(trophyId: string): void {
-    // TODO: abrir modal de submissão de dica do troféu.
-  }
 }

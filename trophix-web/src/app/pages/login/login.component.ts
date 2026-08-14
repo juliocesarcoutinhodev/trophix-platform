@@ -19,6 +19,12 @@ export class LoginComponent {
   protected readonly password = signal('');
   protected readonly error = signal<string | null>(null);
   protected readonly loading = signal(false);
+  protected readonly showPassword = signal(false);
+  protected readonly rememberMe = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
 
   async submit(): Promise<void> {
     this.loading.set(true);

@@ -16,6 +16,18 @@ export class ApiService {
     return this.http.post<void>('/api/auth/logout', {});
   }
 
+  refreshToken() {
+    return this.http.post<void>('/api/auth/refresh', {});
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post<MessageResponse>('/api/auth/forgot-password', { email });
+  }
+
+  resetPassword(token: string, newPassword: string) {
+    return this.http.post<MessageResponse>('/api/auth/reset-password', { token, newPassword });
+  }
+
   registerCompletion(psnId: string, email: string, password: string) {
     return this.http.post<{ id: string; psnId: string; email: string; roles: string[] }>(
       '/api/auth/register-completion',

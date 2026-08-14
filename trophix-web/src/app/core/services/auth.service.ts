@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { UserProfile } from '../models/api.models';
@@ -7,6 +8,7 @@ import { ApiService } from './api.service';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
 
   private readonly user = signal<UserProfile | null>(null);
   readonly userSignal = this.user.asReadonly();
@@ -31,7 +33,21 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    await firstValueFrom(this.api.logout());
+    try {
+      await firstValueFrom(this.api.logout());
+    } catch {
+      // Ignore errors on logout
+    } finally {
+      this.logoutLocally();
+    }
+  }
+
+  refreshToken() {
+    return this.api.refreshToken();
+  }
+
+  logoutLocally(): void {
     this.user.set(null);
+    this.router.navigate(['/login']);
   }
 }
