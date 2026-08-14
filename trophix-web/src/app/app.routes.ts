@@ -28,6 +28,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', component: AdminUsersComponent },
       { path: 'guides', component: AdminGuidesComponent },
+      { path: 'guides/create', component: CreateGuide },
       { path: 'settings', component: AdminSettingsComponent },
     ]
   },

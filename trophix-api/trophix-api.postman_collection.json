@@ -1615,7 +1615,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/users?page=0&size=20",
+              "raw": "{{baseUrl}}/api/admin/users?page=0&size=20&search=&role=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1632,10 +1632,20 @@
                 {
                   "key": "size",
                   "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "filtra por username/email (case-insensitive)"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "description": "filtra por cargo (ex: ROLE_ADMIN)"
                 }
               ]
             },
-            "description": "Lista paginada de todos os usuários (admin).\n\nRespostas:\n- 200: página com id, username, email, avatarUrl, roles, accountId, psnLevel, lastSyncedAt\n- 403: sem ROLE_ADMIN"
+            "description": "Lista paginada de usuários (admin).\n\nQuery params:\n- page (default 0), size (default 20, máx 100)\n- search: filtra por username OU email (LIKE %search%, case-insensitive)\n- role: filtra por cargo (ex: ROLE_ADMIN)\n\nOs filtros search e role são combináveis.\n\nRespostas:\n- 200: página com id, username, email, avatarUrl, roles, accountId, psnLevel, lastSyncedAt\n- 403: sem ROLE_ADMIN"
           },
           "response": [
             {
@@ -1841,6 +1851,118 @@
                 }
               ],
               "body": "{\n    \"content\": [\n        {\n            \"id\": \"01a000b8-8823-7fd7-b845-dfce2275e623\",\n            \"trophyId\": null,\n            \"gameId\": \"019ff741-f2b8-7238-9cdd-787a0e577226\",\n            \"gameName\": \"Demon's Souls\",\n            \"imageUrl\": \"...\",\n            \"authorId\": \"01971234-0000-7000-8000-000000000aaa\",\n            \"authorName\": \"admintest\",\n            \"title\": \"Roadmap teste\",\n            \"description\": \"...\",\n            \"content\": \"...\",\n            \"videoUrl\": null,\n            \"status\": \"PENDING\",\n            \"upvotesCount\": 0,\n            \"createdAt\": \"2026-08-14T14:40:00Z\",\n            \"updatedAt\": \"2026-08-14T14:40:00Z\"\n        }\n    ],\n    \"totalElements\": 1,\n    \"totalPages\": 1,\n    \"number\": 0,\n    \"size\": 20,\n    \"first\": true,\n    \"last\": true,\n    \"empty\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Editar Guia",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Título atualizado\",\n    \"description\": \"Descrição editada\",\n    \"content\": \"Conteúdo editado pelo admin\",\n    \"videoUrl\": \"https://youtu.be/abc\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}"
+              ]
+            },
+            "description": "Edita os campos de conteúdo de um guia (admin). Status e metadados são preservados.\n\nRespostas:\n- 200: Guia atualizado com sucesso.\n- 400: dados inválidos (title/conteudo obrigatórios)\n- 403: sem ROLE_ADMIN\n- 404: guia não encontrado"
+          },
+          "response": [
+            {
+              "name": "Atualizado (200)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "guides",
+                    "{{guideId}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Guia atualizado com sucesso.\"\n}"
+            },
+            {
+              "name": "Guia não encontrado (404)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "guides",
+                    "{{guideId}}"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-14T19:05:14.004Z\",\n    \"status\": 404,\n    \"message\": \"Guia não encontrado\"\n}"
             }
           ]
         },

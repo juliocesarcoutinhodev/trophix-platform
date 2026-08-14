@@ -18,6 +18,21 @@ public interface UserSpringDataRepository extends JpaRepository<UserJpaEntity, U
 
     Optional<UserJpaEntity> findByEmail(String email);
 
+    /**
+     * Dynamic admin listing: optional case-insensitive search on username/email
+     * and/or an exact role filter. Null parameters are ignored. Pagination is
+     * applied by Spring Data (automatic count query).
+     */
+    @Query("""
+            select u from UserJpaEntity u
+            where (:search is null
+                   or lower(u.username) like lower(concat('%', cast(:search as string), '%'))
+                   or lower(u.email) like lower(concat('%', cast(:search as string), '%')))
+              and (:role is null or exists (select r from u.roles r where r.name = cast(:role as string)))""")
+    Page<UserJpaEntity> findAdminUsers(@Param("search") String search,
+                                       @Param("role") String role,
+                                       Pageable pageable);
+
     @Query("select count(u) from UserJpaEntity u where u.createdAt >= :since")
     long countCreatedSince(@Param("since") Instant since);
 

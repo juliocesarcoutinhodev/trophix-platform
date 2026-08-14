@@ -259,9 +259,10 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
 | GET | `/api/admin/dashboard/stats` | **ROLE_ADMIN** | Visão geral: novos usuários hoje, guias PENDING e denúncias abertas |
-| GET | `/api/admin/users?page=&size=` | **ROLE_ADMIN** | Lista paginada de todos os usuários (id, username, email, roles, psn, sync) |
+| GET | `/api/admin/users?page=&size=&search=&role=` | **ROLE_ADMIN** | Lista paginada de usuários; `search` filtra por username/email (LIKE case-insensitive) e `role` por cargo — combináveis |
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |
+| PUT | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Edita title/description/content/videoUrl do guia (status e metadados preservados) |
 | POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING → APPROVED) |
 | POST | `/api/admin/guides/{guideId}/reject` | **ROLE_ADMIN** | Rejeita o guia (PENDING → REJECTED) |
 | GET | `/api/admin/reports?page=&size=` | **ROLE_ADMIN** | Fila de denúncias abertas (status OPEN) |

@@ -17,7 +17,12 @@ public class ListAdminUsersUseCaseImpl implements ListAdminUsersUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> listUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public Page<User> listUsers(String search, String role, Pageable pageable) {
+        return userRepository.findAdminUsers(
+                normalize(search), normalize(role), pageable);
+    }
+
+    private String normalize(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

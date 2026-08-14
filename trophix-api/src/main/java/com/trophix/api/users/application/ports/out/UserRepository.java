@@ -19,8 +19,12 @@ public interface UserRepository {
 
     Optional<User> findByEmail(String email);
 
-    /** Paginated listing of every user (admin). */
-    Page<User> findAll(Pageable pageable);
+    /**
+     * Paginated listing of users (admin), optionally filtered by a free-text
+     * search on username/email (case-insensitive) and/or a specific role.
+     * Null/blank filters are ignored.
+     */
+    Page<User> findAdminUsers(String search, String role, Pageable pageable);
 
     /** Counts users whose account was created at or after the given instant. */
     long countCreatedSince(Instant since);

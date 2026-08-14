@@ -1,15 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DropdownComponent, DropdownOption } from '../../../shared/components/dropdown/dropdown.component';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
 import { AdminService } from '../../../core/services/admin.service';
 import { AdminUser } from '../../../core/models/api.models';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [FormsModule, DropdownComponent, PaginationComponent],
   templateUrl: './admin-users.component.html',
 })
 export class AdminUsersComponent implements OnInit {
@@ -22,8 +23,19 @@ export class AdminUsersComponent implements OnInit {
   
   // Filters
   protected readonly searchQuery = signal('');
-  protected readonly roleFilter = signal('ALL');
+  protected readonly roleFilter = signal<string | number | null>('ALL');
   
+  protected readonly roleOptions: DropdownOption[] = [
+    { label: 'Todas as Permissões', value: 'ALL' },
+    { label: 'Usuários', value: 'ROLE_USER' },
+    { label: 'Admins', value: 'ROLE_ADMIN' },
+  ];
+
+  // Pagination
+  protected readonly currentPage = signal(0);
+  protected readonly totalPages = signal(0);
+  protected readonly totalElements = signal(0);
+
   // For editing roles
   protected readonly editingUserId = signal<string | null>(null);
   protected editRoles = [] as string[];
@@ -32,13 +44,17 @@ export class AdminUsersComponent implements OnInit {
     await this.loadUsers();
   }
 
-  async loadUsers(): Promise<void> {
+  async loadUsers(pageIndex = 0): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const role = this.roleFilter() === 'ALL' ? undefined : this.roleFilter();
-      const page = await firstValueFrom(this.adminApi.getUsers(0, 20, this.searchQuery(), role));
+      const filterValue = this.roleFilter();
+      const role = filterValue === 'ALL' || filterValue == null ? undefined : String(filterValue);
+      const page = await firstValueFrom(this.adminApi.getUsers(pageIndex, 20, this.searchQuery(), role));
       this.users.set(page.content);
+      this.currentPage.set(page.number);
+      this.totalPages.set(page.totalPages);
+      this.totalElements.set(page.totalElements);
     } catch (e) {
       this.error.set('Falha ao carregar usuários. Verifique se a API /api/admin/users já foi implementada e está retornando dados.');
     } finally {

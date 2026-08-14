@@ -3,10 +3,12 @@ package com.trophix.api.admin.infrastructure.adapter.in;
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.GetPendingGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
+import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.DashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
@@ -42,6 +44,7 @@ public class AdminController {
     private final ListAdminUsersUseCase listAdminUsersUseCase;
     private final UpdateUserRolesUseCase updateUserRolesUseCase;
     private final GetPendingGuidesUseCase getPendingGuidesUseCase;
+    private final UpdateGuideUseCase updateGuideUseCase;
     private final ReviewGuideUseCase reviewGuideUseCase;
     private final AdminWebMapper adminWebMapper;
 
@@ -54,9 +57,11 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<Page<AdminUserResponse>> listUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String role) {
         Page<AdminUserResponse> users = listAdminUsersUseCase
-                .listUsers(PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
+                .listUsers(search, role, PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
                 .map(adminWebMapper::toAdminUserResponse);
         return ResponseEntity.ok(users);
     }
@@ -88,6 +93,14 @@ public class AdminController {
         String message = reviewGuideUseCase.review(UUID.fromString(adminId), guideId,
                 ReviewGuideUseCase.ReviewAction.APPROVE);
         return ResponseEntity.ok(new MessageResponse(message));
+    }
+
+    @PutMapping("/guides/{guideId}")
+    public ResponseEntity<MessageResponse> updateGuide(
+            @PathVariable UUID guideId,
+            @Valid @RequestBody UpdateGuideRequest request) {
+        updateGuideUseCase.update(adminWebMapper.toUpdateGuideCommand(guideId, request));
+        return ResponseEntity.ok(new MessageResponse("Guia atualizado com sucesso."));
     }
 
     @PostMapping("/guides/{guideId}/reject")

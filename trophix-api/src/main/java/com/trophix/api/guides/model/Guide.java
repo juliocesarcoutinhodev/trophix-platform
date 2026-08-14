@@ -29,4 +29,10 @@ public record Guide(
         return new Guide(UuidV7.generate(), trophyId, gameId, authorId, title, description,
                 content, videoUrl, GuideStatus.PENDING, 0, now, now);
     }
+
+    /** Returns a copy with the editable fields replaced (admin edit). */
+    public Guide updated(String newTitle, String newDescription, String newContent, String newVideoUrl) {
+        return new Guide(id, trophyId, gameId, authorId, newTitle, newDescription, newContent,
+                newVideoUrl, status, upvotesCount, createdAt, Instant.now());
+    }
 }

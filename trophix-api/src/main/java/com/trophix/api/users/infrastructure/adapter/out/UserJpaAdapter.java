@@ -45,8 +45,8 @@ public class UserJpaAdapter implements UserRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> findAll(Pageable pageable) {
-        return springDataRepository.findAll(pageable).map(mapper::toDomain);
+    public Page<User> findAdminUsers(String search, String role, Pageable pageable) {
+        return springDataRepository.findAdminUsers(search, role, pageable).map(mapper::toDomain);
     }
 
     @Override

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { AdminUser, Page } from '../models/api.models';
+import { AdminUser, GuideResponse, Page } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -15,5 +15,21 @@ export class AdminService {
 
   updateUserRoles(userId: string, roles: string[]) {
     return this.http.put<void>(`/api/admin/users/${userId}/roles`, { roles });
+  }
+
+  getPendingGuides(page = 0, size = 20) {
+    return this.http.get<Page<GuideResponse>>(`/api/admin/guides/pending?page=${page}&size=${size}`);
+  }
+
+  approveGuide(guideId: string) {
+    return this.http.post<void>(`/api/admin/guides/${guideId}/approve`, {});
+  }
+
+  rejectGuide(guideId: string) {
+    return this.http.post<void>(`/api/admin/guides/${guideId}/reject`, {});
+  }
+
+  updateGuide(guideId: string, data: any) {
+    return this.http.put<void>(`/api/admin/guides/${guideId}`, data);
   }
 }

@@ -1,15 +1,18 @@
 package com.trophix.api.admin.infrastructure.adapter.in.mapper;
 
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
+import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.DashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.auth.model.Role;
 import com.trophix.api.guides.model.Guide;
 import com.trophix.api.guides.model.GuideListItem;
 import com.trophix.api.users.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -56,5 +59,10 @@ public class AdminWebMapper {
                 guide.upvotesCount(),
                 guide.createdAt(),
                 guide.updatedAt());
+    }
+
+    public UpdateGuideUseCase.UpdateGuideCommand toUpdateGuideCommand(UUID guideId, UpdateGuideRequest request) {
+        return new UpdateGuideUseCase.UpdateGuideCommand(
+                guideId, request.title(), request.description(), request.content(), request.videoUrl());
     }
 }

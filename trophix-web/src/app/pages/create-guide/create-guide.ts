@@ -17,6 +17,8 @@ export class CreateGuide implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
 
+  isAdminRoute = computed(() => this.router.url.includes('/admin'));
+
   selectedGameId = signal('');
   title = signal('');
   description = signal('');
@@ -76,13 +78,21 @@ export class CreateGuide implements OnInit {
       }));
       // Exibe mensagem informando que o guia está em revisão
       alert('Guia criado com sucesso! Ele foi enviado para revisão da moderação e logo aparecerá na plataforma.');
-      // Volta para a listagem após publicar com sucesso!
-      this.router.navigate(['/guides']);
+      // Volta para a listagem correspondente
+      this.goBack();
     } catch (e) {
       console.error(e);
       alert('Falha ao publicar guia. Tente novamente mais tarde.');
     } finally {
       this.isSubmitting.set(false);
+    }
+  }
+
+  goBack() {
+    if (this.isAdminRoute()) {
+      this.router.navigate(['/admin/guides']);
+    } else {
+      this.router.navigate(['/']);
     }
   }
 }

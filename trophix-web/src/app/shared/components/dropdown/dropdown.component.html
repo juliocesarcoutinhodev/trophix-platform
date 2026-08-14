@@ -1,0 +1,29 @@
+<div class="relative min-w-[200px]" #container>
+  <button 
+    type="button" 
+    (click)="toggle()"
+    class="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-900/50 py-2 pl-3 pr-3 text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+  >
+    <span>{{ currentLabel }}</span>
+    <svg class="h-4 w-4 text-slate-400 transition-transform" [class.rotate-180]="isOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  @if (isOpen()) {
+    <div class="absolute right-0 z-10 mt-2 w-full overflow-hidden rounded-lg border border-slate-800 bg-slate-900 shadow-xl">
+      @for (option of options(); track option.value) {
+        <button 
+          type="button" 
+          (click)="selectOption(option.value)" 
+          class="block w-full px-4 py-2.5 text-left text-sm hover:bg-slate-800"
+          [class.bg-slate-800]="value() === option.value"
+          [class.text-violet-400]="value() === option.value"
+          [class.font-semibold]="value() === option.value"
+          [class.text-slate-300]="value() !== option.value"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  }
+</div>
