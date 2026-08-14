@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -22,6 +22,17 @@ export class NavbarComponent {
   private readonly router = inject(Router);
 
   protected readonly dropdownOpen = signal(false);
+  @ViewChild('dropdownContainer') dropdownContainer?: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.dropdownOpen() && this.dropdownContainer) {
+      const clickedInside = this.dropdownContainer.nativeElement.contains(event.target);
+      if (!clickedInside) {
+        this.dropdownOpen.set(false);
+      }
+    }
+  }
 
   toggleDropdown(): void {
     this.dropdownOpen.update((open) => !open);

@@ -7,6 +7,7 @@ export interface UserProfile {
   totalGold: number | null;
   totalSilver: number | null;
   totalBronze: number | null;
+  roles?: string[];
 }
 
 export interface UserGame {
@@ -91,4 +92,13 @@ export interface VoteResponse {
   voted: boolean;
   upvotesCount: number;
   message: string;
+}
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  email: string;
+  roles: string[];
+  avatarUrl?: string | null;
+  createdAt?: string;
 }

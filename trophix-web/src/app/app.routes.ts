@@ -11,8 +11,26 @@ import { Guides } from './pages/guides/guides';
 import { GuideDetailComponent } from './pages/guide-detail/guide-detail';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
+import { AdminDashboardComponent } from './pages/admin/dashboard/admin-dashboard.component';
+import { AdminUsersComponent } from './pages/admin/users/admin-users.component';
+import { AdminGuidesComponent } from './pages/admin/guides/admin-guides.component';
+import { AdminSettingsComponent } from './pages/admin/settings/admin-settings.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'users', component: AdminUsersComponent },
+      { path: 'guides', component: AdminGuidesComponent },
+      { path: 'settings', component: AdminSettingsComponent },
+    ]
+  },
   { path: '', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },

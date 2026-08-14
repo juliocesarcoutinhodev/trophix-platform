@@ -13,6 +13,7 @@ export class AuthService {
   private readonly user = signal<UserProfile | null>(null);
   readonly userSignal = this.user.asReadonly();
   readonly isAuthenticated = computed(() => this.user() !== null);
+  readonly isAdmin = computed(() => this.user()?.roles?.includes('ROLE_ADMIN') ?? false);
 
   /** Resolves the session from the HttpOnly cookie (me/profile). */
   async initialize(): Promise<void> {

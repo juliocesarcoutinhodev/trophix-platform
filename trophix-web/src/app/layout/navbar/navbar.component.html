@@ -28,7 +28,7 @@
     <!-- Right side -->
     <div class="flex items-center gap-3">
       @if (auth.isAuthenticated()) {
-        <div class="relative">
+        <div class="relative" #dropdownContainer>
           <button
             type="button"
             (click)="toggleDropdown()"
@@ -60,6 +60,11 @@
               <a routerLink="/" (click)="dropdownOpen.set(false)" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-slate-100">
                 Painel
               </a>
+              @if (auth.isAdmin()) {
+                <a routerLink="/admin" (click)="dropdownOpen.set(false)" class="block px-4 py-2.5 text-sm font-semibold text-violet-400 hover:bg-slate-800 hover:text-violet-300">
+                  Painel Admin
+                </a>
+              }
               <a routerLink="/settings" (click)="dropdownOpen.set(false)" class="block px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-slate-100">
                 Configurações
               </a>
