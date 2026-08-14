@@ -1,5 +1,7 @@
 package com.trophix.api.users.infrastructure.adapter.in.dto;
 
+import java.util.Set;
+
 public record UserProfileResponse(
         String username,
         String avatarUrl,
@@ -8,5 +10,6 @@ public record UserProfileResponse(
         Integer totalPlatinum,
         Integer totalGold,
         Integer totalSilver,
-        Integer totalBronze) {
+        Integer totalBronze,
+        Set<String> roles) {
 }

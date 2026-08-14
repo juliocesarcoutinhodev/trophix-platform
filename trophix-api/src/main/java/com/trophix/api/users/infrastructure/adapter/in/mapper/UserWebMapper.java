@@ -42,7 +42,10 @@ public class UserWebMapper {
                 user.totalPlatinum(),
                 user.totalGold(),
                 user.totalSilver(),
-                user.totalBronze());
+                user.totalBronze(),
+                user.roles().stream()
+                        .map(Role::name)
+                        .collect(Collectors.toSet()));
     }
 
     public UserGameResponse toUserGameResponse(UserGameSummary summary) {
