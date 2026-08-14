@@ -23,8 +23,8 @@ public class AuthWebMapper {
                 request.psnId(), request.email(), request.password());
     }
 
-    public LoginUseCase.LoginCommand toLoginCommand(LoginRequest request) {
-        return new LoginUseCase.LoginCommand(request.email(), request.password());
+    public LoginUseCase.LoginCommand toLoginCommand(LoginRequest request, String ipAddress, String userAgent) {
+        return new LoginUseCase.LoginCommand(request.email(), request.password(), ipAddress, userAgent);
     }
 
     public UserResponse toUserResponse(User user) {

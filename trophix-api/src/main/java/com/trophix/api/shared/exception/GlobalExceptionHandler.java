@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
     }
 
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleRefreshToken(RefreshTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
+
     @ExceptionHandler(PsnServiceException.class)
     public ResponseEntity<ErrorResponse> handlePsnService(PsnServiceException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)

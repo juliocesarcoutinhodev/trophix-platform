@@ -42,7 +42,13 @@ trophix:
       half-open-max-calls: 3
   jwt:
     secret: ${JWT_SECRET}
-    expiration: PT24H
+    # Access token (JWT) — curto; a sessão é mantida pelo refresh token opaco.
+    expiration: PT1H
+  refresh-token:
+    # TTL absoluto do refresh token (cookie + persistência). PT0S no idle-timeout
+    # desabilita a expiração por inatividade.
+    expiration: PT720H
+    idle-timeout: PT0S
   cors:
     allowed-origin: http://localhost:4200
   rate-limit:

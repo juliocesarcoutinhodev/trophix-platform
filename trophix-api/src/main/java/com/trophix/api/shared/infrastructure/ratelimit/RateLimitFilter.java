@@ -33,6 +33,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final List<String> AUTH_POST_PATTERNS = List.of(
             "/api/auth/login",
             "/api/auth/register-completion",
+            "/api/auth/refresh",
+            "/api/auth/logout",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
             "/api/users/link-request",
             "/api/users/link-validate");
 
