@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { AdminUser, GuideResponse, Page } from '../models/api.models';
+import { AdminUser, GuideResponse, Page, GlobalSettings } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -31,5 +31,19 @@ export class AdminService {
 
   updateGuide(guideId: string, data: any) {
     return this.http.put<void>(`/api/admin/guides/${guideId}`, data);
+  }
+
+  getGlobalSettings() {
+    return this.http.get<GlobalSettings>('/api/admin/settings');
+  }
+
+  updateGlobalSettings(settings: GlobalSettings) {
+    return this.http.put<void>('/api/admin/settings', settings);
+  }
+
+  uploadMedia(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ url: string }>('/api/admin/media/upload', formData);
   }
 }

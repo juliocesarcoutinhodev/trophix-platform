@@ -102,3 +102,23 @@ export interface AdminUser {
   avatarUrl?: string | null;
   createdAt?: string;
 }
+
+export interface GlobalSettings {
+  siteName: string;
+  logoUrl: string | null;
+  heroImageUrl: string | null;
+  contactEmail: string;
+  discordUrl: string;
+  twitterUrl: string;
+  youtubeUrl: string;
+  instagramUrl: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  globalAlertEnabled: boolean;
+  globalAlertText: string;
+  footerText: string;
+  requireGuideApproval: boolean;
+  forbiddenWords: string;
+  metaTitle: string;
+  metaDescription: string;
+}

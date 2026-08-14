@@ -2222,6 +2222,127 @@
               "body": ""
             }
           ]
+        },
+        {
+          "name": "Configurações Globais (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Retorna as configurações globais atuais (ou os valores padrão, se ainda não salvas).\n\nRespostas:\n- 200: objeto de configurações\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Configurações (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "settings"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"siteName\": \"Trophix\",\n    \"contactEmail\": \"\",\n    \"discordUrl\": \"\",\n    \"twitterUrl\": \"\",\n    \"youtubeUrl\": \"\",\n    \"instagramUrl\": \"\",\n    \"heroTitle\": \"Guias de troféus da PSN\",\n    \"heroSubtitle\": \"Ajude a comunidade a platinar seus jogos favoritos\",\n    \"globalAlertEnabled\": false,\n    \"globalAlertText\": \"\",\n    \"footerText\": \"\",\n    \"requireGuideApproval\": true,\n    \"forbiddenWords\": \"\",\n    \"metaTitle\": \"Trophix — Guias de troféus da PSN\",\n    \"metaDescription\": \"Descubra guias, dicas e roadmaps de troféus da PSN.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar Configurações Globais (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"siteName\": \"Trophix BR\",\n    \"contactEmail\": \"contato@trophix.com\",\n    \"discordUrl\": \"https://discord.gg/trophix\",\n    \"twitterUrl\": \"https://x.com/trophix\",\n    \"youtubeUrl\": \"\",\n    \"instagramUrl\": \"\",\n    \"heroTitle\": \"Guias de troféus da PSN\",\n    \"heroSubtitle\": \"Ajude a comunidade a platinar\",\n    \"globalAlertEnabled\": true,\n    \"globalAlertText\": \"Manutenção sábado às 22h\",\n    \"footerText\": \"Feito pela comunidade\",\n    \"requireGuideApproval\": true,\n    \"forbiddenWords\": \"spoiler,cheat\",\n    \"metaTitle\": \"Trophix — Guias\",\n    \"metaDescription\": \"Descubra guias e roadmaps\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Salva as configurações globais (upsert da única linha).\n\nRespostas:\n- 200: objeto salvo\n- 400: dados inválidos (siteName obrigatório; booleanos obrigatórios)\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Salvo (200)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "settings"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"siteName\": \"Trophix BR\",\n    \"contactEmail\": \"contato@trophix.com\",\n    \"discordUrl\": \"https://discord.gg/trophix\",\n    \"twitterUrl\": \"https://x.com/trophix\",\n    \"youtubeUrl\": \"\",\n    \"instagramUrl\": \"\",\n    \"heroTitle\": \"Guias de troféus da PSN\",\n    \"heroSubtitle\": \"Ajude a comunidade a platinar\",\n    \"globalAlertEnabled\": true,\n    \"globalAlertText\": \"Manutenção sábado às 22h\",\n    \"footerText\": \"Feito pela comunidade\",\n    \"requireGuideApproval\": true,\n    \"forbiddenWords\": \"spoiler,cheat\",\n    \"metaTitle\": \"Trophix — Guias\",\n    \"metaDescription\": \"Descubra guias e roadmaps\"\n}"
+            }
+          ]
         }
       ]
     },

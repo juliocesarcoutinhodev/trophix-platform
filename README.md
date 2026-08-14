@@ -18,7 +18,10 @@ trophix-platform/
 │       ├── games/              # catalogo de jogos + detalhe (progresso/raridades)
 │       ├── trophies/           # catalogo de trofeus + conquistas do usuario
 │       ├── guides/             # guias (roadmaps + dicas) com upvotes
-│       └── shared/             # UUIDv7, exceptions PT-BR, security, RestClient
+│       ├── reports/            # denúncias de conteúdo (GUIAS/USUÁRIOS/COMENTÁRIOS)
+│       ├── admin/              # painel admin (stats, usuários, moderação)
+│       ├── settings/           # configurações globais (single-row)
+│       └── shared/             # UUIDv7, exceptions PT-BR, security, storage (MinIO), RestClient
 └── trophix-web/                # Angular 22 standalone + Tailwind v4 (porta 4200)
     └── src/app/
         ├── core/               # services (Api/Auth), guard, interceptor, pipes, models
@@ -47,6 +50,7 @@ docker compose up -d --build
 | `rabbitmq`    | `trophix-rabbitmq`  | `5672` (AMQP) / `15672` (console) | Fila de sincronização assíncrona |
 | `psn-sidecar` | `trophix-psn-sidecar` | `localhost:3000` | Autentica na PSN e expõe os dados do jogador |
 | `mailpit`     | `trophix-mailpit`   | `1025` (SMTP) / `8025` (UI) | Servidor de e-mail falso p/ testes (dev) |
+| `minio`       | `trophix-minio`     | `9000` (API S3) / `9001` (console) | Armazenamento de objetos (imagens de guias/avatares) |
 
 Console do RabbitMQ: `http://localhost:15672` (`trophix`/`trophix`, configurável por `RABBITMQ_USER`/`RABBITMQ_PASSWORD`).
 
@@ -155,6 +159,22 @@ POST /api/auth/reset-password {token, newPassword}
 - **Rate limiting** — `forgot-password` e `reset-password` estão no grupo `auth` (anti força bruta). Job diário (03:45) purga tokens expirados/consumidos.
 - **Pendência front-end** — a rota `/reset-password?token=...` no `trophix-web` ainda não existe (criação a cargo do time de front).
 
+## Armazenamento de objetos (MinIO / S3)
+
+O `shared.infrastructure.storage.MinioStorageService` é o serviço base para imagens de guias e avatares: envia um `MultipartFile` para o bucket (default `trophix-media`) e devolve a **URL pública** do objeto. Na subida, o bucket é criado se não existir e configurado com policy `public-read` (links acessíveis direto, ou sirva por CDN/reverse proxy).
+
+Configuração em `application.yml` (ou `.env`):
+
+| Variável | Default | Descrição |
+| -------- | ------- | --------- |
+| `MINIO_URL` / `trophix.minio.url` | `http://localhost:9000` | Endpoint do MinIO |
+| `MINIO_ACCESS_KEY` / `trophix.minio.access-key` | `minioadmin` | Access key (MINIO_ROOT_USER) |
+| `MINIO_SECRET_KEY` / `trophix.minio.secret-key` | `minioadmin` | Secret key (MINIO_ROOT_PASSWORD) |
+| `MINIO_BUCKET` / `trophix.minio.bucket` | `trophix-media` | Bucket usado pela plataforma |
+| `MINIO_PUBLIC_URL` / `trophix.minio.public-url` | `http://localhost:9000` | Base da URL pública (CDN/proxy) |
+
+No dev, o container `minio` do `docker-compose` já sobe com o console em `http://localhost:9001` (credenciais `minioadmin`/`minioadmin`). Falhas de armazenamento retornam `500` PT-BR (`StorageException`).
+
 ## Sincronização assíncrona (fila RabbitMQ)
 
 Os syncs de perfil/jogos (on-demand e diário) e de troféus por jogo são **assíncronos via RabbitMQ**, desacoplando a entrada HTTP do processamento pesado:
@@ -187,6 +207,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | `MAIL_HOST` / `MAIL_PORT` | não (default `localhost`/`1025`) | SMTP (dev: Mailpit) |
 | `MAIL_USERNAME` / `MAIL_PASSWORD` / `MAIL_FROM` | não (default vazio / `no-reply@trophix.com`) | SMTP opcional p/ auth e remetente |
 | `TROPHIX_WEB_URL` | não (default `http://localhost:4200`) | Base do link de redefinição de senha |
+| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | não (default `minioadmin`/`minioadmin`) | Credenciais do servidor MinIO |
+| `MINIO_URL` / `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` / `MINIO_BUCKET` / `MINIO_PUBLIC_URL` | não (defaults locais) | Config de acesso ao MinIO (ver seção de armazenamento) |
 
 > NPSSO: obtenha em `https://ca.account.sony.com/api/v1/ssocookie` logado na PSN. Vale como senha e expira (~60 dias); o sidecar renova access/refresh sozinho depois do boot.
 
@@ -268,6 +290,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | GET | `/api/admin/reports?page=&size=` | **ROLE_ADMIN** | Fila de denúncias abertas (status OPEN) |
 | POST | `/api/admin/reports/{reportId}/resolve` | **ROLE_ADMIN** | Resolve a denúncia (OPEN → RESOLVED) |
 | POST | `/api/admin/reports/{reportId}/dismiss` | **ROLE_ADMIN** | Descarta a denúncia (OPEN → DISMISSED) |
+| GET | `/api/admin/settings` | **ROLE_ADMIN** | Configurações globais (ou defaults, se ainda não salvas) |
+| PUT | `/api/admin/settings` | **ROLE_ADMIN** | Salva as configurações globais (siteName, contato, redes, hero, alerta, footer, palavras proibidas, meta) |
 
 > Proteção central no `SecurityConfig` (`.requestMatchers("/api/admin/**").hasRole("ADMIN")`). A troca de cargos revoga os refresh tokens do usuário, forçando novo login com o token atualizado.
 

@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { ComingSoonComponent } from './pages/coming-soon/coming-soon.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HomeComponent } from './pages/home/home';
 import { GameDetailComponent } from './pages/game-detail/game-detail.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
@@ -32,7 +33,8 @@ export const routes: Routes = [
       { path: 'settings', component: AdminSettingsComponent },
     ]
   },
-  { path: '', component: DashboardComponent, canActivate: [authGuard] },
+  { path: '', component: HomeComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
