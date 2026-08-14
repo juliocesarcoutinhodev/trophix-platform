@@ -7,7 +7,9 @@ import com.trophix.api.guides.model.GuideStatus;
 import com.trophix.api.trophies.infrastructure.adapter.out.TrophySpringDataRepository;
 import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +58,18 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     @Transactional(readOnly = true)
     public boolean existsById(UUID guideId) {
         return springDataRepository.existsById(guideId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Guide> findByStatus(GuideStatus status, Pageable pageable) {
+        return springDataRepository.findByStatus(status, pageable).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByStatus(GuideStatus status) {
+        return springDataRepository.countByStatus(status);
     }
 
     @Override

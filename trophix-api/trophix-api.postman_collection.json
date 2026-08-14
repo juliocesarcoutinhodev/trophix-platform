@@ -949,7 +949,7 @@
                   "value": "application/json; charset=utf-8"
                 }
               ],
-              "body": "{\n    \"username\": \"Cout1nh030\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\",\n    \"psnLevel\": 333,\n    \"levelProgress\": 58,\n    \"totalPlatinum\": 55,\n    \"totalGold\": 187,\n    \"totalSilver\": 660,\n    \"totalBronze\": 2469\n}"
+              "body": "{\n    \"username\": \"Cout1nh030\",\n    \"avatarUrl\": \"https://psn-rsc.prod.dl.playstation.net/psn-rsc/avatar/UT0016/CUSA06833_00-DOP2021KRATOSAVA_B956ADFAD1EF72210F80_l.png\",\n    \"psnLevel\": 333,\n    \"levelProgress\": 58,\n    \"totalPlatinum\": 55,\n    \"totalGold\": 187,\n    \"totalSilver\": 660,\n    \"totalBronze\": 2469,\n    \"roles\": [\"ROLE_USER\"]\n}"
             },
             {
               "name": "Não autenticado (403)",
@@ -1530,6 +1530,680 @@
             }
           },
           "description": "Retorna todas as dicas de troféus (guias com trophyId, sem gameId) aprovadas de um autor para os troféus de um jogo, carregadas de uma vez (JOIN Guide com Trophy, sem N+1).\n\nRota pública, sem necessidade de login.\n\nRespostas:\n- 200: lista de guias (id, trophyId, authorId, title, description, content, videoUrl, status, upvotesCount, createdAt, updatedAt)\n- 404: jogo inexistente"
+        }
+      ]
+    },
+    {
+      "name": "Admin (ROLE_ADMIN)",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "stats"
+              ]
+            },
+            "description": "Visão geral do painel admin. Rota protegida (ROLE_ADMIN).\n\nRespostas:\n- 200: novosUsuariosHoje, pendingGuides, openReports (reservado, 0)\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Stats (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/dashboard/stats",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "dashboard",
+                    "stats"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"newUsersToday\": 1,\n    \"pendingGuides\": 2,\n    \"openReports\": 0\n}"
+            },
+            {
+              "name": "Sem ROLE_ADMIN (403)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/dashboard/stats",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "dashboard",
+                    "stats"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Listar Usuários",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista paginada de todos os usuários (admin).\n\nRespostas:\n- 200: página com id, username, email, avatarUrl, roles, accountId, psnLevel, lastSyncedAt\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Página de usuários (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/users?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": \"019ff7a2-9958-7e34-80d8-aae578a9d311\",\n            \"username\": \"TrophixAdmin\",\n            \"email\": \"admin@trophix.com\",\n            \"avatarUrl\": \"...\",\n            \"roles\": [\"ROLE_ADMIN\"],\n            \"accountId\": \"...\",\n            \"psnLevel\": 333,\n            \"lastSyncedAt\": \"2026-08-14T03:00:00Z\"\n        }\n    ],\n    \"pageable\": { \"pageNumber\": 0, \"pageSize\": 20 },\n    \"totalElements\": 4,\n    \"totalPages\": 1,\n    \"number\": 0,\n    \"size\": 20,\n    \"first\": true,\n    \"last\": true,\n    \"empty\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar Cargos do Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"roles\": [\"ROLE_USER\", \"ROLE_ADMIN\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{userId}}",
+                "roles"
+              ]
+            },
+            "description": "Substitui os cargos de um usuário e revoga as sessões dele (ele precisa logar novamente).\n\nRespostas:\n- 200: usuário atualizado com roles\n- 400: cargo inexistente\n- 403: sem ROLE_ADMIN\n- 404: usuário não encontrado"
+          },
+          "response": [
+            {
+              "name": "Cargos atualizados (200)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/users/{{userId}}/roles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    "{{userId}}",
+                    "roles"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"id\": \"019ff741-ed4e-75ec-94e2-c73c4b54354f\",\n    \"username\": \"Cout1nh030\",\n    \"email\": \"julio@email.com\",\n    \"avatarUrl\": \"...\",\n    \"roles\": [\"ROLE_USER\", \"ROLE_ADMIN\"],\n    \"accountId\": \"...\",\n    \"psnLevel\": 333,\n    \"lastSyncedAt\": \"2026-08-14T03:00:00Z\"\n}"
+            },
+            {
+              "name": "Cargo inexistente (400)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/users/{{userId}}/roles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    "{{userId}}",
+                    "roles"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-14T14:41:15.422Z\",\n    \"status\": 400,\n    \"message\": \"Cargo ROLE_SUPER não encontrado.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Guias Pendentes (moderação)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/pending?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "pending"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Fila de moderação: guias com status PENDING, paginados, com authorName/gameName.\n\nRespostas:\n- 200: página de guias\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Fila de moderação (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/pending?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "guides",
+                    "pending"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": \"01a000b8-8823-7fd7-b845-dfce2275e623\",\n            \"trophyId\": null,\n            \"gameId\": \"019ff741-f2b8-7238-9cdd-787a0e577226\",\n            \"gameName\": \"Demon's Souls\",\n            \"imageUrl\": \"...\",\n            \"authorId\": \"01971234-0000-7000-8000-000000000aaa\",\n            \"authorName\": \"admintest\",\n            \"title\": \"Roadmap teste\",\n            \"description\": \"...\",\n            \"content\": \"...\",\n            \"videoUrl\": null,\n            \"status\": \"PENDING\",\n            \"upvotesCount\": 0,\n            \"createdAt\": \"2026-08-14T14:40:00Z\",\n            \"updatedAt\": \"2026-08-14T14:40:00Z\"\n        }\n    ],\n    \"totalElements\": 1,\n    \"totalPages\": 1,\n    \"number\": 0,\n    \"size\": 20,\n    \"first\": true,\n    \"last\": true,\n    \"empty\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Aprovar Guia",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}",
+                "approve"
+              ]
+            },
+            "description": "Aprova um guia PENDING.\n\nRespostas:\n- 200: Guia aprovado com sucesso.\n- 400: guia já moderado\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Aprovado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "guides",
+                    "{{guideId}}",
+                    "approve"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Guia aprovado com sucesso.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Rejeitar Guia",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}",
+                "reject"
+              ]
+            },
+            "description": "Rejeita um guia PENDING.\n\nRespostas:\n- 200: Guia rejeitado.\n- 400: guia já moderado\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Rejeitado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/reject",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "guides",
+                    "{{guideId}}",
+                    "reject"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Guia rejeitado.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Denúncias Abertas (moderação)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reports?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Fila de moderação de denúncias com status OPEN.\n\nRespostas:\n- 200: página de denúncias\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Fila (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports?page=0&size=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": \"01a000bc-bacc-7901-abd8-15af21498890\",\n            \"reporterId\": \"01971234-0000-7000-8000-000000000aaa\",\n            \"targetType\": \"GUIDE\",\n            \"targetId\": \"019ffc9b-2870-7690-bf90-6bfa85a011be\",\n            \"reason\": \"Conteudo duplicado e spam.\",\n            \"status\": \"OPEN\",\n            \"createdAt\": \"2026-08-14T14:46:00Z\",\n            \"resolvedAt\": null\n        }\n    ],\n    \"totalElements\": 1,\n    \"totalPages\": 1,\n    \"number\": 0,\n    \"size\": 20,\n    \"first\": true,\n    \"last\": true,\n    \"empty\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Resolver Denúncia",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reports/{{reportId}}/resolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "reports",
+                "{{reportId}}",
+                "resolve"
+              ]
+            },
+            "description": "Resolve a denúncia (OPEN → RESOLVED).\n\nRespostas:\n- 200: resolvida\n- 400: denúncia já encerrada\n- 403: sem ROLE_ADMIN\n- 404: denúncia não encontrada"
+          },
+          "response": [
+            {
+              "name": "Resolvida (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports/{{reportId}}/resolve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports",
+                    "{{reportId}}",
+                    "resolve"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Descartar Denúncia",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/reports/{{reportId}}/dismiss",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "reports",
+                "{{reportId}}",
+                "dismiss"
+              ]
+            },
+            "description": "Descarta a denúncia (OPEN → DISMISSED).\n\nRespostas:\n- 200: descartada\n- 400: denúncia já encerrada\n- 403: sem ROLE_ADMIN\n- 404: denúncia não encontrada"
+          },
+          "response": [
+            {
+              "name": "Descartada (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reports/{{reportId}}/dismiss",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "reports",
+                    "{{reportId}}",
+                    "dismiss"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Denúncias",
+      "item": [
+        {
+          "name": "Registrar Denúncia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"targetType\": \"GUIDE\",\n    \"targetId\": \"{{guideId}}\",\n    \"reason\": \"Conteúdo duplicado ou spam.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports"
+              ]
+            },
+            "description": "Registra uma denúncia de conteúdo. targetType: GUIDE | USER | COMMENT. Para GUIDE/USER o alvo é validado.\n\nRespostas:\n- 200: denúncia registrada\n- 400: dados inválidos\n- 403: sem login\n- 404: alvo inexistente"
+          },
+          "response": [
+            {
+              "name": "Registrada (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reports",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reports"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": ""
+            },
+            {
+              "name": "Alvo inexistente (404)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reports",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reports"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-14T14:46:03.774Z\",\n    \"status\": 404,\n    \"message\": \"Guia não encontrado\"\n}"
+            }
+          ]
         }
       ]
     }

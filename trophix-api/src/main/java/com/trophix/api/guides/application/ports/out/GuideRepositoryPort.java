@@ -2,6 +2,8 @@ package com.trophix.api.guides.application.ports.out;
 
 import com.trophix.api.guides.model.Guide;
 import com.trophix.api.guides.model.GuideStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,12 @@ public interface GuideRepositoryPort {
     Optional<Guide> findById(UUID guideId);
 
     boolean existsById(UUID guideId);
+
+    /** Paginated guides filtered by moderation status (admin). */
+    Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
+
+    /** Total guides with the given moderation status (admin). */
+    long countByStatus(GuideStatus status);
 
     List<Guide> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 

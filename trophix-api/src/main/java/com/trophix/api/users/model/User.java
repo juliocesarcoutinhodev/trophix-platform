@@ -58,6 +58,13 @@ public record User(
                 lastSyncedAt);
     }
 
+    /** Returns a copy with the roles replaced (used by the admin). */
+    public User withRoles(Set<Role> newRoles) {
+        return new User(id, username, email, password, avatarUrl, newRoles, accountId,
+                psnLevel, levelProgress, totalPlatinum, totalGold, totalSilver, totalBronze,
+                lastSyncedAt);
+    }
+
     /** Whole minutes remaining in the cooldown window (min 1). */
     public long syncCooldownMinutesLeft(Duration cooldown, Instant now) {
         long secondsLeft = cooldown.minus(Duration.between(lastSyncedAt, now)).getSeconds();

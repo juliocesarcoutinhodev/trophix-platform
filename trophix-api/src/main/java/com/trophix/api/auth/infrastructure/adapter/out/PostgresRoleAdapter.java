@@ -5,6 +5,7 @@ import com.trophix.api.auth.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,5 +18,12 @@ public class PostgresRoleAdapter implements RoleRepositoryPort {
     public Optional<Role> findByName(String name) {
         return springDataRepository.findByName(name)
                 .map(entity -> new Role(entity.getId(), entity.getName()));
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return springDataRepository.findAll().stream()
+                .map(entity -> new Role(entity.getId(), entity.getName()))
+                .toList();
     }
 }

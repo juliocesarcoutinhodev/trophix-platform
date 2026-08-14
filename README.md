@@ -255,6 +255,28 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | GET | `/api/guides?limit=20` | público | Últimos roadmaps aprovados (sem trophyId), ordenados por criação desc, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
 | GET | `/api/guides/{guideId}` | público | Detalhe de um guia aprovado, com `gameName`/`imageUrl`/`authorName`/`currentUserVoted` |
 
+### Admin (`/api/admin` — somente ROLE_ADMIN)
+| Método | Rota | Acesso | Descrição |
+| ------ | ---- | ------ | --------- |
+| GET | `/api/admin/dashboard/stats` | **ROLE_ADMIN** | Visão geral: novos usuários hoje, guias PENDING e denúncias abertas |
+| GET | `/api/admin/users?page=&size=` | **ROLE_ADMIN** | Lista paginada de todos os usuários (id, username, email, roles, psn, sync) |
+| PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
+| GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |
+| POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING → APPROVED) |
+| POST | `/api/admin/guides/{guideId}/reject` | **ROLE_ADMIN** | Rejeita o guia (PENDING → REJECTED) |
+| GET | `/api/admin/reports?page=&size=` | **ROLE_ADMIN** | Fila de denúncias abertas (status OPEN) |
+| POST | `/api/admin/reports/{reportId}/resolve` | **ROLE_ADMIN** | Resolve a denúncia (OPEN → RESOLVED) |
+| POST | `/api/admin/reports/{reportId}/dismiss` | **ROLE_ADMIN** | Descarta a denúncia (OPEN → DISMISSED) |
+
+> Proteção central no `SecurityConfig` (`.requestMatchers("/api/admin/**").hasRole("ADMIN")`). A troca de cargos revoga os refresh tokens do usuário, forçando novo login com o token atualizado.
+
+### Denúncias (Reports)
+| Método | Rota | Acesso | Descrição |
+| ------ | ---- | ------ | --------- |
+| POST | `/api/reports` | autenticado | Registra denúncia: `{targetType: GUIDE\|USER\|COMMENT, targetId, reason}` (máx 500 chars) |
+
+Denúncias ficam com status `OPEN` até o admin **resolver** ou **descartar** (`/api/admin/reports/...`). `targetId` é polimórfico (sem FK): para `GUIDE`/`USER` o alvo é validado no envio; `COMMENT` é reservado (sem feature ainda). O contador de denúncias abertas alimenta o `dashboard/stats`.
+
 ## Fluxo do produto
 
 1. **Vínculo da conta PSN** — `link-request` gera `TRFX-XXXX`; o jogador coloca no *About Me*; `link-validate` confere a propriedade.

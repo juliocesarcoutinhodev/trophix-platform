@@ -5,6 +5,8 @@ import com.trophix.api.auth.model.Role;
 import com.trophix.api.users.application.ports.out.UserRepository;
 import com.trophix.api.users.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,18 @@ public class UserJpaAdapter implements UserRepository {
     @Override
     public Optional<User> findByEmail(String email) {
         return springDataRepository.findByEmail(email).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> findAll(Pageable pageable) {
+        return springDataRepository.findAll(pageable).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countCreatedSince(Instant since) {
+        return springDataRepository.countCreatedSince(since);
     }
 
     @Override

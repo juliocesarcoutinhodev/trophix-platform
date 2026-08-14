@@ -1,6 +1,8 @@
 package com.trophix.api.users.application.ports.out;
 
 import com.trophix.api.users.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -16,6 +18,12 @@ public interface UserRepository {
     Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
+
+    /** Paginated listing of every user (admin). */
+    Page<User> findAll(Pageable pageable);
+
+    /** Counts users whose account was created at or after the given instant. */
+    long countCreatedSince(Instant since);
 
     User save(User user);
 

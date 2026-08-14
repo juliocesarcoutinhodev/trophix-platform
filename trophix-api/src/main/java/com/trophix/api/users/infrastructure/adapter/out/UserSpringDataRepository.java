@@ -1,5 +1,7 @@
 package com.trophix.api.users.infrastructure.adapter.out;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,9 @@ public interface UserSpringDataRepository extends JpaRepository<UserJpaEntity, U
     Optional<UserJpaEntity> findByUsername(String username);
 
     Optional<UserJpaEntity> findByEmail(String email);
+
+    @Query("select count(u) from UserJpaEntity u where u.createdAt >= :since")
+    long countCreatedSince(@Param("since") Instant since);
 
     @Modifying
     @Query("update UserJpaEntity u set u.lastSyncedAt = :when where u.id = :id")

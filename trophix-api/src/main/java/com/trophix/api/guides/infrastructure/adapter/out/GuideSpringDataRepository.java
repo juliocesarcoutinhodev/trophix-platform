@@ -1,6 +1,7 @@
 package com.trophix.api.guides.infrastructure.adapter.out;
 
 import com.trophix.api.guides.model.GuideStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UUID> {
+
+    Page<GuideEntity> findByStatus(GuideStatus status, Pageable pageable);
+
+    long countByStatus(GuideStatus status);
 
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 
