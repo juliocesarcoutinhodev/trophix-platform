@@ -49,12 +49,8 @@ export class RegisterComponent {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const response = await firstValueFrom(this.api.validateAccountLink(this.psnId().trim()));
-      if (response.isValid) {
-        this.step.set(3);
-      } else {
-        this.error.set('Código não encontrado ou inválido. Certifique-se de salvar o código na seção Sobre Mim do seu perfil PSN.');
-      }
+      await firstValueFrom(this.api.validateAccountLink(this.psnId().trim()));
+      this.step.set(3);
     } catch (error) {
       this.error.set(apiErrorMessage(error, 'Falha ao validar. O código pode ter expirado ou não foi encontrado.'));
     } finally {

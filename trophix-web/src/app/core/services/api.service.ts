@@ -43,7 +43,7 @@ export class ApiService {
   }
 
   validateAccountLink(psnId: string) {
-    return this.http.post<{ psnId: string; isValid: boolean }>(
+    return this.http.post<{ psnId: string; userId: string; message: string }>(
       '/api/users/link-validate',
       { psnId }
     );
