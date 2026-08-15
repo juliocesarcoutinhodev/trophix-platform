@@ -18,6 +18,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 })
 export class AdminAllGuidesComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
+  private readonly api = inject(ApiService);
 
   protected readonly guides = signal<GuideResponse[]>([]);
   protected readonly loading = signal(true);
