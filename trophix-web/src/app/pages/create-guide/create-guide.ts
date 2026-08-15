@@ -14,7 +14,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
 @Component({
   selector: 'app-create-guide',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './create-guide.html',
 })
 export class CreateGuide implements OnInit {
