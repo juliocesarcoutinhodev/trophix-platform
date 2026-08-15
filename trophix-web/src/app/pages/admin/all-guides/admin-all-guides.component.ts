@@ -137,7 +137,8 @@ export class AdminAllGuidesComponent implements OnInit {
             content: existing?.content || '',
             videoUrl: existing?.videoUrl || '',
             isSaving: false,
-            isExpanded: !!existing
+            isExpanded: !!existing,
+            isPreviewingTip: false
           };
         }
         this.trophyTips.set(tipsMap);
@@ -180,7 +181,8 @@ export class AdminAllGuidesComponent implements OnInit {
           content: existing?.content || '',
           videoUrl: existing?.videoUrl || '',
           isSaving: false,
-          isExpanded: !!existing
+          isExpanded: !!existing,
+          isPreviewingTip: false
         };
       }
       this.trophyTips.set(tipsMap);
@@ -200,6 +202,14 @@ export class AdminAllGuidesComponent implements OnInit {
     this.trophyTips.update(map => {
       const tip = map[trophyId];
       if (tip) tip.isExpanded = !tip.isExpanded;
+      return { ...map };
+    });
+  }
+
+  togglePreviewTip(trophyId: string) {
+    this.trophyTips.update(map => {
+      const tip = map[trophyId];
+      if (tip) tip.isPreviewingTip = !tip.isPreviewingTip;
       return { ...map };
     });
   }
