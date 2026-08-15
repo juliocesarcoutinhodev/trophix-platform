@@ -150,6 +150,43 @@ export class AdminAllGuidesComponent implements OnInit {
     }
   }
 
+  async syncTrophies(gameId: string): Promise<void> {
+    const guide = this.guides().find(g => g.id === this.editingGuideId());
+    if (!guide) return;
+
+    this.processingId.set(guide.id);
+    try {
+      await firstValueFrom(this.api.syncGameTrophies(gameId));
+      
+      const trophies = await firstValueFrom(this.api.getGameTrophies(gameId));
+      this.editingGameTrophies.set(trophies);
+      
+      const authorGuides = await firstValueFrom(this.api.getAuthorTrophyGuides(gameId, guide.authorId));
+      
+      const tipsMap: Record<string, any> = {};
+      for (const t of trophies) {
+        const existing = authorGuides.find(g => g.trophyId === t.id);
+        tipsMap[t.id] = {
+          guideId: existing?.id,
+          content: existing?.content || '',
+          videoUrl: existing?.videoUrl || '',
+          isSaving: false,
+          isExpanded: !!existing
+        };
+      }
+      this.trophyTips.set(tipsMap);
+      
+      this.successMessage.set('Troféus sincronizados com sucesso!');
+      setTimeout(() => this.successMessage.set(null), 3000);
+    } catch (e) {
+      console.error('Falha ao sincronizar troféus', e);
+      this.error.set('Erro ao sincronizar troféus com a PSN.');
+      setTimeout(() => this.error.set(null), 4000);
+    } finally {
+      this.processingId.set(null);
+    }
+  }
+
   toggleTrophyTip(trophyId: string) {
     this.trophyTips.update(map => {
       const tip = map[trophyId];
