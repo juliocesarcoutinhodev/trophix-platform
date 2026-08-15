@@ -44,7 +44,7 @@ export class AdminAllGuidesComponent implements OnInit {
 
   // Inline Trophies state
   protected editingGameTrophies = signal<TrophyStatus[]>([]);
-  protected trophyTips = signal<Record<string, { guideId?: string, content: string, videoUrl: string, isSaving: boolean, isExpanded: boolean }>>({});
+  protected trophyTips = signal<Record<string, { guideId?: string, content: string, videoUrl: string, isSaving: boolean, isExpanded: boolean, isPreviewingTip: boolean }>>({});
 
   togglePreview(guideId: string): void {
     this.previewStates.update(states => ({
