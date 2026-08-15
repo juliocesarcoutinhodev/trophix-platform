@@ -54,14 +54,13 @@ export class HomeComponent implements OnInit {
   private searchTimeout: any;
 
   onSearchInput() {
+    clearTimeout(this.searchTimeout);
     const query = this.searchQuery().trim();
     if (!query) {
       this.searchResults.set([]);
       this.showDropdown.set(false);
       return;
     }
-
-    clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(async () => {
       this.isSearching.set(true);
       try {
