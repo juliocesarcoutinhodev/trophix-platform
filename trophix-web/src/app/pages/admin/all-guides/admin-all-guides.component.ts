@@ -6,7 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { marked } from 'marked';
 
 import { AdminService } from '../../../core/services/admin.service';
-import { GuideResponse } from '../../../core/models/api.models';
+import { ApiService } from '../../../core/services/api.service';
+import { GuideResponse, TrophyStatus } from '../../../core/models/api.models';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
@@ -39,6 +40,10 @@ export class AdminAllGuidesComponent implements OnInit {
 
   // Preview state
   protected previewStates = signal<Record<string, boolean>>({});
+
+  // Inline Trophies state
+  protected editingGameTrophies = signal<TrophyStatus[]>([]);
+  protected trophyTips = signal<Record<string, { guideId?: string, content: string, videoUrl: string, isSaving: boolean, isExpanded: boolean }>>({});
 
   togglePreview(guideId: string): void {
     this.previewStates.update(states => ({
@@ -109,16 +114,86 @@ export class AdminAllGuidesComponent implements OnInit {
     }
   }
 
-  startEditing(guide: GuideResponse): void {
+  async startEditing(guide: GuideResponse): Promise<void> {
     this.editingGuideId.set(guide.id);
     this.editTitle = guide.title;
     this.editDescription = guide.description;
     this.editContent = guide.content;
     this.editVideoUrl = guide.videoUrl || '';
+
+    if (!guide.trophyId) {
+      try {
+        const trophies = await firstValueFrom(this.api.getGameTrophies(guide.gameId));
+        this.editingGameTrophies.set(trophies);
+
+        const authorGuides = await firstValueFrom(this.api.getAuthorTrophyGuides(guide.gameId, guide.authorId));
+        
+        const tipsMap: Record<string, any> = {};
+        for (const t of trophies) {
+          const existing = authorGuides.find(g => g.trophyId === t.id);
+          tipsMap[t.id] = {
+            guideId: existing?.id,
+            content: existing?.content || '',
+            videoUrl: existing?.videoUrl || '',
+            isSaving: false,
+            isExpanded: !!existing
+          };
+        }
+        this.trophyTips.set(tipsMap);
+      } catch (e) {
+        console.error('Falha ao carregar troféus para edição', e);
+        this.editingGameTrophies.set([]);
+      }
+    } else {
+      this.editingGameTrophies.set([]);
+    }
+  }
+
+  toggleTrophyTip(trophyId: string) {
+    this.trophyTips.update(map => {
+      const tip = map[trophyId];
+      if (tip) tip.isExpanded = !tip.isExpanded;
+      return { ...map };
+    });
+  }
+
+  async saveTrophyTip(trophyId: string, trophyName: string) {
+    const tip = this.trophyTips()[trophyId];
+    if (!tip || (!tip.content && !tip.videoUrl)) return;
+
+    this.trophyTips.update(map => { map[trophyId].isSaving = true; return { ...map }; });
+    try {
+      const payload = {
+        title: `Dica: ${trophyName}`,
+        description: '',
+        content: tip.content,
+        videoUrl: tip.videoUrl || undefined
+      };
+
+      if (tip.guideId) {
+        await firstValueFrom(this.adminApi.updateGuide(tip.guideId, payload));
+      } else {
+        await firstValueFrom(this.api.submitTrophyGuide(trophyId, payload));
+        // Simple reload to fetch newly created guideIds (could be optimized)
+        const guide = this.guides().find(g => g.id === this.editingGuideId());
+        if (guide) {
+           const authorGuides = await firstValueFrom(this.api.getAuthorTrophyGuides(guide.gameId, guide.authorId));
+           const created = authorGuides.find(g => g.trophyId === trophyId);
+           if (created) tip.guideId = created.id;
+        }
+      }
+      this.successMessage.set(`Dica salva com sucesso!`);
+      setTimeout(() => this.successMessage.set(null), 3000);
+    } catch (e) {
+      this.error.set(`Erro ao salvar dica.`);
+    } finally {
+      this.trophyTips.update(map => { map[trophyId].isSaving = false; return { ...map }; });
+    }
   }
 
   cancelEditing(): void {
     this.editingGuideId.set(null);
+    this.editingGameTrophies.set([]);
   }
 
   async updateGuide(guideId: string): Promise<void> {
@@ -133,10 +208,11 @@ export class AdminAllGuidesComponent implements OnInit {
       }));
       this.successMessage.set('Guia atualizado com sucesso!');
       this.editingGuideId.set(null);
+      this.editingGameTrophies.set([]);
       this.loadGuides(this.currentPage());
       setTimeout(() => this.successMessage.set(null), 3000);
     } catch (e) {
-      this.error.set('Erro ao atualizar o guia. Verifique se o endpoint PUT /api/admin/guides/{id} foi criado.');
+      this.error.set('Erro ao atualizar o guia.');
     } finally {
       this.processingId.set(null);
     }

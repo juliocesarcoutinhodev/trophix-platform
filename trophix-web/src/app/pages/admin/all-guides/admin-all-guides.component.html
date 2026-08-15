@@ -86,18 +86,85 @@
                   <input type="text" [(ngModel)]="editVideoUrl" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
                 </div>
 
-                <div class="mt-2 flex items-center gap-3">
-                  <button 
-                    (click)="updateGuide(guide.id)" 
-                    [disabled]="processingId() === guide.id"
-                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
-                    Salvar Alterações
-                  </button>
+                <div class="mt-8 border-t border-slate-800 pt-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-slate-100">Troféus do Jogo (Dicas Individuais)</h3>
+                    <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">{{ editingGameTrophies().length }} Troféus</span>
+                  </div>
+
+                  @if (editingGameTrophies().length === 0 && !guide.trophyId) {
+                    <p class="text-sm text-slate-500 italic">Nenhum troféu encontrado ou carregando...</p>
+                  }
+
+                  <div class="space-y-3">
+                    @for (trophy of editingGameTrophies(); track trophy.id) {
+                      <div class="rounded-lg border border-slate-800 bg-slate-900/50 overflow-hidden">
+                        
+                        <!-- Trophy Header -->
+                        <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors" (click)="toggleTrophyTip(trophy.id)">
+                          <div class="flex items-center gap-4">
+                            <img [src]="trophy.iconUrl" alt="" class="h-10 w-10 rounded bg-slate-950 object-contain shadow-md" />
+                            <div>
+                              <h4 class="text-sm font-bold text-slate-200">{{ trophy.name }}</h4>
+                              <p class="text-xs text-slate-500 line-clamp-1">{{ trophy.description }}</p>
+                            </div>
+                          </div>
+                          
+                          <div class="flex items-center gap-3">
+                            @if (trophyTips()[trophy.id]?.guideId) {
+                              <span class="flex items-center gap-1 rounded bg-violet-500/10 px-2 py-0.5 text-xs font-semibold text-violet-400">
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                Dica Criada
+                              </span>
+                            }
+                            <svg class="h-5 w-5 text-slate-500 transition-transform" [class.rotate-180]="trophyTips()[trophy.id]?.isExpanded" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+
+                        <!-- Trophy Body (Form) -->
+                        @if (trophyTips()[trophy.id]?.isExpanded) {
+                          <div class="border-t border-slate-800 bg-slate-950 p-4">
+                            <div class="space-y-4">
+                              <div>
+                                <label class="mb-1 block text-xs font-medium text-slate-400">Dica do Troféu (Markdown)</label>
+                                <textarea [(ngModel)]="trophyTips()[trophy.id].content" rows="4" class="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="Como conquistar este troféu..."></textarea>
+                              </div>
+                              <div>
+                                <label class="mb-1 block text-xs font-medium text-slate-400">Link do YouTube (Colecionáveis, etc)</label>
+                                <input type="url" [(ngModel)]="trophyTips()[trophy.id].videoUrl" class="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="https://youtube.com/watch?v=..." />
+                              </div>
+                              
+                              <div class="flex justify-end pt-2">
+                                <button 
+                                  (click)="saveTrophyTip(trophy.id, trophy.name)" 
+                                  [disabled]="trophyTips()[trophy.id].isSaving"
+                                  class="rounded bg-violet-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                                  {{ trophyTips()[trophy.id].isSaving ? 'Salvando...' : 'Salvar Dica do Troféu' }}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        }
+
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-6">
                   <button 
                     (click)="cancelEditing()" 
                     [disabled]="processingId() === guide.id"
                     class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
                     Cancelar
+                  </button>
+                  <button 
+                    (click)="updateGuide(guide.id)" 
+                    [disabled]="processingId() === guide.id"
+                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                    Salvar Guia Principal
                   </button>
                 </div>
               </div>
