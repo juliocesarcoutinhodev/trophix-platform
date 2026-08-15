@@ -29,9 +29,23 @@ export class ApiService {
   }
 
   registerCompletion(psnId: string, email: string, password: string) {
-    return this.http.post<{ id: string; psnId: string; email: string; roles: string[] }>(
+    return this.http.post<MessageResponse>(
       '/api/auth/register-completion',
       { psnId, email, password }
+    );
+  }
+
+  requestAccountLink(psnId: string) {
+    return this.http.post<{ psnId: string; token: string; expiresAt: string }>(
+      '/api/users/link-request',
+      { psnId }
+    );
+  }
+
+  validateAccountLink(psnId: string) {
+    return this.http.post<{ psnId: string; isValid: boolean }>(
+      '/api/users/link-validate',
+      { psnId }
     );
   }
 

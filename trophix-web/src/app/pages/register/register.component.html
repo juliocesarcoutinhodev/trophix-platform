@@ -11,55 +11,104 @@
       </p>
     }
 
-    <form (ngSubmit)="submit()" class="space-y-4">
-      <div>
-        <label for="psnId" class="mb-1 block text-sm font-medium text-slate-300">PSN ID</label>
-        <input
-          id="psnId"
-          type="text"
-          required
-          [(ngModel)]="psnId"
-          name="psnId"
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
-          placeholder="Seu ID de jogador da PSN"
-        />
-      </div>
+    @if (step() === 1) {
+      <form (ngSubmit)="requestLink()" class="space-y-4">
+        <div>
+          <label for="psnId" class="mb-1 block text-sm font-medium text-slate-300">PSN ID</label>
+          <input
+            id="psnId"
+            type="text"
+            required
+            [(ngModel)]="psnId"
+            name="psnId"
+            class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
+            placeholder="Seu ID de jogador da PSN"
+          />
+          <p class="mt-2 text-xs text-slate-400">Precisamos validar sua conta para garantir a segurança da plataforma.</p>
+        </div>
 
-      <div>
-        <label for="email" class="mb-1 block text-sm font-medium text-slate-300">E-mail</label>
-        <input
-          id="email"
-          type="email"
-          required
-          [(ngModel)]="email"
-          name="email"
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
-          placeholder="voce@exemplo.com"
-        />
-      </div>
+        <button
+          type="submit"
+          [disabled]="loading() || !psnId()"
+          class="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {{ loading() ? 'Processando...' : 'Solicitar Código de Vinculação' }}
+        </button>
+      </form>
+    }
 
-      <div>
-        <label for="password" class="mb-1 block text-sm font-medium text-slate-300">Senha</label>
-        <input
-          id="password"
-          type="password"
-          required
-          minlength="8"
-          [(ngModel)]="password"
-          name="password"
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
-          placeholder="Mínimo 8 caracteres"
-        />
-      </div>
+    @if (step() === 2) {
+      <div class="space-y-4">
+        <div class="rounded-lg bg-slate-950 p-4 border border-slate-800">
+          <p class="text-sm text-slate-300 mb-3">Para validar que a conta <strong>{{ psnId() }}</strong> pertence a você, copie o código abaixo e cole na seção <strong>"Sobre mim"</strong> do seu perfil na PSN (via console ou PS App).</p>
+          <div class="flex items-center justify-between rounded bg-slate-900 px-4 py-3 border border-slate-700">
+            <code class="text-lg font-bold tracking-widest text-violet-400">{{ linkToken() }}</code>
+          </div>
+        </div>
 
-      <button
-        type="submit"
-        [disabled]="loading()"
-        class="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {{ loading() ? 'Cadastrando...' : 'Criar conta' }}
-      </button>
-    </form>
+        <div class="flex flex-col gap-3">
+          <button
+            (click)="validateLink()"
+            [disabled]="loading()"
+            class="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {{ loading() ? 'Verificando...' : 'Já colei o código, Verificar!' }}
+          </button>
+          
+          <button
+            (click)="resetStep()"
+            [disabled]="loading()"
+            class="w-full rounded-lg border border-slate-700 bg-transparent py-2.5 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+          >
+            Mudar PSN ID
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (step() === 3) {
+      <form (ngSubmit)="submit()" class="space-y-4">
+        <div class="rounded bg-emerald-500/10 p-3 text-sm text-emerald-400 border border-emerald-500/20 mb-4 flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Conta PSN vinculada com sucesso!
+        </div>
+
+        <div>
+          <label for="email" class="mb-1 block text-sm font-medium text-slate-300">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            required
+            [(ngModel)]="email"
+            name="email"
+            class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
+            placeholder="voce@exemplo.com"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="mb-1 block text-sm font-medium text-slate-300">Senha</label>
+          <input
+            id="password"
+            type="password"
+            required
+            minlength="8"
+            [(ngModel)]="password"
+            name="password"
+            class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-600/30"
+            placeholder="Mínimo 8 caracteres"
+          />
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loading() || !email() || password().length < 8"
+          class="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {{ loading() ? 'Cadastrando...' : 'Finalizar Cadastro' }}
+        </button>
+      </form>
+    }
 
     <p class="mt-6 text-center text-sm text-slate-400">
       Já tem conta?
