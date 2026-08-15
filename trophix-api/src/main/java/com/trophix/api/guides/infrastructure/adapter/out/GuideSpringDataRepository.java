@@ -15,6 +15,9 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
 
     Page<GuideEntity> findByStatus(GuideStatus status, Pageable pageable);
 
+    @Query("select g from GuideEntity g order by g.createdAt desc")
+    Page<GuideEntity> findAllOrderedByCreatedAtDesc(Pageable pageable);
+
     long countByStatus(GuideStatus status);
 
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);

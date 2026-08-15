@@ -17,6 +17,7 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { AdminDashboardComponent } from './pages/admin/dashboard/admin-dashboard.component';
 import { AdminUsersComponent } from './pages/admin/users/admin-users.component';
 import { AdminGuidesComponent } from './pages/admin/guides/admin-guides.component';
+import { AdminAllGuidesComponent } from './pages/admin/all-guides/admin-all-guides.component';
 import { AdminSettingsComponent } from './pages/admin/settings/admin-settings.component';
 import { adminGuard } from './core/guards/admin.guard';
 
@@ -30,6 +31,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', component: AdminUsersComponent },
       { path: 'guides', component: AdminGuidesComponent },
+      { path: 'all-guides', component: AdminAllGuidesComponent },
       { path: 'guides/create', component: CreateGuide },
       { path: 'settings', component: AdminSettingsComponent },
     ]

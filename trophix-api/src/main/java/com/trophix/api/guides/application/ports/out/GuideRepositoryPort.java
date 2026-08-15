@@ -20,6 +20,12 @@ public interface GuideRepositoryPort {
     /** Paginated guides filtered by moderation status (admin). */
     Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
 
+    /** Paginated listing of every guide, regardless of status (admin). */
+    Page<Guide> findAll(Pageable pageable);
+
+    /** Hard-deletes a guide (and its votes via cascade). */
+    void delete(Guide guide);
+
     /** Total guides with the given moderation status (admin). */
     long countByStatus(GuideStatus status);
 

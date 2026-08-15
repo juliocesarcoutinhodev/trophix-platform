@@ -1,0 +1,207 @@
+<div>
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-100">Todas as Guias</h1>
+      <p class="mt-2 text-slate-400">Analise os guias e dicas enviados pela comunidade antes de irem ao ar.</p>
+    </div>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <a routerLink="/admin/guides/create" class="flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 shadow-lg shadow-violet-900/20">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Criar Guia
+      </a>
+      <button (click)="loadGuides()" class="flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-700">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Atualizar
+      </button>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="mt-6 rounded-lg border border-red-900 bg-red-950/40 p-4 text-red-400">
+      {{ error() }}
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="mt-6 rounded-lg border border-green-900 bg-green-950/40 p-4 text-green-400">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center backdrop-blur-sm">
+      <div class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent"></div>
+      <p class="mt-4 text-slate-400">Buscando guias pendentes...</p>
+    </div>
+  } @else if (guides().length === 0) {
+    <div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center backdrop-blur-sm">
+      <svg class="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3 class="mt-4 text-lg font-bold text-slate-200">Fila Limpa!</h3>
+      <p class="mt-2 text-slate-400">Não há nenhum guia pendente de aprovação no momento.</p>
+    </div>
+  } @else {
+    <div class="mt-8 space-y-6">
+      @for (guide of guides(); track guide.id) {
+        <div class="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700 sm:flex-row">
+          
+          <!-- Image Section (Left) -->
+          <div class="relative h-48 w-full shrink-0 overflow-hidden bg-slate-950 sm:h-auto sm:w-64">
+            <img
+              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover opacity-30 blur-md"
+            />
+            <img
+              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+              alt="Imagem do Guia"
+              class="relative h-full w-full object-contain p-4 drop-shadow-xl"
+            />
+          </div>
+
+          <!-- Content Section (Right) -->
+          <div class="flex flex-1 flex-col justify-between p-6">
+            
+            @if (editingGuideId() === guide.id) {
+              <!-- Edit Form -->
+              <div class="flex flex-col gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">Título</label>
+                  <input type="text" [(ngModel)]="editTitle" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">Descrição Curta</label>
+                  <textarea [(ngModel)]="editDescription" rows="2" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">Conteúdo Completo</label>
+                  <textarea [(ngModel)]="editContent" rows="6" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 font-mono text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">URL do Vídeo (Opcional)</label>
+                  <input type="text" [(ngModel)]="editVideoUrl" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                </div>
+
+                <div class="mt-2 flex items-center gap-3">
+                  <button 
+                    (click)="updateGuide(guide.id)" 
+                    [disabled]="processingId() === guide.id"
+                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                    Salvar Alterações
+                  </button>
+                  <button 
+                    (click)="cancelEditing()" 
+                    [disabled]="processingId() === guide.id"
+                    class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <!-- Display Mode -->
+              <div>
+                <div class="mb-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">
+                      {{ guide.gameName || 'Jogo Desconhecido' }}
+                    </span>
+                  </div>
+                  <!-- Status and Actions -->
+                  <div class="flex items-center gap-2">
+                    @if (guide.status === 'APPROVED') {
+                      <span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-bold text-green-400 ring-1 ring-inset ring-green-500/20">Aprovado</span>
+                    } @else if (guide.status === 'PENDING') {
+                      <span class="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-bold text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Pendente</span>
+                    } @else {
+                      <span class="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-400 ring-1 ring-inset ring-red-500/20">{{ guide.status }}</span>
+                    }
+
+                    <div class="h-4 w-px bg-slate-700 mx-2"></div>
+
+                    <button 
+                      (click)="togglePreview(guide.id)"
+                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-violet-400 transition-colors hover:bg-violet-900/30"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      {{ isPreviewing(guide.id) ? 'Código' : 'Preview' }}
+                    </button>
+
+                    <button 
+                      (click)="startEditing(guide)"
+                      [disabled]="processingId() === guide.id"
+                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                    >
+                      Editar
+                    </button>
+                    
+                    <button 
+                      (click)="deleteGuide(guide.id)"
+                      [disabled]="processingId() === guide.id"
+                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-950 hover:text-red-300 disabled:opacity-50"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+
+                <h2 class="text-2xl font-bold text-slate-100 transition-colors group-hover:text-violet-400">
+                  {{ guide.title }}
+                </h2>
+                <p class="mt-3 text-sm font-medium leading-relaxed text-slate-300">
+                  {{ guide.description }}
+                </p>
+
+                <div class="mt-4 max-h-96 overflow-y-auto rounded-lg bg-slate-950/50 p-4 border border-slate-800 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-700">
+                  @if (isPreviewing(guide.id)) {
+                    <div class="prose prose-invert prose-violet max-w-none text-sm" [innerHTML]="getParsedContent(guide.content)"></div>
+                  } @else {
+                    <pre class="font-mono whitespace-pre-wrap text-sm text-slate-400 leading-relaxed">{{ guide.content }}</pre>
+                  }
+                </div>
+
+                @if (guide.videoUrl) {
+                  <div class="mt-4">
+                    <a [href]="guide.videoUrl" target="_blank" class="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
+                      <svg class="h-4 w-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                      </svg>
+                      Ver Vídeo no YouTube
+                    </a>
+                  </div>
+                }
+              </div>
+
+              <div class="mt-6 flex items-center justify-between border-t border-slate-800/60 pt-4 text-sm text-slate-400">
+                <div class="flex items-center gap-2.5">
+                  <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
+                    {{ (guide.authorName || 'A').charAt(0) }}
+                  </div>
+                  <span class="font-medium text-slate-200">{{ guide.authorName || 'Autor' }}</span>
+                  <span class="px-1 text-slate-600">•</span>
+                  <span>{{ guide.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-6 rounded-2xl overflow-hidden">
+      <app-pagination 
+        [currentPage]="currentPage()" 
+        [totalPages]="totalPages()" 
+        [totalElements]="totalElements()"
+        (pageChange)="loadGuides($event)">
+      </app-pagination>
+    </div>
+  }
+</div>

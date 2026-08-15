@@ -21,12 +21,20 @@ export class AdminService {
     return this.http.get<Page<GuideResponse>>(`/api/admin/guides/pending?page=${page}&size=${size}`);
   }
 
+  getAllGuides(page = 0, size = 20) {
+    return this.http.get<Page<GuideResponse>>(`/api/admin/guides?page=${page}&size=${size}`);
+  }
+
   approveGuide(guideId: string) {
     return this.http.post<void>(`/api/admin/guides/${guideId}/approve`, {});
   }
 
   rejectGuide(guideId: string) {
     return this.http.post<void>(`/api/admin/guides/${guideId}/reject`, {});
+  }
+
+  deleteGuide(guideId: string) {
+    return this.http.delete<void>(`/api/admin/guides/${guideId}`);
   }
 
   updateGuide(guideId: string, data: any) {

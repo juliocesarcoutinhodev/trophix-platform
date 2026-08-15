@@ -1,8 +1,10 @@
 package com.trophix.api.admin.infrastructure.adapter.in;
 
+import com.trophix.api.admin.application.ports.in.DeleteGuideUseCase;
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.GetPendingGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
+import com.trophix.api.admin.application.ports.in.ListAllGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
@@ -12,13 +14,17 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
+import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.MessageResponse;
+import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,9 +50,12 @@ public class AdminController {
     private final ListAdminUsersUseCase listAdminUsersUseCase;
     private final UpdateUserRolesUseCase updateUserRolesUseCase;
     private final GetPendingGuidesUseCase getPendingGuidesUseCase;
+    private final ListAllGuidesUseCase listAllGuidesUseCase;
     private final UpdateGuideUseCase updateGuideUseCase;
+    private final DeleteGuideUseCase deleteGuideUseCase;
     private final ReviewGuideUseCase reviewGuideUseCase;
     private final AdminWebMapper adminWebMapper;
+    private final GuideWebMapper guideWebMapper;
 
     @GetMapping("/dashboard/stats")
     public ResponseEntity<DashboardStatsResponse> getDashboardStats() {
@@ -86,6 +95,16 @@ public class AdminController {
         return ResponseEntity.ok(guides);
     }
 
+    @GetMapping("/guides")
+    public ResponseEntity<Page<GuideResponse>> listAllGuides(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<GuideResponse> guides = listAllGuidesUseCase
+                .listAllGuides(PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
+                .map(guideWebMapper::toGuideResponse);
+        return ResponseEntity.ok(guides);
+    }
+
     @PostMapping("/guides/{guideId}/approve")
     public ResponseEntity<MessageResponse> approve(
             @AuthenticationPrincipal String adminId,
@@ -101,6 +120,12 @@ public class AdminController {
             @Valid @RequestBody UpdateGuideRequest request) {
         updateGuideUseCase.update(adminWebMapper.toUpdateGuideCommand(guideId, request));
         return ResponseEntity.ok(new MessageResponse("Guia atualizado com sucesso."));
+    }
+
+    @DeleteMapping("/guides/{guideId}")
+    public ResponseEntity<Void> deleteGuide(@PathVariable UUID guideId) {
+        deleteGuideUseCase.delete(guideId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/guides/{guideId}/reject")

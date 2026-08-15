@@ -1855,6 +1855,35 @@
           ]
         },
         {
+          "name": "Listar Todas as Guias (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista paginada com todas as guias do banco, sem filtro de status (PENDING, APPROVED, REJECTED, ...), enriquecidas com authorName/gameName.\n\nRespostas:\n- 200: Page<GuideResponse>"
+          }
+        },
+        {
           "name": "Editar Guia",
           "request": {
             "method": "PUT",
@@ -1965,6 +1994,26 @@
               "body": "{\n    \"timestamp\": \"2026-08-14T19:05:14.004Z\",\n    \"status\": 404,\n    \"message\": \"Guia não encontrado\"\n}"
             }
           ]
+        },
+        {
+          "name": "Excluir Guia (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}"
+              ]
+            },
+            "description": "Exclui definitivamente o guia do banco de dados (votos são removidos via cascade).\n\nRespostas:\n- 204: No Content"
+          }
         },
         {
           "name": "Aprovar Guia",
