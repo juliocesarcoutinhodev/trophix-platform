@@ -139,11 +139,20 @@ export class AdminAllGuidesComponent implements OnInit {
   }
 
   async startEditing(guide: GuideResponse): Promise<void> {
+    this.viewMode.set('cards');
     this.editingGuideId.set(guide.id);
     this.editTitle = guide.title;
     this.editDescription = guide.description;
     this.editContent = guide.content;
     this.editVideoUrl = guide.videoUrl || '';
+
+    // Scroll to the card after Angular renders it
+    setTimeout(() => {
+      const element = document.getElementById('guide-' + guide.id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
 
     if (!guide.trophyId) {
       try {

@@ -120,8 +120,7 @@
                 <!-- DICA DO AUTOR (Renderizada Diretamente) -->
                 @if (authorTips()[trophy.id] && (!isAuthor() || !editingTrophy()[trophy.id])) {
                   <div class="mt-5 pt-4 border-t border-slate-800">
-                    <div class="prose prose-sm prose-invert prose-violet max-w-none text-slate-300 whitespace-pre-wrap font-sans">
-                      {{ authorTips()[trophy.id].content }}
+                    <div class="prose prose-sm prose-invert prose-violet max-w-none text-slate-300 font-sans" [innerHTML]="getParsedMarkdown(authorTips()[trophy.id].content)">
                     </div>
                   </div>
                 }

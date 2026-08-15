@@ -164,4 +164,9 @@ export class GuideDetailComponent implements OnInit {
     if (!raw) return '';
     return marked.parse(raw) as string;
   });
+
+  getParsedMarkdown(raw?: string): string {
+    if (!raw) return '';
+    return marked.parse(raw) as string;
+  }
 }
