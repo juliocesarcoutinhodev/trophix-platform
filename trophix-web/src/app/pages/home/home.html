@@ -30,7 +30,7 @@
         <input 
           type="text" 
           [(ngModel)]="searchQuery"
-          (input)="onSearchInput()"
+          (ngModelChange)="onSearchInput()"
           (focus)="onSearchInput()"
           (blur)="hideDropdown()"
           (keydown.enter)="onSearch()"

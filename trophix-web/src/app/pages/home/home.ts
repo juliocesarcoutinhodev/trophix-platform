@@ -16,8 +16,8 @@ export class HomeComponent implements OnInit {
   private readonly api = inject(ApiService);
 
   async ngOnInit() {
-    // 1. Carrega Ranking Global
     try {
+      // 1. Carrega Ranking Global
       const hunters = await firstValueFrom(this.api.getTopHunters(5));
       const mapped = hunters.map((h, i) => ({
         rank: i + 1,
@@ -27,25 +27,13 @@ export class HomeComponent implements OnInit {
         avatarUrl: h.avatarUrl
       }));
       this.topHunters.set(mapped);
-    } catch (e) {
-      console.error('Erro ao carregar ranking:', e);
-      // Fallback visual caso o backend ainda não tenha o endpoint implementado
-      this.topHunters.set([
-        { rank: 1, username: 'Cout1nh030', platinums: 152, level: 320, avatarUrl: null },
-        { rank: 2, username: 'Hakoom', platinums: 145, level: 310, avatarUrl: null },
-        { rank: 3, username: 'PlatinumKing', platinums: 128, level: 295, avatarUrl: null },
-        { rank: 4, username: 'TrophyLover', platinums: 110, level: 250, avatarUrl: null },
-        { rank: 5, username: 'GamerGirl99', platinums: 98, level: 215, avatarUrl: null },
-      ]);
-    }
 
-    // 2. Carrega Últimos Guias
-    try {
+      // 2. Carrega Últimos Guias
       const guides = await firstValueFrom(this.api.getLatestGuides());
       this.recentGuides.set(guides.slice(0, 4));
     } catch (e) {
-      console.error('Erro ao carregar guias recentes:', e);
-      // Mantém os guias mocados como fallback em caso de erro
+      console.error('Erro de API, redirecionando para manutenção:', e);
+      this.router.navigate(['/maintenance']);
     }
   }
 
@@ -117,72 +105,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  recentGuides = signal<GuideResponse[]>([
-    {
-      id: '1',
-      gameId: '1',
-      authorId: '1',
-      status: 'APPROVED',
-      createdAt: new Date().toISOString(),
-      trophyId: null,
-      videoUrl: null,
-      content: '',
-      description: '',
-      gameName: 'Elden Ring',
-      title: 'Elden Ring - Guia de Platina (100%)',
-      authorName: 'Cout1nh030',
-      upvotesCount: 342,
-      imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg'
-    },
-    {
-      id: '2',
-      gameId: '2',
-      authorId: '2',
-      status: 'APPROVED',
-      createdAt: new Date().toISOString(),
-      trophyId: null,
-      videoUrl: null,
-      content: '',
-      description: '',
-      gameName: 'God of War Ragnarök',
-      title: 'Guia de Colecionáveis (Corvos, Artefatos, Baús Nornir)',
-      authorName: 'KratosHunter',
-      upvotesCount: 215,
-      imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5s5v.jpg'
-    },
-    {
-      id: '3',
-      gameId: '3',
-      authorId: '3',
-      status: 'APPROVED',
-      createdAt: new Date().toISOString(),
-      trophyId: null,
-      videoUrl: null,
-      content: '',
-      description: '',
-      gameName: 'Marvel\'s Spider-Man 2',
-      title: 'Platina em 25 Horas - Passo a Passo Eficiente',
-      authorName: 'WebSlinger',
-      upvotesCount: 189,
-      imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co69f1.jpg'
-    },
-    {
-      id: '4',
-      gameId: '4',
-      authorId: '4',
-      status: 'APPROVED',
-      createdAt: new Date().toISOString(),
-      trophyId: null,
-      videoUrl: null,
-      content: '',
-      description: '',
-      gameName: 'The Last of Us Part I',
-      title: 'Dificuldade Sobrevivente e Todos os Pingentes',
-      authorName: 'EllieFan',
-      upvotesCount: 156,
-      imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5x99.jpg'
-    }
-  ]);
+  recentGuides = signal<GuideResponse[]>([]);
 
   trendingGames = signal([
     { name: 'Elden Ring', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg', guidesCount: 12 },

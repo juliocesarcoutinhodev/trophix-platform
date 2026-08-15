@@ -13,6 +13,7 @@ import { GuideDetailComponent } from './pages/guide-detail/guide-detail';
 import { RankingComponent } from './pages/ranking/ranking';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { MaintenanceComponent } from './pages/maintenance/maintenance.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './pages/admin/dashboard/admin-dashboard.component';
 import { AdminUsersComponent } from './pages/admin/users/admin-users.component';
@@ -49,5 +50,6 @@ export const routes: Routes = [
   { path: 'guides/:id', component: GuideDetailComponent },
   { path: 'create-guide', component: CreateGuide, canActivate: [authGuard] },
   { path: 'games/:id', component: GameDetailComponent, canActivate: [authGuard] },
+  { path: 'maintenance', component: MaintenanceComponent, data: { title: 'Manutenção' } },
   { path: '**', redirectTo: '' },
 ];
