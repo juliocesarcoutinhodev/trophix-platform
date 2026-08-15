@@ -46,6 +46,11 @@ export class AdminAllGuidesComponent implements OnInit {
   protected editingGameTrophies = signal<TrophyStatus[]>([]);
   protected trophyTips = signal<Record<string, { guideId?: string, content: string, videoUrl: string, isSaving: boolean, isExpanded: boolean, isPreviewingTip: boolean }>>({});
 
+  protected statusFilter = signal<string>('');
+  protected searchQuery = signal<string>('');
+  protected viewMode = signal<'cards' | 'table'>('cards');
+  private searchTimeout: any;
+
   togglePreview(guideId: string): void {
     this.previewStates.update(states => ({
       ...states,
@@ -67,11 +72,29 @@ export class AdminAllGuidesComponent implements OnInit {
     await this.loadGuides();
   }
 
+  onSearchInput(event: Event) {
+    const input = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(input);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.loadGuides(0);
+    }, 500);
+  }
+
+  setStatusFilter(status: string) {
+    this.statusFilter.set(status);
+    this.loadGuides(0);
+  }
+
+  setViewMode(mode: 'cards' | 'table') {
+    this.viewMode.set(mode);
+  }
+
   async loadGuides(pageIndex = 0): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const page = await firstValueFrom(this.adminApi.getAllGuides(pageIndex, 20));
+      const page = await firstValueFrom(this.adminApi.getAllGuides(pageIndex, 20, this.statusFilter(), this.searchQuery()));
       this.guides.set(page.content);
       this.currentPage.set(page.number);
       this.totalPages.set(page.totalPages);

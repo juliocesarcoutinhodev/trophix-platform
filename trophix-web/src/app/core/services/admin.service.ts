@@ -21,8 +21,11 @@ export class AdminService {
     return this.http.get<Page<GuideResponse>>(`/api/admin/guides/pending?page=${page}&size=${size}`);
   }
 
-  getAllGuides(page = 0, size = 20) {
-    return this.http.get<Page<GuideResponse>>(`/api/admin/guides?page=${page}&size=${size}`);
+  getAllGuides(page = 0, size = 20, status?: string, search?: string) {
+    let url = `/api/admin/guides?page=${page}&size=${size}`;
+    if (status) url += `&status=${encodeURIComponent(status)}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return this.http.get<Page<GuideResponse>>(url);
   }
 
   approveGuide(guideId: string) {
