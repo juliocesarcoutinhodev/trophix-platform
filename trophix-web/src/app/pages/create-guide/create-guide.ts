@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiService } from '../../core/services/api.service';
-import { UserGame, TrophyStatus } from '../../core/models/api.models';
+import { UserGame } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 
 import { ModalComponent } from '../../shared/components/modal/modal.component';
@@ -43,44 +43,23 @@ export class CreateGuide implements OnInit {
   isAdminRoute = computed(() => this.router.url.includes('/admin'));
 
   selectedGameId = signal('');
-  selectedTrophyId = signal<string | null>(null);
   title = signal('');
   description = signal('');
   videoUrl = signal('');
   content = signal('');
   
   games = signal<UserGame[]>([]);
-  trophies = signal<TrophyStatus[]>([]);
   activeTab = signal<'write' | 'preview'>('write');
   isSubmitting = signal(false);
   dropdownOpen = signal(false);
-  trophyDropdownOpen = signal(false);
 
   selectedGame = computed(() => {
     return this.games().find(g => g.gameId === this.selectedGameId());
   });
 
-  selectedTrophy = computed(() => {
-    return this.trophies().find(t => t.id === this.selectedTrophyId());
-  });
-
-  async selectGame(gameId: string) {
+  selectGame(gameId: string) {
     this.selectedGameId.set(gameId);
     this.dropdownOpen.set(false);
-    this.selectedTrophyId.set(null); // Reset
-    
-    try {
-      const list = await firstValueFrom(this.api.getGameTrophies(gameId));
-      this.trophies.set(list);
-    } catch (e) {
-      console.error('Falha ao carregar troféus', e);
-      this.trophies.set([]);
-    }
-  }
-
-  selectTrophy(trophyId: string | null) {
-    this.selectedTrophyId.set(trophyId);
-    this.trophyDropdownOpen.set(false);
   }
 
   async ngOnInit(): Promise<void> {
@@ -114,19 +93,12 @@ export class CreateGuide implements OnInit {
 
     this.isSubmitting.set(true);
     try {
-      const payload = {
+      await firstValueFrom(this.api.submitGameGuide(this.selectedGameId(), {
         title: this.title(),
         description: this.description(),
         content: this.content(),
-        videoUrl: this.videoUrl() || undefined
-      };
-
-      if (this.selectedTrophyId()) {
-        await firstValueFrom(this.api.submitTrophyGuide(this.selectedTrophyId()!, payload));
-      } else {
-        await firstValueFrom(this.api.submitGameGuide(this.selectedGameId(), payload));
-      }
-
+        videoUrl: this.videoUrl()
+      }));
       // Exibe mensagem informando que o guia está em revisão
       this.showModal('Sucesso!', 'Guia criado com sucesso! Ele foi enviado para revisão da moderação e logo aparecerá na plataforma.', 'success');
       // Navigation moved to onModalClose()
