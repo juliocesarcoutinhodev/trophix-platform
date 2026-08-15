@@ -158,7 +158,16 @@ export class AdminAllGuidesComponent implements OnInit {
     try {
       await firstValueFrom(this.api.syncGameTrophies(gameId));
       
-      const trophies = await firstValueFrom(this.api.getGameTrophies(gameId));
+      let trophies: any[] = [];
+      // Poll por até 10 segundos para dar tempo do backend processar e salvar no banco
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        trophies = await firstValueFrom(this.api.getGameTrophies(gameId));
+        if (trophies && trophies.length > 0) {
+          break;
+        }
+      }
+      
       this.editingGameTrophies.set(trophies);
       
       const authorGuides = await firstValueFrom(this.api.getAuthorTrophyGuides(gameId, guide.authorId));
