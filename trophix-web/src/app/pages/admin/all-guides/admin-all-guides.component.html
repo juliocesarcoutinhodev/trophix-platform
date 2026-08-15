@@ -47,216 +47,227 @@
   } @else {
     <div class="mt-8 space-y-6">
       @for (guide of guides(); track guide.id) {
-        <div class="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700 sm:flex-row">
+        <div class="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-colors hover:border-violet-700">
           
-          <!-- Image Section (Left) -->
-          <div class="relative h-48 w-full shrink-0 overflow-hidden bg-slate-950 sm:h-auto sm:w-64">
-            <img
-              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
-              alt=""
-              class="absolute inset-0 h-full w-full object-cover opacity-30 blur-md"
-            />
-            <img
-              [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
-              alt="Imagem do Guia"
-              class="relative h-full w-full object-contain p-4 drop-shadow-xl"
-            />
-          </div>
+          <div class="flex flex-col sm:flex-row">
+            <!-- Image Section (Left) -->
+            <div class="relative h-48 w-full shrink-0 overflow-hidden bg-slate-950 sm:h-auto sm:w-64">
+              <img
+                [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+                alt=""
+                class="absolute inset-0 h-full w-full object-cover opacity-30 blur-md"
+              />
+              <img
+                [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'"
+                alt="Imagem do Guia"
+                class="relative h-full w-full object-contain p-4 drop-shadow-xl"
+              />
+            </div>
 
-          <!-- Content Section (Right) -->
-          <div class="flex flex-1 flex-col justify-between p-6">
-            
-            @if (editingGuideId() === guide.id) {
-              <!-- Edit Form -->
-              <div class="flex flex-col gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-400">Título</label>
-                  <input type="text" [(ngModel)]="editTitle" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+            <!-- Content Section (Right) -->
+            <div class="flex flex-1 flex-col justify-between p-6">
+              
+              @if (editingGuideId() === guide.id) {
+                <!-- Edit Form (Top Part) -->
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-400">Título</label>
+                    <input type="text" [(ngModel)]="editTitle" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-400">Descrição Curta</label>
+                    <textarea [(ngModel)]="editDescription" rows="2" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-400">Conteúdo Completo</label>
+                    <textarea [(ngModel)]="editContent" rows="6" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 font-mono text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-400">URL do Vídeo (Opcional)</label>
+                    <input type="text" [(ngModel)]="editVideoUrl" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                  </div>
                 </div>
+              } @else {
+                <!-- Display Mode -->
                 <div>
-                  <label class="block text-sm font-medium text-slate-400">Descrição Curta</label>
-                  <textarea [(ngModel)]="editDescription" rows="2" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-400">Conteúdo Completo</label>
-                  <textarea [(ngModel)]="editContent" rows="6" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 font-mono text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-400">URL do Vídeo (Opcional)</label>
-                  <input type="text" [(ngModel)]="editVideoUrl" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
-                </div>
+                  <div class="mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">
+                        {{ guide.gameName || 'Jogo Desconhecido' }}
+                      </span>
+                    </div>
+                    <!-- Status and Actions -->
+                    <div class="flex items-center gap-2">
+                      @if (guide.status === 'APPROVED') {
+                        <span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-bold text-green-400 ring-1 ring-inset ring-green-500/20">Aprovado</span>
+                      } @else if (guide.status === 'PENDING') {
+                        <span class="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-bold text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Pendente</span>
+                      } @else {
+                        <span class="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-400 ring-1 ring-inset ring-red-500/20">{{ guide.status }}</span>
+                      }
 
-                <div class="mt-8 border-t border-slate-800 pt-6">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-slate-100">Troféus do Jogo (Dicas Individuais)</h3>
-                    <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">{{ editingGameTrophies().length }} Troféus</span>
+                      <div class="h-4 w-px bg-slate-700 mx-2"></div>
+
+                      <button 
+                        (click)="togglePreview(guide.id)"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-violet-400 transition-colors hover:bg-violet-900/30"
+                      >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {{ isPreviewing(guide.id) ? 'Código' : 'Preview' }}
+                      </button>
+
+                      <button 
+                        (click)="startEditing(guide)"
+                        [disabled]="processingId() === guide.id"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-50"
+                      >
+                        Editar
+                      </button>
+                      
+                      <button 
+                        (click)="deleteGuide(guide.id)"
+                        [disabled]="processingId() === guide.id"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-950 hover:text-red-300 disabled:opacity-50"
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </div>
 
-                  @if (editingGameTrophies().length === 0 && !guide.trophyId) {
-                    <p class="text-sm text-slate-500 italic">Nenhum troféu encontrado ou carregando...</p>
-                  }
+                  <h2 class="text-2xl font-bold text-slate-100 transition-colors group-hover:text-violet-400">
+                    {{ guide.title }}
+                  </h2>
+                  <p class="mt-3 text-sm font-medium leading-relaxed text-slate-300">
+                    {{ guide.description }}
+                  </p>
 
-                  <div class="space-y-3">
-                    @for (trophy of editingGameTrophies(); track trophy.id) {
-                      <div class="rounded-lg border border-slate-800 bg-slate-900/50 overflow-hidden">
-                        
-                        <!-- Trophy Header -->
-                        <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors" (click)="toggleTrophyTip(trophy.id)">
-                          <div class="flex items-center gap-4">
-                            <img [src]="trophy.iconUrl" alt="" class="h-10 w-10 rounded bg-slate-950 object-contain shadow-md" />
-                            <div>
-                              <h4 class="text-sm font-bold text-slate-200">{{ trophy.name }}</h4>
-                              <p class="text-xs text-slate-500 line-clamp-1">{{ trophy.description }}</p>
-                            </div>
-                          </div>
-                          
-                          <div class="flex items-center gap-3">
-                            @if (trophyTips()[trophy.id]?.guideId) {
-                              <span class="flex items-center gap-1 rounded bg-violet-500/10 px-2 py-0.5 text-xs font-semibold text-violet-400">
-                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                Dica Criada
-                              </span>
-                            }
-                            <svg class="h-5 w-5 text-slate-500 transition-transform" [class.rotate-180]="trophyTips()[trophy.id]?.isExpanded" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                  <div class="mt-4 max-h-96 overflow-y-auto rounded-lg bg-slate-950/50 p-4 border border-slate-800 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-700">
+                    @if (isPreviewing(guide.id)) {
+                      <div class="prose prose-invert prose-violet max-w-none text-sm" [innerHTML]="getParsedContent(guide.content)"></div>
+                    } @else {
+                      <pre class="font-mono whitespace-pre-wrap text-sm text-slate-400 leading-relaxed">{{ guide.content }}</pre>
+                    }
+                  </div>
+
+                  @if (guide.videoUrl) {
+                    <div class="mt-4">
+                      <a [href]="guide.videoUrl" target="_blank" class="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
+                        <svg class="h-4 w-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                        </svg>
+                        Ver Vídeo no YouTube
+                      </a>
+                    </div>
+                  }
+                </div>
+
+                <div class="mt-6 flex items-center justify-between border-t border-slate-800/60 pt-4 text-sm text-slate-400">
+                  <div class="flex items-center gap-2.5">
+                    <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
+                      {{ (guide.authorName || 'A').charAt(0) }}
+                    </div>
+                    <span class="font-medium text-slate-200">{{ guide.authorName || 'Autor' }}</span>
+                    <span class="px-1 text-slate-600">•</span>
+                    <span>{{ guide.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Edit Trophies & Actions (Full Width Bottom Section) -->
+          @if (editingGuideId() === guide.id) {
+            <div class="border-t border-slate-800 bg-slate-900/50 p-6">
+              
+              <!-- Trophies Section -->
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg font-bold text-slate-100">Troféus do Jogo (Dicas Individuais)</h3>
+                  <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">{{ editingGameTrophies().length }} Troféus</span>
+                </div>
+
+                @if (editingGameTrophies().length === 0 && !guide.trophyId) {
+                  <p class="text-sm text-slate-500 italic">Nenhum troféu encontrado ou carregando...</p>
+                }
+
+                <div class="space-y-3">
+                  @for (trophy of editingGameTrophies(); track trophy.id) {
+                    <div class="rounded-lg border border-slate-800 bg-slate-950 overflow-hidden">
+                      
+                      <!-- Trophy Header -->
+                      <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors" (click)="toggleTrophyTip(trophy.id)">
+                        <div class="flex items-center gap-4">
+                          <img [src]="trophy.iconUrl" alt="" class="h-10 w-10 rounded bg-slate-900 object-contain shadow-md" />
+                          <div>
+                            <h4 class="text-sm font-bold text-slate-200">{{ trophy.name }}</h4>
+                            <p class="text-xs text-slate-500 line-clamp-1">{{ trophy.description }}</p>
                           </div>
                         </div>
+                        
+                        <div class="flex items-center gap-3">
+                          @if (trophyTips()[trophy.id]?.guideId) {
+                            <span class="flex items-center gap-1 rounded bg-violet-500/10 px-2 py-0.5 text-xs font-semibold text-violet-400">
+                              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                              Dica Criada
+                            </span>
+                          }
+                          <svg class="h-5 w-5 text-slate-500 transition-transform" [class.rotate-180]="trophyTips()[trophy.id]?.isExpanded" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
 
-                        <!-- Trophy Body (Form) -->
-                        @if (trophyTips()[trophy.id]?.isExpanded) {
-                          <div class="border-t border-slate-800 bg-slate-950 p-4">
-                            <div class="space-y-4">
-                              <div>
-                                <label class="mb-1 block text-xs font-medium text-slate-400">Dica do Troféu (Markdown)</label>
-                                <textarea [(ngModel)]="trophyTips()[trophy.id].content" rows="4" class="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="Como conquistar este troféu..."></textarea>
-                              </div>
-                              <div>
-                                <label class="mb-1 block text-xs font-medium text-slate-400">Link do YouTube (Colecionáveis, etc)</label>
-                                <input type="url" [(ngModel)]="trophyTips()[trophy.id].videoUrl" class="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="https://youtube.com/watch?v=..." />
-                              </div>
-                              
-                              <div class="flex justify-end pt-2">
-                                <button 
-                                  (click)="saveTrophyTip(trophy.id, trophy.name)" 
-                                  [disabled]="trophyTips()[trophy.id].isSaving"
-                                  class="rounded bg-violet-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
-                                  {{ trophyTips()[trophy.id].isSaving ? 'Salvando...' : 'Salvar Dica do Troféu' }}
-                                </button>
-                              </div>
+                      <!-- Trophy Body (Form) -->
+                      @if (trophyTips()[trophy.id]?.isExpanded) {
+                        <div class="border-t border-slate-800 bg-slate-900/30 p-4">
+                          <div class="space-y-4">
+                            <div>
+                              <label class="mb-1 block text-xs font-medium text-slate-400">Dica do Troféu (Markdown)</label>
+                              <textarea [(ngModel)]="trophyTips()[trophy.id].content" rows="4" class="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="Como conquistar este troféu..."></textarea>
+                            </div>
+                            <div>
+                              <label class="mb-1 block text-xs font-medium text-slate-400">Link do YouTube (Colecionáveis, etc)</label>
+                              <input type="url" [(ngModel)]="trophyTips()[trophy.id].videoUrl" class="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="https://youtube.com/watch?v=..." />
+                            </div>
+                            
+                            <div class="flex justify-end pt-2">
+                              <button 
+                                (click)="saveTrophyTip(trophy.id, trophy.name)" 
+                                [disabled]="trophyTips()[trophy.id].isSaving"
+                                class="rounded bg-violet-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                                {{ trophyTips()[trophy.id].isSaving ? 'Salvando...' : 'Salvar Dica do Troféu' }}
+                              </button>
                             </div>
                           </div>
-                        }
+                        </div>
+                      }
 
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <div class="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-6">
-                  <button 
-                    (click)="cancelEditing()" 
-                    [disabled]="processingId() === guide.id"
-                    class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
-                    Cancelar
-                  </button>
-                  <button 
-                    (click)="updateGuide(guide.id)" 
-                    [disabled]="processingId() === guide.id"
-                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
-                    Salvar Guia Principal
-                  </button>
-                </div>
-              </div>
-            } @else {
-              <!-- Display Mode -->
-              <div>
-                <div class="mb-3 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">
-                      {{ guide.gameName || 'Jogo Desconhecido' }}
-                    </span>
-                  </div>
-                  <!-- Status and Actions -->
-                  <div class="flex items-center gap-2">
-                    @if (guide.status === 'APPROVED') {
-                      <span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-bold text-green-400 ring-1 ring-inset ring-green-500/20">Aprovado</span>
-                    } @else if (guide.status === 'PENDING') {
-                      <span class="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-bold text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Pendente</span>
-                    } @else {
-                      <span class="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-400 ring-1 ring-inset ring-red-500/20">{{ guide.status }}</span>
-                    }
-
-                    <div class="h-4 w-px bg-slate-700 mx-2"></div>
-
-                    <button 
-                      (click)="togglePreview(guide.id)"
-                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-violet-400 transition-colors hover:bg-violet-900/30"
-                    >
-                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      {{ isPreviewing(guide.id) ? 'Código' : 'Preview' }}
-                    </button>
-
-                    <button 
-                      (click)="startEditing(guide)"
-                      [disabled]="processingId() === guide.id"
-                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-50"
-                    >
-                      Editar
-                    </button>
-                    
-                    <button 
-                      (click)="deleteGuide(guide.id)"
-                      [disabled]="processingId() === guide.id"
-                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-950 hover:text-red-300 disabled:opacity-50"
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </div>
-
-                <h2 class="text-2xl font-bold text-slate-100 transition-colors group-hover:text-violet-400">
-                  {{ guide.title }}
-                </h2>
-                <p class="mt-3 text-sm font-medium leading-relaxed text-slate-300">
-                  {{ guide.description }}
-                </p>
-
-                <div class="mt-4 max-h-96 overflow-y-auto rounded-lg bg-slate-950/50 p-4 border border-slate-800 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-700">
-                  @if (isPreviewing(guide.id)) {
-                    <div class="prose prose-invert prose-violet max-w-none text-sm" [innerHTML]="getParsedContent(guide.content)"></div>
-                  } @else {
-                    <pre class="font-mono whitespace-pre-wrap text-sm text-slate-400 leading-relaxed">{{ guide.content }}</pre>
+                    </div>
                   }
                 </div>
-
-                @if (guide.videoUrl) {
-                  <div class="mt-4">
-                    <a [href]="guide.videoUrl" target="_blank" class="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
-                      <svg class="h-4 w-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-                      </svg>
-                      Ver Vídeo no YouTube
-                    </a>
-                  </div>
-                }
               </div>
 
-              <div class="mt-6 flex items-center justify-between border-t border-slate-800/60 pt-4 text-sm text-slate-400">
-                <div class="flex items-center gap-2.5">
-                  <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
-                    {{ (guide.authorName || 'A').charAt(0) }}
-                  </div>
-                  <span class="font-medium text-slate-200">{{ guide.authorName || 'Autor' }}</span>
-                  <span class="px-1 text-slate-600">•</span>
-                  <span>{{ guide.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
+              <!-- Main Save / Cancel Actions -->
+              <div class="flex items-center justify-end gap-3 border-t border-slate-800 pt-6">
+                <button 
+                  (click)="cancelEditing()" 
+                  [disabled]="processingId() === guide.id"
+                  class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
+                  Cancelar
+                </button>
+                <button 
+                  (click)="updateGuide(guide.id)" 
+                  [disabled]="processingId() === guide.id"
+                  class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                  Salvar Guia Principal
+                </button>
               </div>
-            }
-          </div>
+
+            </div>
+          }
         </div>
       }
     </div>
