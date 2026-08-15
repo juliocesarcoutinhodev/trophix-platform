@@ -88,8 +88,8 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Guide> findLatestRoadmapsByStatus(GuideStatus status, int limit) {
-        return springDataRepository.findLatestRoadmaps(status, PageRequest.of(0, Math.max(1, limit)))
+    public List<Guide> findLatestRoadmapsByStatus(GuideStatus status, String search, int limit) {
+        return springDataRepository.findLatestRoadmaps(status, search, PageRequest.of(0, Math.max(1, limit)))
                 .stream().map(mapper::toDomain).toList();
     }
 

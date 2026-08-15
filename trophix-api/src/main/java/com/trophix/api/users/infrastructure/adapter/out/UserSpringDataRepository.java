@@ -42,4 +42,7 @@ public interface UserSpringDataRepository extends JpaRepository<UserJpaEntity, U
 
     @Query("select u.id from UserJpaEntity u where u.lastSyncedAt is not null and u.lastSyncedAt >= :since")
     List<UUID> findActiveUserIds(@Param("since") Instant since);
+
+    /** Hunters leaderboard: users with a synced PSN profile, highest platinum first. */
+    List<UserJpaEntity> findByTotalPlatinumIsNotNullOrderByTotalPlatinumDesc(Pageable pageable);
 }

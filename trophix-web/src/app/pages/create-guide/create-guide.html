@@ -168,3 +168,11 @@
     </div>
   </form>
 </main>
+
+<app-modal
+  [isOpen]="modalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [type]="modalType"
+  (confirm)="onModalClose()">
+</app-modal>

@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { marked } from 'marked';
 
 import { AdminService } from '../../../core/services/admin.service';
 import { GuideResponse } from '../../../core/models/api.models';
@@ -35,6 +36,26 @@ export class AdminGuidesComponent implements OnInit {
   protected editDescription = '';
   protected editContent = '';
   protected editVideoUrl = '';
+
+  // Preview state
+  protected previewStates = signal<Record<string, boolean>>({});
+
+  togglePreview(guideId: string): void {
+    this.previewStates.update(states => ({
+      ...states,
+      [guideId]: !this.isPreviewing(guideId)
+    }));
+  }
+
+  isPreviewing(guideId: string): boolean {
+    const state = this.previewStates()[guideId];
+    return state === undefined ? true : state; // True by default
+  }
+
+  getParsedContent(raw: string): string {
+    if (!raw) return '';
+    return marked.parse(raw) as string;
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadGuides();

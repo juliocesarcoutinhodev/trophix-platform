@@ -50,8 +50,9 @@ public class GuideController {
     @GetMapping("/api/guides")
     public ResponseEntity<List<GuideResponse>> getLatestRoadmaps(
             @AuthenticationPrincipal String userId,
-            @RequestParam(defaultValue = "20") int limit) {
-        List<GuideResponse> guides = getLatestGuidesUseCase.getLatestRoadmaps(limit,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) String search) {
+        List<GuideResponse> guides = getLatestGuidesUseCase.getLatestRoadmaps(limit, search,
                         authenticatedUser.optionalId(userId).orElse(null)).stream()
                 .map(guideWebMapper::toGuideResponse)
                 .toList();

@@ -30,9 +30,10 @@ public interface GuideRepositoryPort {
     /**
      * Returns the latest game roadmaps (guides without a trophy target) for
      * the given status, ordered by creation date (newest first), up to the
-     * informed limit.
+     * informed limit. When {@code search} is provided (case-insensitive),
+     * only roadmaps whose title or game name contains the term are returned.
      */
-    List<Guide> findLatestRoadmapsByStatus(GuideStatus status, int limit);
+    List<Guide> findLatestRoadmapsByStatus(GuideStatus status, String search, int limit);
 
     /**
      * Returns the trophy tips (guides with a trophy target, no game target)

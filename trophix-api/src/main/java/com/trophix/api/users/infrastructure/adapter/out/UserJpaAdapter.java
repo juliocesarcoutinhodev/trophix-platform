@@ -109,6 +109,13 @@ public class UserJpaAdapter implements UserRepository {
                 .collect(Collectors.toMap(User::id, Function.identity()));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findTopHunters(Pageable pageable) {
+        return springDataRepository.findByTotalPlatinumIsNotNullOrderByTotalPlatinumDesc(pageable)
+                .stream().map(mapper::toDomain).toList();
+    }
+
     /**
      * Fetches managed role references from the DB and sets them on the entity.
      * This is required to avoid Hibernate's "detached entity passed to persist" error

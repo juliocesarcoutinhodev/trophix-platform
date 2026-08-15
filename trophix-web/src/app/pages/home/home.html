@@ -21,7 +21,7 @@
     </p>
 
     <!-- Barra de Pesquisa Global -->
-    <div class="mx-auto mt-10 max-w-2xl relative group">
+    <div class="mx-auto mt-10 max-w-2xl relative group z-50">
       <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600 to-emerald-500 opacity-30 blur transition duration-1000 group-hover:opacity-70 group-hover:duration-200"></div>
       <div class="relative flex items-center rounded-2xl bg-slate-900/80 backdrop-blur-md p-1 shadow-2xl ring-1 ring-slate-800">
         <svg class="ml-4 h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,13 +29,42 @@
         </svg>
         <input 
           type="text" 
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          (focus)="onSearchInput()"
+          (blur)="hideDropdown()"
+          (keydown.enter)="onSearch()"
           placeholder="Busque por um jogo, ex: Elden Ring..." 
           class="w-full bg-transparent py-4 pl-4 pr-6 text-lg text-white placeholder-slate-400 focus:outline-none"
         />
-        <button class="shrink-0 rounded-xl bg-violet-600 px-8 py-3 font-bold text-white transition-colors hover:bg-violet-500 mr-1">
+        
+        @if (isSearching()) {
+          <div class="absolute right-32 h-5 w-5 animate-spin rounded-full border-b-2 border-t-2 border-violet-500"></div>
+        }
+
+        <button (click)="onSearch()" class="shrink-0 rounded-xl bg-violet-600 px-8 py-3 font-bold text-white transition-colors hover:bg-violet-500 mr-1 disabled:opacity-50" [disabled]="isSearching()">
           Buscar
         </button>
       </div>
+
+      <!-- Dropdown de Autocomplete -->
+      @if (showDropdown() && searchResults().length > 0) {
+        <div class="absolute left-0 right-0 mt-2 max-h-80 overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/95 p-2 backdrop-blur-lg shadow-2xl shadow-black/50 text-left">
+          @for (guide of searchResults(); track guide.id) {
+            <a [routerLink]="['/guides', guide.id]" class="flex items-center gap-4 rounded-lg p-3 hover:bg-slate-800 transition-colors">
+              <img [src]="guide.imageUrl || 'https://via.placeholder.com/600x400/0f172a/6d28d9?text=Guia'" class="h-12 w-12 rounded object-cover shadow-md" />
+              <div class="flex-1 overflow-hidden">
+                <div class="text-xs font-semibold text-violet-400 mb-0.5">{{ guide.gameName || 'Jogo' }}</div>
+                <div class="truncate text-sm font-bold text-slate-200">{{ guide.title }}</div>
+              </div>
+            </a>
+          }
+        </div>
+      } @else if (showDropdown() && searchResults().length === 0 && !isSearching() && searchQuery().trim()) {
+        <div class="absolute left-0 right-0 mt-2 rounded-xl border border-slate-800 bg-slate-900/95 p-4 backdrop-blur-lg shadow-2xl shadow-black/50 text-center text-slate-400">
+          Nenhum guia localizado para "<span class="text-slate-200 font-semibold">{{ searchQuery() }}</span>"
+        </div>
+      }
     </div>
   </div>
 </section>
@@ -132,14 +161,18 @@
     <div class="space-y-8">
       
       <!-- Hall da Fama (Ranking) -->
-      <section class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm shadow-xl">
-        <h2 class="mb-6 text-xl font-bold text-white flex items-center gap-3">
-          <svg class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-          </svg>
-          Top Caçadores (Ranking)
-        </h2>
+      <div>
+        <div class="mb-6 flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+            <svg class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            Top Caçadores (Ranking)
+          </h2>
+        </div>
         
+        <section class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm shadow-xl">
+
         <div class="flex flex-col gap-3">
           @for (user of topHunters(); track user.username) {
             <div class="group flex items-center justify-between rounded-xl border border-slate-800/50 bg-slate-800/20 p-3 transition-colors hover:border-slate-700 hover:bg-slate-800/50 cursor-default">
@@ -151,8 +184,12 @@
                      [class.text-slate-600]="user.rank > 3">
                   #{{ user.rank }}
                 </div>
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-900/50 text-sm font-bold text-violet-300 ring-1 ring-inset ring-violet-500/30 group-hover:bg-violet-600/30 transition-colors">
-                  {{ user.username.charAt(0) }}
+                <div class="flex h-10 w-10 shrink-0 overflow-hidden items-center justify-center rounded-full bg-violet-900/50 text-sm font-bold text-violet-300 ring-1 ring-inset ring-violet-500/30 group-hover:bg-violet-600/30 transition-colors">
+                  @if (user.avatarUrl) {
+                    <img [src]="user.avatarUrl" class="h-full w-full object-cover" />
+                  } @else {
+                    {{ user.username.charAt(0) }}
+                  }
                 </div>
                 <div>
                   <div class="font-bold text-slate-200 text-sm leading-tight">{{ user.username }}</div>
@@ -168,10 +205,11 @@
           }
         </div>
         
-        <button class="mt-6 w-full rounded-xl bg-slate-800/50 py-3 text-sm font-bold text-slate-300 ring-1 ring-inset ring-slate-700 transition-colors hover:bg-slate-700 hover:text-white">
+        <a routerLink="/ranking" class="mt-6 flex justify-center w-full rounded-xl bg-slate-800/50 py-3 text-sm font-bold text-slate-300 ring-1 ring-inset ring-slate-700 transition-colors hover:bg-slate-700 hover:text-white">
           Ver Ranking Completo
-        </button>
+        </a>
       </section>
+      </div>
 
       <!-- Banner Call To Action (CTA) para Criar Guia -->
       <section class="relative overflow-hidden rounded-2xl border border-violet-800 bg-violet-950 p-6 text-center shadow-[0_0_30px_rgba(139,92,246,0.15)] group">
@@ -196,3 +234,13 @@
     </div>
   </div>
 </div>
+
+<!-- Toast Notification -->
+@if (toastMessage()) {
+  <div class="fixed bottom-6 right-6 z-50 flex animate-bounce items-center gap-3 rounded-lg border border-red-500/30 bg-red-950/80 px-6 py-4 text-white shadow-2xl backdrop-blur-md">
+    <svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span class="font-semibold">{{ toastMessage() }}</span>
+  </div>
+}

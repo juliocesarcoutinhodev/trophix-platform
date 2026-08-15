@@ -39,4 +39,10 @@ public interface UserRepository {
 
     /** Batch lookup by id, keyed by user id. Missing ids are simply absent. */
     Map<UUID, User> findAllByIds(Collection<UUID> ids);
+
+    /**
+     * Hunters leaderboard: users with a synced PSN profile, ordered by platinum
+     * count (highest first), limited by the given pageable.
+     */
+    List<User> findTopHunters(Pageable pageable);
 }

@@ -11,7 +11,9 @@ public interface GetLatestGuidesUseCase {
      * Returns the latest APPROVED game roadmaps (guides without a trophy
      * target), ordered by creation date (newest first), up to the limit,
      * enriched with the game name/image, the author's name and whether the
-     * current user (nullable for anonymous) voted.
+     * current user (nullable for anonymous) voted. When {@code search} is
+     * provided (case-insensitive), only roadmaps whose title or game name
+     * contains the term are returned.
      */
-    List<GuideListItem> getLatestRoadmaps(int limit, UUID currentUserId);
+    List<GuideListItem> getLatestRoadmaps(int limit, String search, UUID currentUserId);
 }

@@ -24,9 +24,9 @@ public class GetLatestGuidesUseCaseImpl implements GetLatestGuidesUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GuideListItem> getLatestRoadmaps(int limit, UUID currentUserId) {
+    public List<GuideListItem> getLatestRoadmaps(int limit, String search, UUID currentUserId) {
         int safeLimit = Math.max(1, Math.min(limit, MAX_LIMIT));
-        List<Guide> guides = guideRepository.findLatestRoadmapsByStatus(GuideStatus.APPROVED, safeLimit);
+        List<Guide> guides = guideRepository.findLatestRoadmapsByStatus(GuideStatus.APPROVED, search, safeLimit);
         return guideEnricher.enrichAll(guides, currentUserId);
     }
 }

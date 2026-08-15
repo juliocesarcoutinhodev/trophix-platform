@@ -61,6 +61,12 @@ export class ApiService {
     });
   }
 
+  getTopHunters(limit = 5) {
+    return this.http.get<UserProfile[]>('/api/users/ranking', {
+      params: { limit: String(limit) }
+    });
+  }
+
   // ---- Games ----
   getGameDetail(gameId: string) {
     return this.http.get<GameDetail>(`/api/games/${gameId}/detail`);
@@ -92,8 +98,10 @@ export class ApiService {
   }
 
   // ---- Guides ----
-  getLatestGuides() {
-    return this.http.get<GuideResponse[]>('/api/guides');
+  getLatestGuides(search?: string) {
+    let params: any = {};
+    if (search) params.search = search;
+    return this.http.get<GuideResponse[]>('/api/guides', { params });
   }
 
   getGuideById(guideId: string) {

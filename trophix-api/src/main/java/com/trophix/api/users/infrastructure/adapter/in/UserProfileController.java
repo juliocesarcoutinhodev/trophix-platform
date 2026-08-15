@@ -1,6 +1,7 @@
 package com.trophix.api.users.infrastructure.adapter.in;
 
 import com.trophix.api.games.model.UserGameSummary;
+import com.trophix.api.users.application.ports.in.GetTopHuntersUseCase;
 import com.trophix.api.users.application.ports.in.GetUserGamesUseCase;
 import com.trophix.api.users.application.ports.in.GetUserProfileUseCase;
 import com.trophix.api.users.application.ports.in.SyncUserProfileUseCase;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,7 +35,17 @@ public class UserProfileController {
     private final GetUserProfileUseCase getUserProfileUseCase;
     private final GetUserGamesUseCase getUserGamesUseCase;
     private final SyncUserProfileUseCase syncUserProfileUseCase;
+    private final GetTopHuntersUseCase getTopHuntersUseCase;
     private final UserWebMapper userWebMapper;
+
+    @GetMapping("/ranking")
+    public ResponseEntity<List<UserProfileResponse>> getRanking(
+            @RequestParam(defaultValue = "5") int limit) {
+        List<UserProfileResponse> ranking = getTopHuntersUseCase.getTopHunters(limit).stream()
+                .map(userWebMapper::toUserProfileResponse)
+                .toList();
+        return ResponseEntity.ok(ranking);
+    }
 
     @PostMapping("/me/sync")
     public ResponseEntity<SyncProfileResponse> sync(@AuthenticationPrincipal String userId) {

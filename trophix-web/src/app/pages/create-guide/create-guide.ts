@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { marked } from 'marked';
@@ -6,16 +7,38 @@ import { firstValueFrom } from 'rxjs';
 
 import { ApiService } from '../../core/services/api.service';
 import { UserGame } from '../../core/models/api.models';
+import { AuthService } from '../../core/services/auth.service';
+
+import { ModalComponent } from '../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-create-guide',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ModalComponent],
   templateUrl: './create-guide.html',
 })
 export class CreateGuide implements OnInit {
-  private readonly api = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly api = inject(ApiService);
+  private readonly auth = inject(AuthService);
+
+  modalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalType: 'success' | 'error' | 'warning' | 'info' = 'info';
+
+  showModal(title: string, message: string, type: 'success' | 'error' | 'warning' | 'info') {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.modalType = type;
+    this.modalOpen = true;
+  }
+
+  onModalClose() {
+    if (this.modalType === 'success') {
+      this.goBack();
+    }
+  }
 
   isAdminRoute = computed(() => this.router.url.includes('/admin'));
 
@@ -64,7 +87,7 @@ export class CreateGuide implements OnInit {
 
   async saveGuide() {
     if (!this.selectedGameId() || !this.title() || !this.content()) {
-      alert('Preencha os campos obrigatórios: Jogo, Título e Conteúdo (Roadmap).');
+      this.showModal('Atenção', 'Preencha os campos obrigatórios: Jogo, Título e Conteúdo (Roadmap).', 'warning');
       return;
     }
 
@@ -77,12 +100,12 @@ export class CreateGuide implements OnInit {
         videoUrl: this.videoUrl()
       }));
       // Exibe mensagem informando que o guia está em revisão
-      alert('Guia criado com sucesso! Ele foi enviado para revisão da moderação e logo aparecerá na plataforma.');
-      // Volta para a listagem correspondente
-      this.goBack();
-    } catch (e) {
-      console.error(e);
-      alert('Falha ao publicar guia. Tente novamente mais tarde.');
+      this.showModal('Sucesso!', 'Guia criado com sucesso! Ele foi enviado para revisão da moderação e logo aparecerá na plataforma.', 'success');
+      // Navigation moved to onModalClose()
+    } catch (error) {
+      console.error('Erro ao salvar guia:', error);
+      this.isSubmitting.set(false);
+      this.showModal('Erro', 'Falha ao publicar guia. Tente novamente mais tarde.', 'error');
     } finally {
       this.isSubmitting.set(false);
     }

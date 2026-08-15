@@ -1,13 +1,44 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../../core/services/api.service';
+import { GuideResponse } from '../../core/models/api.models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './home.html',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly api = inject(ApiService);
+
+  async ngOnInit() {
+    try {
+      const hunters = await firstValueFrom(this.api.getTopHunters(5));
+      const mapped = hunters.map((h, i) => ({
+        rank: i + 1,
+        username: h.username,
+        platinums: h.totalPlatinum || 0,
+        level: h.psnLevel || 0,
+        avatarUrl: h.avatarUrl
+      }));
+      this.topHunters.set(mapped);
+    } catch (e) {
+      console.error('Erro ao carregar ranking:', e);
+      // Fallback visual caso o backend ainda não tenha o endpoint implementado
+      this.topHunters.set([
+        { rank: 1, username: 'Cout1nh030', platinums: 152, level: 320, avatarUrl: null },
+        { rank: 2, username: 'Hakoom', platinums: 145, level: 310, avatarUrl: null },
+        { rank: 3, username: 'PlatinumKing', platinums: 128, level: 295, avatarUrl: null },
+        { rank: 4, username: 'TrophyLover', platinums: 110, level: 250, avatarUrl: null },
+        { rank: 5, username: 'GamerGirl99', platinums: 98, level: 215, avatarUrl: null },
+      ]);
+    }
+  }
+
   // Mock Data (Esses dados virão do backend futuramente)
   settings = signal({
     heroTitle: 'Qual jogo você quer platinar hoje?',
@@ -18,6 +49,63 @@ export class HomeComponent {
   });
 
   searchQuery = signal('');
+  searchResults = signal<GuideResponse[]>([]);
+  showDropdown = signal(false);
+  isSearching = signal(false);
+  toastMessage = signal<string | null>(null);
+  private searchTimeout: any;
+
+  onSearchInput() {
+    const query = this.searchQuery().trim();
+    if (!query) {
+      this.searchResults.set([]);
+      this.showDropdown.set(false);
+      return;
+    }
+
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(async () => {
+      this.isSearching.set(true);
+      try {
+        const results = await firstValueFrom(this.api.getLatestGuides(query));
+        this.searchResults.set(results);
+        this.showDropdown.set(true);
+      } catch (e) {
+        console.error('Erro na busca live:', e);
+      } finally {
+        this.isSearching.set(false);
+      }
+    }, 400);
+  }
+
+  hideDropdown() {
+    setTimeout(() => this.showDropdown.set(false), 200);
+  }
+
+  showToast(msg: string) {
+    this.toastMessage.set(msg);
+    setTimeout(() => this.toastMessage.set(null), 3000);
+  }
+
+  async onSearch() {
+    const query = this.searchQuery().trim();
+    if (!query) return;
+
+    this.isSearching.set(true);
+    try {
+      const results = await firstValueFrom(this.api.getLatestGuides(query));
+      if (results.length === 0) {
+        this.showToast('Guia não localizada para este jogo.');
+      } else {
+        this.router.navigate(['/guides'], { queryParams: { search: query } });
+      }
+    } catch (e) {
+      this.showToast('Erro ao realizar a busca.');
+    } finally {
+      this.isSearching.set(false);
+      this.showDropdown.set(false);
+    }
+  }
 
   recentGuides = signal([
     {
@@ -62,11 +150,5 @@ export class HomeComponent {
     { name: 'Cyberpunk 2077', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg', guidesCount: 30 }
   ]);
 
-  topHunters = signal([
-    { rank: 1, username: 'Cout1nh030', platinums: 152, level: 320 },
-    { rank: 2, username: 'Hakoom', platinums: 145, level: 310 },
-    { rank: 3, username: 'PlatinumKing', platinums: 128, level: 295 },
-    { rank: 4, username: 'TrophyLover', platinums: 110, level: 250 },
-    { rank: 5, username: 'GamerGirl99', platinums: 98, level: 215 },
-  ]);
+  topHunters = signal<Array<{ rank: number; username: string; platinums: number; level: number; avatarUrl?: string | null }>>([]);
 }
