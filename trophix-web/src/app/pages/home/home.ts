@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
   private readonly api = inject(ApiService);
 
   async ngOnInit() {
+    // 1. Carrega Ranking Global
     try {
       const hunters = await firstValueFrom(this.api.getTopHunters(5));
       const mapped = hunters.map((h, i) => ({
@@ -36,6 +37,15 @@ export class HomeComponent implements OnInit {
         { rank: 4, username: 'TrophyLover', platinums: 110, level: 250, avatarUrl: null },
         { rank: 5, username: 'GamerGirl99', platinums: 98, level: 215, avatarUrl: null },
       ]);
+    }
+
+    // 2. Carrega Últimos Guias
+    try {
+      const guides = await firstValueFrom(this.api.getLatestGuides());
+      this.recentGuides.set(guides.slice(0, 4));
+    } catch (e) {
+      console.error('Erro ao carregar guias recentes:', e);
+      // Mantém os guias mocados como fallback em caso de erro
     }
   }
 
@@ -107,37 +117,69 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  recentGuides = signal([
+  recentGuides = signal<GuideResponse[]>([
     {
       id: '1',
+      gameId: '1',
+      authorId: '1',
+      status: 'APPROVED',
+      createdAt: new Date().toISOString(),
+      trophyId: null,
+      videoUrl: null,
+      content: '',
+      description: '',
       gameName: 'Elden Ring',
       title: 'Elden Ring - Guia de Platina (100%)',
-      author: 'Cout1nh030',
-      upvotes: 342,
+      authorName: 'Cout1nh030',
+      upvotesCount: 342,
       imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg'
     },
     {
       id: '2',
+      gameId: '2',
+      authorId: '2',
+      status: 'APPROVED',
+      createdAt: new Date().toISOString(),
+      trophyId: null,
+      videoUrl: null,
+      content: '',
+      description: '',
       gameName: 'God of War Ragnarök',
       title: 'Guia de Colecionáveis (Corvos, Artefatos, Baús Nornir)',
-      author: 'KratosHunter',
-      upvotes: 215,
+      authorName: 'KratosHunter',
+      upvotesCount: 215,
       imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5s5v.jpg'
     },
     {
       id: '3',
+      gameId: '3',
+      authorId: '3',
+      status: 'APPROVED',
+      createdAt: new Date().toISOString(),
+      trophyId: null,
+      videoUrl: null,
+      content: '',
+      description: '',
       gameName: 'Marvel\'s Spider-Man 2',
       title: 'Platina em 25 Horas - Passo a Passo Eficiente',
-      author: 'WebSlinger',
-      upvotes: 189,
+      authorName: 'WebSlinger',
+      upvotesCount: 189,
       imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co69f1.jpg'
     },
     {
       id: '4',
+      gameId: '4',
+      authorId: '4',
+      status: 'APPROVED',
+      createdAt: new Date().toISOString(),
+      trophyId: null,
+      videoUrl: null,
+      content: '',
+      description: '',
       gameName: 'The Last of Us Part I',
       title: 'Dificuldade Sobrevivente e Todos os Pingentes',
-      author: 'EllieFan',
-      upvotes: 156,
+      authorName: 'EllieFan',
+      upvotesCount: 156,
       imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5x99.jpg'
     }
   ]);
