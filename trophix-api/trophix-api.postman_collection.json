@@ -55,6 +55,14 @@
       "value": "NPWR20277_00",
       "type": "string",
       "description": "ID de comunicacao PSN do jogo (ex: NPWR20277_00 para Demon's Souls)"
+    },
+    {
+      "key": "categoryId",
+      "value": "22222222-2222-2222-2222-222222222222"
+    },
+    {
+      "key": "topicId",
+      "value": "019ff741-0000-0000-0000-000000000000"
     }
   ],
   "item": [
@@ -2630,6 +2638,158 @@
               "body": "{\n    \"timestamp\": \"2026-08-14T14:46:03.774Z\",\n    \"status\": 404,\n    \"message\": \"Guia não encontrado\"\n}"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Fórum",
+      "item": [
+        {
+          "name": "Listar Categorias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "categories"
+              ]
+            },
+            "description": "Lista categorias com total de tópicos (público)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Tópicos da Categoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/categories/22222222-2222-2222-2222-222222222222/topics?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "categories",
+                "22222222-2222-2222-2222-222222222222",
+                "topics"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Tópicos da categoria, ordenados por updatedAt desc (público)."
+          },
+          "response": []
+        },
+        {
+          "name": "Detalhe do Tópico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/topics/{{topicId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "topics",
+                "{{topicId}}"
+              ]
+            },
+            "description": "Detalhe do tópico + página de respostas (público). Incrementa viewsCount assíncrono."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Respostas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/topics/{{topicId}}/replies?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "topics",
+                "{{topicId}}",
+                "replies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Página de respostas do tópico (público)."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Tópico",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/topics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "topics"
+              ]
+            },
+            "description": "Cria tópico (autenticado)."
+          },
+          "response": []
+        },
+        {
+          "name": "Responder Tópico",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forums/topics/{{topicId}}/replies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forums",
+                "topics",
+                "{{topicId}}",
+                "replies"
+              ]
+            },
+            "description": "Responde um tópico (autenticado). Dispara ReplyCreatedEvent -> e-mail."
+          },
+          "response": []
         }
       ]
     }

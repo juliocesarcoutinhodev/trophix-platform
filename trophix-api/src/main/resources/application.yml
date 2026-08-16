@@ -67,6 +67,9 @@ trophix:
     frontend-url: ${TROPHIX_WEB_URL:http://localhost:4200}
   mail:
     from: ${MAIL_FROM:no-reply@trophix.com}
+  forums:
+    # Base da URL do front-end para os links de e-mail do fórum (/forums/topics/{id}).
+    frontend-url: ${TROPHIX_WEB_URL:http://localhost:4200}
   minio:
     # MinIO (S3-compatible) — armazenamento de imagens de guias e avatares.
     url: ${MINIO_URL:http://localhost:9000}

@@ -141,3 +141,68 @@ export interface GlobalSettings {
   metaTitle: string;
   metaDescription: string;
 }
+
+// Forum Models
+export interface CategoryListItem {
+  id: string;
+  name: string;
+  description: string;
+  orderIndex: number;
+  topicsCount: number;
+  lastTopicTitle?: string | null;
+  lastTopicId?: string | null;
+  lastTopicAuthor?: string | null;
+  lastTopicUpdatedAt?: string | null;
+}
+
+export interface TopicListItem {
+  id: string;
+  categoryId: string;
+  title: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl?: string | null;
+  authorRoles?: string[];
+  viewsCount: number;
+  repliesCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReplyListItem {
+  id: string;
+  topicId: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl?: string | null;
+  authorRoles?: string[];
+  content: string;
+  createdAt: string;
+}
+
+export interface TopicDetails {
+  id: string;
+  categoryId: string;
+  categoryName: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl?: string | null;
+  authorRoles?: string[];
+  viewsCount: number;
+  repliesCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTopicRequest {
+  categoryId: string;
+  title: string;
+  content: string;
+}
+
+export interface CreateReplyRequest {
+  topicId: string;
+  content: string;
+}

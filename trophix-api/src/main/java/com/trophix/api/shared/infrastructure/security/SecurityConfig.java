@@ -78,6 +78,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/games/*/trophies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/games/*/authors/*/trophy-guides").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/guides/**").permitAll()
+                        // Fórum: leitura pública, escrita exige login
+                        .requestMatchers(HttpMethod.GET, "/api/forums/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/forums/**").authenticated()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação

@@ -1,0 +1,95 @@
+<div class="min-h-screen bg-slate-950 pt-24 pb-12">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-slate-100">Fóruns da Comunidade</h1>
+      <p class="mt-2 text-slate-400">Junte-se à comunidade Trophix. Discuta jogos, organize boosts e tire dúvidas.</p>
+    </div>
+
+    @if (categories()) {
+      <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-xl shadow-black/20">
+        <!-- Tabela Header -->
+        <div class="hidden grid-cols-12 items-center gap-4 border-b border-slate-800 bg-slate-900 px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 sm:grid">
+          <div class="col-span-12 sm:col-span-7">Fórum</div>
+          <div class="col-span-2 text-center">Tópicos</div>
+          <div class="col-span-3 text-right">Última Postagem</div>
+        </div>
+
+        <!-- Categorias List -->
+        <div class="divide-y divide-slate-800/50">
+          @for (cat of categories(); track cat.id) {
+            <div class="group grid grid-cols-12 items-center gap-4 p-6 transition-colors hover:bg-slate-800/30">
+              
+              <!-- Info Categoria -->
+              <div class="col-span-12 flex gap-4 sm:col-span-7">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-violet-400 transition-colors group-hover:bg-violet-500/20 group-hover:text-violet-300">
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div>
+                  <a [routerLink]="['/forums/category', cat.id]" class="text-lg font-bold text-slate-200 hover:text-violet-400">
+                    {{ cat.name }}
+                  </a>
+                  <p class="mt-1 text-sm text-slate-400">{{ cat.description }}</p>
+                </div>
+              </div>
+
+              <!-- Tópicos Count -->
+              <div class="col-span-4 mt-4 text-center sm:col-span-2 sm:mt-0">
+                <span class="block text-lg font-semibold text-slate-200">{{ cat.topicsCount }}</span>
+                <span class="text-xs text-slate-500 sm:hidden">Tópicos</span>
+              </div>
+
+              <!-- Última Postagem -->
+              <div class="col-span-8 mt-4 text-right sm:col-span-3 sm:mt-0">
+                @if (cat.lastTopicId) {
+                  <a [routerLink]="['/forums/topic', cat.lastTopicId]" class="block truncate text-sm font-medium text-slate-300 hover:text-violet-400">
+                    {{ cat.lastTopicTitle }}
+                  </a>
+                  <div class="mt-1 flex items-center justify-end gap-1.5 text-xs text-slate-500">
+                    <span>por <span class="font-semibold text-slate-400">{{ cat.lastTopicAuthor }}</span></span>
+                    <span>&bull;</span>
+                    <span>{{ cat.lastTopicUpdatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                } @else {
+                  <span class="text-sm text-slate-500">Nenhum tópico</span>
+                }
+              </div>
+
+            </div>
+          } @empty {
+            <div class="py-12 text-center text-slate-500">
+              <p>Nenhuma categoria encontrada no fórum.</p>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Skeleton Loading -->
+      <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-xl shadow-black/20">
+        <div class="divide-y divide-slate-800/50">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="grid grid-cols-12 items-center gap-4 p-6 animate-pulse">
+              <div class="col-span-12 flex gap-4 sm:col-span-7">
+                <div class="h-12 w-12 rounded-lg bg-slate-800"></div>
+                <div class="flex-1">
+                  <div class="h-5 w-48 rounded bg-slate-800"></div>
+                  <div class="mt-2 h-4 w-72 rounded bg-slate-800/50"></div>
+                </div>
+              </div>
+              <div class="hidden sm:col-span-2 sm:block">
+                <div class="mx-auto h-6 w-12 rounded bg-slate-800"></div>
+              </div>
+              <div class="hidden flex-col items-end sm:col-span-3 sm:flex">
+                <div class="h-4 w-32 rounded bg-slate-800"></div>
+                <div class="mt-2 h-3 w-24 rounded bg-slate-800/50"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

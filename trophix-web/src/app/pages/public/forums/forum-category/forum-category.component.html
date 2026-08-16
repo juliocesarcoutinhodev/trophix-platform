@@ -1,0 +1,186 @@
+<div class="min-h-screen bg-slate-950 pt-24 pb-12">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb e Título -->
+    <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <nav class="flex text-sm text-slate-500" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-2">
+            <li>
+              <a routerLink="/forums" class="hover:text-violet-400">Fóruns</a>
+            </li>
+            <li>
+              <svg class="h-4 w-4 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </li>
+            <li>
+              <span class="text-slate-300">Categoria</span>
+            </li>
+          </ol>
+        </nav>
+        <h1 class="mt-2 text-3xl font-black text-slate-100">Tópicos Recentes</h1>
+      </div>
+      
+      <!-- Botão Novo Tópico -->
+      <button 
+        (click)="toggleCreateForm()"
+        class="rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
+        {{ showCreateForm() ? 'Cancelar' : 'Novo Tópico' }}
+      </button>
+    </div>
+
+    @if (showCreateForm()) {
+      <div class="mb-8 overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-xl shadow-black/20">
+        <h2 class="mb-4 text-xl font-bold text-slate-100">Criar Novo Tópico</h2>
+        <div class="mb-4">
+          <label class="mb-1 block text-sm font-semibold text-slate-400">Título</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newTopicTitle"
+            placeholder="Digite o título do tópico..."
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-slate-200 placeholder-slate-600 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          >
+        </div>
+        <div class="mb-4">
+          <label class="mb-1 block text-sm font-semibold text-slate-400">Conteúdo (suporta Markdown)</label>
+          <textarea 
+            [(ngModel)]="newTopicContent"
+            rows="6"
+            placeholder="Descreva o seu tópico..."
+            class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-slate-200 placeholder-slate-600 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          ></textarea>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button 
+            (click)="toggleCreateForm()"
+            class="rounded-lg border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-800">
+            Cancelar
+          </button>
+          <button 
+            (click)="submitTopic()"
+            [disabled]="!newTopicTitle().trim() || !newTopicContent().trim() || submitting()"
+            class="flex items-center gap-2 rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+            @if (submitting()) {
+              <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Enviando...
+            } @else {
+              Publicar Tópico
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (topicsPage()) {
+      <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-xl shadow-black/20">
+        <!-- Tabela Header -->
+        <div class="hidden grid-cols-12 items-center gap-4 border-b border-slate-800 bg-slate-900 px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 sm:grid">
+          <div class="col-span-12 sm:col-span-6">Tópico</div>
+          <div class="col-span-2 text-center">Autor</div>
+          <div class="col-span-2 text-center">Respostas</div>
+          <div class="col-span-2 text-center">Visualizações</div>
+        </div>
+
+        <!-- Lista de Tópicos -->
+        <div class="divide-y divide-slate-800/50">
+          @for (topic of topicsPage()?.content; track topic.id) {
+            <div class="group grid grid-cols-12 items-center gap-4 p-6 transition-colors hover:bg-slate-800/30">
+              
+              <!-- Título e Info -->
+              <div class="col-span-12 flex items-start gap-4 sm:col-span-6">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-800 text-slate-400">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                </div>
+                <div>
+                  <a [routerLink]="['/forums/topic', topic.id]" class="text-base font-bold text-slate-200 transition-colors hover:text-violet-400">
+                    {{ topic.title }}
+                  </a>
+                  <p class="mt-1 flex gap-2 text-xs text-slate-500">
+                    <span>Criado em {{ topic.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <span>&bull;</span>
+                    <span>Atualizado em {{ topic.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Autor -->
+              <div class="col-span-4 mt-4 flex items-center justify-center sm:col-span-2 sm:mt-0">
+                <div class="flex items-center gap-2">
+                  @if (topic.authorAvatarUrl) {
+                    <img [src]="topic.authorAvatarUrl" class="h-6 w-6 rounded-full object-cover">
+                  } @else {
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white">
+                      {{ topic.authorName.slice(0, 1).toUpperCase() }}
+                    </div>
+                  }
+                  <span class="text-sm text-slate-300">{{ topic.authorName }}</span>
+                </div>
+              </div>
+
+              <!-- Respostas -->
+              <div class="col-span-4 mt-4 text-center sm:col-span-2 sm:mt-0">
+                <span class="block text-base font-semibold text-slate-200">{{ topic.repliesCount }}</span>
+                <span class="text-[10px] uppercase tracking-wider text-slate-500 sm:hidden">Respostas</span>
+              </div>
+
+              <!-- Visualizações -->
+              <div class="col-span-4 mt-4 text-center sm:col-span-2 sm:mt-0">
+                <span class="block text-base font-semibold text-slate-200">{{ topic.viewsCount }}</span>
+                <span class="text-[10px] uppercase tracking-wider text-slate-500 sm:hidden">Visualizações</span>
+              </div>
+
+            </div>
+          } @empty {
+            <div class="py-12 text-center text-slate-500">
+              <p>Nenhum tópico encontrado nesta categoria. Seja o primeiro a criar um!</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Paginação -->
+      <div class="mt-8 flex justify-end">
+        <app-pagination
+          [currentPage]="topicsPage()!.number"
+          [totalPages]="topicsPage()!.totalPages"
+          [totalElements]="topicsPage()!.totalElements"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+
+    } @else {
+      <!-- Skeleton -->
+      <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-xl shadow-black/20">
+        <div class="divide-y divide-slate-800/50">
+          @for (i of [1, 2, 3, 4, 5]; track i) {
+            <div class="grid grid-cols-12 items-center gap-4 p-6 animate-pulse">
+              <div class="col-span-12 flex gap-4 sm:col-span-6">
+                <div class="h-10 w-10 rounded-full bg-slate-800"></div>
+                <div class="flex-1">
+                  <div class="h-5 w-4/5 rounded bg-slate-800"></div>
+                  <div class="mt-2 h-3 w-1/2 rounded bg-slate-800/50"></div>
+                </div>
+              </div>
+              <div class="hidden sm:col-span-2 sm:block">
+                <div class="mx-auto h-5 w-24 rounded bg-slate-800"></div>
+              </div>
+              <div class="hidden sm:col-span-2 sm:block">
+                <div class="mx-auto h-5 w-8 rounded bg-slate-800"></div>
+              </div>
+              <div class="hidden sm:col-span-2 sm:block">
+                <div class="mx-auto h-5 w-12 rounded bg-slate-800"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

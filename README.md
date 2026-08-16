@@ -19,6 +19,7 @@ trophix-platform/
 │       ├── trophies/           # catalogo de trofeus + conquistas do usuario
 │       ├── guides/             # guias (roadmaps + dicas) com upvotes
 │       ├── reports/            # denúncias de conteúdo (GUIAS/USUÁRIOS/COMENTÁRIOS)
+│       ├── forums/             # fórum (categorias, tópicos e respostas)
 │       ├── admin/              # painel admin (stats, usuários, moderação)
 │       ├── settings/           # configurações globais (single-row)
 │       └── shared/             # UUIDv7, exceptions PT-BR, security, storage (MinIO), RestClient
@@ -305,6 +306,20 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | POST | `/api/reports` | autenticado | Registra denúncia: `{targetType: GUIDE\|USER\|COMMENT, targetId, reason}` (máx 500 chars) |
 
 Denúncias ficam com status `OPEN` até o admin **resolver** ou **descartar** (`/api/admin/reports/...`). `targetId` é polimórfico (sem FK): para `GUIDE`/`USER` o alvo é validado no envio; `COMMENT` é reservado (sem feature ainda). O contador de denúncias abertas alimenta o `dashboard/stats`.
+
+### Fórum (Forums)
+| Método | Rota | Acesso | Descrição |
+| ------ | ---- | ------ | --------- |
+| GET | `/api/forums/categories` | público | Categorias com total de tópicos (por `orderIndex`) |
+| GET | `/api/forums/categories/{categoryId}/topics?page=&size=` | público | Tópicos da categoria, ordenados por `updatedAt` desc |
+| GET | `/api/forums/topics/{topicId}` | público | Detalhe do tópico + página de respostas (incrementa `viewsCount` assíncrono) |
+| GET | `/api/forums/topics/{topicId}/replies?page=&size=` | público | Página de respostas do tópico (mais antigas primeiro) |
+| POST | `/api/forums/topics` | autenticado | Cria tópico: `{categoryId, title, content}` |
+| POST | `/api/forums/topics/{topicId}/replies` | autenticado | Responde um tópico (incrementa `repliesCount`/`updatedAt` do pai) |
+
+Ao criar uma resposta, o módulo publica um **domain event local** (`ReplyCreatedEvent`) consumido via `@ApplicationModuleListener` (Spring Modulith) de forma **assíncrona e transacional**; o autor do tópico recebe um e-mail "Nova resposta no seu tópico" (via Mailpit no dev, link para `/forums/topics/{id}`). O journal de eventos usa as tabelas `event_publication`/`event_publication_archive` (migração V19/V20).
+
+> **Modulith:** o teste de arquitetura (`src/test/.../ApplicationModulesTest`) verifica a estrutura de módulos. Há **dívida técnica** de fronteiras legada na base (acessos entre módulos que não passam pela API exposta) — essas violações conhecidas estão em uma allowlist no teste e devem ser removidas conforme cada módulo for refatorado. Qualquer **violação nova** quebra o build.
 
 ## Fluxo do produto
 
