@@ -1610,6 +1610,130 @@
           ]
         },
         {
+          "name": "Sidecar Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/sidecar/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "sidecar",
+                "status"
+              ]
+            },
+            "description": "Health check do sidecar PSN. Rota protegida (ROLE_ADMIN).\n\nRespostas:\n- 200: {\"status\": \"UP\"} — sidecar online\n- 503: {\"status\": \"DOWN\"} — sidecar offline (timeout, conexão recusada ou 5xx)\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "Sidecar online (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/sidecar/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "sidecar",
+                    "status"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"status\": \"UP\"\n}"
+            },
+            {
+              "name": "Sidecar offline (503)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/sidecar/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "sidecar",
+                    "status"
+                  ]
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "body": "{\n    \"status\": \"DOWN\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "System Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/system/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "system",
+                "health"
+              ]
+            },
+            "description": "Health check leve da própria API (sem consultas externas). Rota protegida (ROLE_ADMIN).\n\nRespostas:\n- 200: {\"status\": \"UP\"} — API online\n- 403: sem ROLE_ADMIN"
+          },
+          "response": [
+            {
+              "name": "API online (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/system/health",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "system",
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"status\": \"UP\"\n}"
+            }
+          ]
+        },
+        {
           "name": "Listar Usuários",
           "request": {
             "method": "GET",

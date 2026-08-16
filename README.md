@@ -281,6 +281,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
 | GET | `/api/admin/dashboard/stats` | **ROLE_ADMIN** | Métricas do dashboard: novos usuários, guias PENDING, sincronizações PSN (24h) e denúncias abertas, com tendências |
+| GET | `/api/admin/sidecar/status` | **ROLE_ADMIN** | Health check do sidecar PSN: `200 {"status":"UP"}` online, `503 {"status":"DOWN"}` offline |
+| GET | `/api/admin/system/health` | **ROLE_ADMIN** | Health check leve da própria API: `200 {"status":"UP"}` (sem consultas externas) |
 | GET | `/api/admin/users?page=&size=&search=&role=` | **ROLE_ADMIN** | Lista paginada de usuários; `search` filtra por username/email (LIKE case-insensitive) e `role` por cargo — combináveis |
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |

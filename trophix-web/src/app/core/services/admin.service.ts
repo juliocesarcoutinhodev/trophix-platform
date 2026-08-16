@@ -25,6 +25,14 @@ export class AdminService {
     return this.http.get<any>('/api/admin/dashboard/stats');
   }
 
+  checkSidecarStatus() {
+    return this.http.get<any>('/api/admin/sidecar/status');
+  }
+
+  checkBackendStatus() {
+    return this.http.get<any>('/api/admin/system/health');
+  }
+
   getAllGuides(page = 0, size = 20, status?: string, search?: string, type?: 'game' | 'trophy') {
     let url = `/api/admin/guides?page=${page}&size=${size}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;

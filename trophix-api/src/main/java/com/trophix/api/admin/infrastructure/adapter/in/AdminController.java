@@ -3,6 +3,8 @@ package com.trophix.api.admin.infrastructure.adapter.in;
 import com.trophix.api.admin.application.ports.in.DeleteGuideUseCase;
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.GetPendingGuidesUseCase;
+import com.trophix.api.admin.application.ports.in.GetSidecarStatusUseCase;
+import com.trophix.api.admin.application.ports.in.GetSystemHealthUseCase;
 import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
 import com.trophix.api.admin.application.ports.in.ListAllGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
@@ -10,6 +12,8 @@ import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.SidecarStatusResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.SystemHealthResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
@@ -48,6 +52,8 @@ import java.util.UUID;
 public class AdminController {
 
     private final GetDashboardStatsUseCase getDashboardStatsUseCase;
+    private final GetSidecarStatusUseCase getSidecarStatusUseCase;
+    private final GetSystemHealthUseCase getSystemHealthUseCase;
     private final ListAdminUsersUseCase listAdminUsersUseCase;
     private final UpdateUserRolesUseCase updateUserRolesUseCase;
     private final GetPendingGuidesUseCase getPendingGuidesUseCase;
@@ -62,6 +68,19 @@ public class AdminController {
     public ResponseEntity<AdminDashboardStatsResponse> getDashboardStats() {
         GetDashboardStatsUseCase.DashboardStats stats = getDashboardStatsUseCase.getStats();
         return ResponseEntity.ok(adminWebMapper.toDashboardStatsResponse(stats));
+    }
+
+    @GetMapping("/sidecar/status")
+    public ResponseEntity<SidecarStatusResponse> getSidecarStatus() {
+        GetSidecarStatusUseCase.SidecarStatus status = getSidecarStatusUseCase.getStatus();
+        HttpStatus httpStatus = status.up() ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return ResponseEntity.status(httpStatus).body(adminWebMapper.toSidecarStatusResponse(status));
+    }
+
+    @GetMapping("/system/health")
+    public ResponseEntity<SystemHealthResponse> getSystemHealth() {
+        GetSystemHealthUseCase.SystemHealth health = getSystemHealthUseCase.getHealth();
+        return ResponseEntity.ok(adminWebMapper.toSystemHealthResponse(health));
     }
 
     @GetMapping("/users")

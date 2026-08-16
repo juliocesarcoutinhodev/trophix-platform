@@ -38,6 +38,30 @@ public class SidecarClient {
                 SidecarClient::countsAsCircuitFailure);
     }
 
+    /**
+     * Lightweight liveness probe for the sidecar {@code /health} route.
+     * Never throws: returns {@code true} only when the sidecar answered a
+     * successful HTTP response, {@code false} on timeouts, connection
+     * failures, 5xx/4xx or while the circuit breaker is OPEN.
+     */
+    public boolean ping() {
+        try {
+            circuitBreaker.execute(
+                    () -> {
+                        restClient.get()
+                                .uri("/health")
+                                .retrieve()
+                                .toBodilessEntity();
+                        return true;
+                    },
+                    SidecarClient::countsAsCircuitFailure);
+            return true;
+        } catch (RuntimeException ex) {
+            log.warn("Health check do sidecar falhou: {}", ex.getMessage());
+            return false;
+        }
+    }
+
     private <T> T fetch(String uri, Class<T> responseType, String notFoundMessage, Object[] uriVariables) {
         try {
             return restClient.get()
