@@ -1,7 +1,11 @@
 <div>
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-slate-100">Todas as Guias</h1>
+      <h1 class="text-3xl font-bold text-slate-100">
+        @if (typeFilter() === 'game') { Guias de Jogos }
+        @else if (typeFilter() === 'trophy') { Dicas de Troféus }
+        @else { Todas as Guias }
+      </h1>
       <p class="mt-2 text-slate-400">Analise os guias e dicas enviados pela comunidade antes de irem ao ar.</p>
     </div>
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -204,9 +208,13 @@
 
                 <div class="mt-6 flex items-center justify-between border-t border-slate-800/60 pt-4 text-sm text-slate-400">
                   <div class="flex items-center gap-2.5">
-                    <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
-                      {{ (guide.authorName || 'A').charAt(0) }}
-                    </div>
+                    @if (guide.authorAvatarUrl) {
+                      <img [src]="guide.authorAvatarUrl" alt="" class="h-7 w-7 rounded-full object-cover border border-slate-700 shadow-inner" />
+                    } @else {
+                      <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-xs font-bold text-white shadow-inner uppercase">
+                        {{ (guide.authorName || 'A').charAt(0) }}
+                      </div>
+                    }
                     <span class="font-medium text-slate-200">{{ guide.authorName || 'Autor' }}</span>
                     <span class="px-1 text-slate-600">•</span>
                     <span>{{ guide.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -383,9 +391,13 @@
                   </td>
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-2">
-                      <div class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[10px] font-bold text-slate-300">
-                        {{ guide.authorName ? guide.authorName.charAt(0).toUpperCase() : 'U' }}
-                      </div>
+                      @if (guide.authorAvatarUrl) {
+                        <img [src]="guide.authorAvatarUrl" alt="" class="h-6 w-6 rounded-full object-cover border border-slate-700" />
+                      } @else {
+                        <div class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[10px] font-bold text-slate-300">
+                          {{ guide.authorName ? guide.authorName.charAt(0).toUpperCase() : 'U' }}
+                        </div>
+                      }
                       <span class="font-medium">{{ guide.authorName || 'Desconhecido' }}</span>
                     </div>
                   </td>

@@ -7,6 +7,7 @@ import com.trophix.api.guides.model.Guide;
 import com.trophix.api.shared.exception.BusinessException;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
 import com.trophix.api.trophies.application.ports.out.TrophyRepositoryPort;
+import com.trophix.api.trophies.model.Trophy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,9 +39,14 @@ public class SubmitGuideUseCaseImpl implements SubmitGuideUseCase {
             throw new BusinessException("Informe o troféu ou o jogo do guia.");
         }
 
+        UUID resolvedGameId = command.gameId();
+
         if (command.trophyId() != null) {
-            trophyRepository.findById(command.trophyId())
+            Trophy trophy = trophyRepository.findById(command.trophyId())
                     .orElseThrow(() -> new ResourceNotFoundException("Troféu não encontrado"));
+            // Trophy tips must reference the game the trophy belongs to, so the
+            // enricher (game name/image) and the admin listing can resolve them.
+            resolvedGameId = trophy.gameId();
         }
 
         if (command.gameId() != null) {
@@ -48,12 +54,12 @@ public class SubmitGuideUseCaseImpl implements SubmitGuideUseCase {
                     .orElseThrow(() -> new ResourceNotFoundException("Jogo não encontrado"));
         }
 
-        Guide guide = Guide.create(command.trophyId(), command.gameId(), authorId,
+        Guide guide = Guide.create(command.trophyId(), resolvedGameId, authorId,
                 command.title().trim(), command.description(), command.content().trim(), command.videoUrl());
         guideRepository.save(guide);
 
         log.info("Guia submetido authorId={} trophyId={} gameId={} title={}",
-                authorId, command.trophyId(), command.gameId(), guide.title());
+                authorId, command.trophyId(), resolvedGameId, guide.title());
         return "Guia submetido com sucesso e aguardando aprovação.";
     }
 }

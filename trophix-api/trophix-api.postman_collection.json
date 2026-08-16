@@ -1860,7 +1860,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/guides?page=0&size=20",
+              "raw": "{{baseUrl}}/api/admin/guides?page=0&size=20&status=&search=",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1877,10 +1877,20 @@
                 {
                   "key": "size",
                   "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING",
+                  "description": "Filtro exato por status (PENDING, APPROVED, REJECTED). Opcional."
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Busca case-insensitive no título do guia ou nome do jogo. Opcional."
                 }
               ]
             },
-            "description": "Lista paginada com todas as guias do banco, sem filtro de status (PENDING, APPROVED, REJECTED, ...), enriquecidas com authorName/gameName.\n\nRespostas:\n- 200: Page<GuideResponse>"
+            "description": "Lista paginada de guias com filtros opcionais combináveis:\n- status: filtra exatamente por status (PENDING, APPROVED, REJECTED)\n- search: busca ILIKE case-insensitive no title do guia OU no name do jogo\n\nSem filtros, retorna todos os guias. Respostas:\n- 200: Page<GuideResponse>"
           }
         },
         {

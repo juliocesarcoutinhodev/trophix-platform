@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { marked } from 'marked';
 
 import { AdminService } from '../../../core/services/admin.service';
@@ -16,9 +16,11 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
   imports: [DatePipe, FormsModule, PaginationComponent, RouterLink],
   templateUrl: './admin-all-guides.component.html',
 })
-export class AdminAllGuidesComponent implements OnInit {
+export class AdminAllGuidesComponent implements OnInit, OnDestroy {
   private readonly adminApi = inject(AdminService);
   private readonly api = inject(ApiService);
+  private readonly route = inject(ActivatedRoute);
+  private routeSub?: Subscription;
 
   protected readonly guides = signal<GuideResponse[]>([]);
   protected readonly loading = signal(true);
@@ -48,7 +50,8 @@ export class AdminAllGuidesComponent implements OnInit {
 
   protected statusFilter = signal<string>('');
   protected searchQuery = signal<string>('');
-  protected viewMode = signal<'cards' | 'table'>('cards');
+  protected typeFilter = signal<'game' | 'trophy' | undefined>(undefined);
+  protected viewMode = signal<'cards' | 'table'>('table');
   private searchTimeout: any;
 
   togglePreview(guideId: string): void {
@@ -68,8 +71,20 @@ export class AdminAllGuidesComponent implements OnInit {
     return marked.parse(raw) as string;
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadGuides();
+  ngOnInit(): void {
+    this.routeSub = this.route.queryParams.subscribe(params => {
+      const type = params['type'];
+      if (type === 'game' || type === 'trophy') {
+        this.typeFilter.set(type);
+      } else {
+        this.typeFilter.set(undefined);
+      }
+      this.loadGuides(0);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   onSearchInput(event: Event) {
@@ -94,7 +109,7 @@ export class AdminAllGuidesComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const page = await firstValueFrom(this.adminApi.getAllGuides(pageIndex, 20, this.statusFilter(), this.searchQuery()));
+      const page = await firstValueFrom(this.adminApi.getAllGuides(pageIndex, 20, this.statusFilter(), this.searchQuery(), this.typeFilter()));
       this.guides.set(page.content);
       this.currentPage.set(page.number);
       this.totalPages.set(page.totalPages);

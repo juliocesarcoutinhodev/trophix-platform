@@ -68,8 +68,8 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Guide> findAll(Pageable pageable) {
-        return springDataRepository.findAllOrderedByCreatedAtDesc(pageable).map(mapper::toDomain);
+    public Page<Guide> findAll(GuideStatus status, String search, Boolean isTrophyGuide, Pageable pageable) {
+        return springDataRepository.findAllFiltered(status, search, isTrophyGuide, pageable).map(mapper::toDomain);
     }
 
     @Override

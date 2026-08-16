@@ -20,8 +20,13 @@ public interface GuideRepositoryPort {
     /** Paginated guides filtered by moderation status (admin). */
     Page<Guide> findByStatus(GuideStatus status, Pageable pageable);
 
-    /** Paginated listing of every guide, regardless of status (admin). */
-    Page<Guide> findAll(Pageable pageable);
+    /**
+     * Paginated listing of guides with optional dynamic filters (admin).
+     * {@code status} filters exactly by moderation status; {@code search} is a
+     * case-insensitive match on the guide title or the game name. Null/blank
+     * filters are ignored. Ordered by creation date (newest first).
+     */
+    Page<Guide> findAll(GuideStatus status, String search, Boolean isTrophyGuide, Pageable pageable);
 
     /** Hard-deletes a guide (and its votes via cascade). */
     void delete(Guide guide);

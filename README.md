@@ -284,7 +284,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | GET | `/api/admin/users?page=&size=&search=&role=` | **ROLE_ADMIN** | Lista paginada de usuários; `search` filtra por username/email (LIKE case-insensitive) e `role` por cargo — combináveis |
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |
-| GET | `/api/admin/guides?page=&size=` | **ROLE_ADMIN** | Lista paginada com todos os guias (PENDING, APPROVED, REJECTED, ...) com `authorName`/`gameName` |
+| GET | `/api/admin/guides?page=&size=&status=&search=` | **ROLE_ADMIN** | Lista paginada de guias; `status` filtra exatamente por status (PENDING/APPROVED/REJECTED) e `search` busca case-insensitive no título ou nome do jogo — combináveis |
 | PUT | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Edita title/description/content/videoUrl do guia (status e metadados preservados) |
 | DELETE | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Exclui definitivamente o guia (e seus votos, via cascade) |
 | POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING → APPROVED) |

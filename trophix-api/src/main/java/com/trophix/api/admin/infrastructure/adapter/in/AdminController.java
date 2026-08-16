@@ -17,6 +17,7 @@ import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.MessageResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;
+import com.trophix.api.guides.model.GuideStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -98,9 +99,12 @@ public class AdminController {
     @GetMapping("/guides")
     public ResponseEntity<Page<GuideResponse>> listAllGuides(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) GuideStatus status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean isTrophyGuide) {
         Page<GuideResponse> guides = listAllGuidesUseCase
-                .listAllGuides(PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
+                .listAllGuides(status, search, isTrophyGuide, PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
                 .map(guideWebMapper::toGuideResponse);
         return ResponseEntity.ok(guides);
     }

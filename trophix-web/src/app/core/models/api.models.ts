@@ -69,6 +69,7 @@ export interface GuideResponse {
   gameId: string;
   authorId: string;
   authorName?: string;
+  authorAvatarUrl?: string;
   gameName?: string;
   imageUrl?: string;
   title: string;

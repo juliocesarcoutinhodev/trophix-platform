@@ -55,6 +55,7 @@ public class GuideEnricher {
                 nameOf(gamesById.get(guide.gameId())),
                 imageOf(gamesById.get(guide.gameId())),
                 usernameOf(authorsById.get(guide.authorId())),
+                avatarOf(authorsById.get(guide.authorId())),
                 votedGuideIds.contains(guide.id()));
     }
 
@@ -79,5 +80,9 @@ public class GuideEnricher {
 
     private String usernameOf(User user) {
         return user != null ? user.username() : null;
+    }
+
+    private String avatarOf(User user) {
+        return user != null ? user.avatarUrl() : null;
     }
 }

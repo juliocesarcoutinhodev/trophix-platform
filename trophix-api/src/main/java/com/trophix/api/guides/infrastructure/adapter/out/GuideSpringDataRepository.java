@@ -15,13 +15,32 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
 
     Page<GuideEntity> findByStatus(GuideStatus status, Pageable pageable);
 
-    @Query("select g from GuideEntity g order by g.createdAt desc")
-    Page<GuideEntity> findAllOrderedByCreatedAtDesc(Pageable pageable);
+    /**
+     * Admin listing with optional dynamic filters: exact status and/or a
+     * case-insensitive search on the guide title or the game name. Null
+     * filters are ignored. Ordered by creation date (newest first).
+     */
+    @Query("""
+            select g from GuideEntity g
+            left join fetch g.game
+            where (:status is null or g.status = :status)
+              and (:search is null
+                   or lower(g.title) like lower(concat('%', cast(:search as string), '%'))
+                   or lower(g.game.name) like lower(concat('%', cast(:search as string), '%')))
+              and (:isTrophyGuide is null 
+                   or (:isTrophyGuide = true and g.trophy is not null) 
+                   or (:isTrophyGuide = false and g.trophy is null))
+            order by g.createdAt desc""")
+    Page<GuideEntity> findAllFiltered(@Param("status") GuideStatus status,
+                                      @Param("search") String search,
+                                      @Param("isTrophyGuide") Boolean isTrophyGuide,
+                                      Pageable pageable);
 
     long countByStatus(GuideStatus status);
 
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 
+    @Query("select g from GuideEntity g where g.trophy is null and g.game.id = :gameId and g.status = :status order by g.upvotesCount desc")
     List<GuideEntity> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
 
     @Query("""
@@ -30,8 +49,7 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
             where g.trophy is null
               and g.status = :status
               and (:search is null
-                   or lower(g.title) like lower(concat('%', :search, '%'))
-                   or lower(g.game.name) like lower(concat('%', :search, '%')))
+                   or lower(g.game.name) like lower(concat('%', cast(:search as string), '%')))
             order by g.createdAt desc""")
     List<GuideEntity> findLatestRoadmaps(@Param("status") GuideStatus status,
                                          @Param("search") String search,
@@ -39,8 +57,7 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
 
     @Query("""
             select g from GuideEntity g
-            where g.game is null
-              and g.trophy.game.id = :gameId
+            where g.trophy.game.id = :gameId
               and g.author.id = :authorId
               and g.status = :status
             order by g.trophy.psnTrophyId asc, g.createdAt asc""")

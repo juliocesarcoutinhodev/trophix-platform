@@ -31,6 +31,7 @@ public interface GuideWebMapper {
     @Mapping(target = "gameName", ignore = true)
     @Mapping(target = "imageUrl", ignore = true)
     @Mapping(target = "authorName", ignore = true)
+    @Mapping(target = "authorAvatarUrl", ignore = true)
     @Mapping(target = "currentUserVoted", ignore = true)
     GuideResponse toGuideResponse(Guide guide);
 

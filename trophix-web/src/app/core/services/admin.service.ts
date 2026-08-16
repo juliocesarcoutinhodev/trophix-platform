@@ -21,10 +21,12 @@ export class AdminService {
     return this.http.get<Page<GuideResponse>>(`/api/admin/guides/pending?page=${page}&size=${size}`);
   }
 
-  getAllGuides(page = 0, size = 20, status?: string, search?: string) {
+  getAllGuides(page = 0, size = 20, status?: string, search?: string, type?: 'game' | 'trophy') {
     let url = `/api/admin/guides?page=${page}&size=${size}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (type === 'game') url += `&isTrophyGuide=false`;
+    if (type === 'trophy') url += `&isTrophyGuide=true`;
     return this.http.get<Page<GuideResponse>>(url);
   }
 

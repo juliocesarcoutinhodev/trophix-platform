@@ -11,6 +11,7 @@ public record GuideResponse(
         String imageUrl,
         UUID authorId,
         String authorName,
+        String authorAvatarUrl,
         String title,
         String description,
         String content,
