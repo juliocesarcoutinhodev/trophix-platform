@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +38,9 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
                                       Pageable pageable);
 
     long countByStatus(GuideStatus status);
+
+    @Query("select count(g) from GuideEntity g where g.status = :status and g.createdAt >= :since")
+    long countByStatusSince(@Param("status") GuideStatus status, @Param("since") Instant since);
 
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 

@@ -2,8 +2,8 @@ package com.trophix.api.admin.infrastructure.adapter.in.mapper;
 
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
-import com.trophix.api.admin.infrastructure.adapter.in.dto.DashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.auth.model.Role;
@@ -22,11 +22,20 @@ import java.util.stream.Collectors;
 @Component
 public class AdminWebMapper {
 
-    public DashboardStatsResponse toDashboardStatsResponse(GetDashboardStatsUseCase.DashboardStats stats) {
-        return new DashboardStatsResponse(
-                stats.newUsersToday(),
-                stats.pendingGuides(),
-                stats.openReports());
+    public AdminDashboardStatsResponse toDashboardStatsResponse(GetDashboardStatsUseCase.DashboardStats stats) {
+        return new AdminDashboardStatsResponse(
+                stats.newUsersCount(),
+                stats.newUsersTrend(),
+                "desde ontem",
+                stats.pendingGuidesCount(),
+                stats.pendingGuidesTrend(),
+                "aguardando revisão",
+                stats.syncsCount(),
+                "nas últimas 24h",
+                stats.syncsTrendPositive(),
+                stats.reportsCount(),
+                stats.reportsTrend(),
+                "desde ontem");
     }
 
     public AdminUserResponse toAdminUserResponse(User user) {

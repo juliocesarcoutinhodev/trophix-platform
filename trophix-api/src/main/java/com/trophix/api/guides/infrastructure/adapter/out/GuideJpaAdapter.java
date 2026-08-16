@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,6 +83,12 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     @Transactional(readOnly = true)
     public long countByStatus(GuideStatus status) {
         return springDataRepository.countByStatus(status);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByStatusSince(GuideStatus status, Instant since) {
+        return springDataRepository.countByStatusSince(status, since);
     }
 
     @Override

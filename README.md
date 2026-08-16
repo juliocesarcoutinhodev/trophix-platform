@@ -280,7 +280,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 ### Admin (`/api/admin` — somente ROLE_ADMIN)
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
-| GET | `/api/admin/dashboard/stats` | **ROLE_ADMIN** | Visão geral: novos usuários hoje, guias PENDING e denúncias abertas |
+| GET | `/api/admin/dashboard/stats` | **ROLE_ADMIN** | Métricas do dashboard: novos usuários, guias PENDING, sincronizações PSN (24h) e denúncias abertas, com tendências |
 | GET | `/api/admin/users?page=&size=&search=&role=` | **ROLE_ADMIN** | Lista paginada de usuários; `search` filtra por username/email (LIKE case-insensitive) e `role` por cargo — combináveis |
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |

@@ -21,6 +21,10 @@ export class AdminService {
     return this.http.get<Page<GuideResponse>>(`/api/admin/guides/pending?page=${page}&size=${size}`);
   }
 
+  getDashboardStats() {
+    return this.http.get<any>('/api/admin/dashboard/stats');
+  }
+
   getAllGuides(page = 0, size = 20, status?: string, search?: string, type?: 'game' | 'trophy') {
     let url = `/api/admin/guides?page=${page}&size=${size}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;

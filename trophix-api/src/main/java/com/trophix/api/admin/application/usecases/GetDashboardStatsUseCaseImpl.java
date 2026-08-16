@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -20,6 +21,8 @@ import java.time.ZoneId;
 @RequiredArgsConstructor
 public class GetDashboardStatsUseCaseImpl implements GetDashboardStatsUseCase {
 
+    private static final Duration SYNC_WINDOW = Duration.ofHours(24);
+
     private final UserRepository userRepository;
     private final GuideRepositoryPort guideRepository;
     private final ReportRepository reportRepository;
@@ -27,15 +30,35 @@ public class GetDashboardStatsUseCaseImpl implements GetDashboardStatsUseCase {
     @Override
     @Transactional(readOnly = true)
     public DashboardStats getStats() {
-        Instant startOfToday = LocalDate.now(ZoneId.systemDefault())
-                .atStartOfDay(ZoneId.systemDefault()).toInstant();
+        ZoneId zone = ZoneId.systemDefault();
+        Instant startOfToday = LocalDate.now(zone).atStartOfDay(zone).toInstant();
+        Instant startOfYesterday = startOfToday.minus(Duration.ofDays(1));
 
-        long newUsersToday = userRepository.countCreatedSince(startOfToday);
-        long pendingGuides = guideRepository.countByStatus(GuideStatus.PENDING);
-        long openReports = reportRepository.countByStatus(ReportStatus.OPEN);
+        int newUsersCount = toInt(userRepository.countCreatedSince(startOfToday));
+        int newUsersTrend = newUsersCount - toInt(userRepository.countCreatedSince(startOfYesterday) - newUsersCount);
 
-        log.info("Dashboard stats: novosUsuariosHoje={} guiasPendentes={} denunciasAbertas={}",
-                newUsersToday, pendingGuides, openReports);
-        return new DashboardStats(newUsersToday, pendingGuides, openReports);
+        int pendingGuidesCount = toInt(guideRepository.countByStatus(GuideStatus.PENDING));
+        int pendingToday = toInt(guideRepository.countByStatusSince(GuideStatus.PENDING, startOfToday));
+        int pendingYesterday = toInt(guideRepository.countByStatusSince(GuideStatus.PENDING, startOfYesterday)) - pendingToday;
+        int pendingGuidesTrend = pendingToday - pendingYesterday;
+
+        Instant now = Instant.now();
+        int syncsCount = userRepository.findActiveUserIds(now.minus(SYNC_WINDOW)).size();
+        int prevSyncs = userRepository.findActiveUserIds(now.minus(SYNC_WINDOW.multipliedBy(2))).size() - syncsCount;
+        boolean syncsTrendPositive = syncsCount >= prevSyncs;
+
+        int reportsCount = toInt(reportRepository.countByStatus(ReportStatus.OPEN));
+        int reportsToday = toInt(reportRepository.countByStatusSince(ReportStatus.OPEN, startOfToday));
+        int reportsYesterday = toInt(reportRepository.countByStatusSince(ReportStatus.OPEN, startOfYesterday)) - reportsToday;
+        int reportsTrend = reportsToday - reportsYesterday;
+
+        log.info("Dashboard stats: novosUsuarios={} guiasPendentes={} sincronizacoes={} denunciasAbertas={}",
+                newUsersCount, pendingGuidesCount, syncsCount, reportsCount);
+        return new DashboardStats(newUsersCount, newUsersTrend, pendingGuidesCount, pendingGuidesTrend,
+                syncsCount, syncsTrendPositive, reportsCount, reportsTrend);
+    }
+
+    private int toInt(long value) {
+        return Math.toIntExact(value);
     }
 }

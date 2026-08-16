@@ -1553,7 +1553,7 @@
                 "stats"
               ]
             },
-            "description": "Visão geral do painel admin. Rota protegida (ROLE_ADMIN).\n\nRespostas:\n- 200: novosUsuariosHoje, pendingGuides, openReports (reservado, 0)\n- 403: sem ROLE_ADMIN"
+            "description": "Visão geral do painel admin. Rota protegida (ROLE_ADMIN).\n\nRespostas:\n- 200: newUsersCount/Trend, pendingGuidesCount/Trend, syncsCount, reportsCount/Trend (com textos de tendência)\n- 403: sem ROLE_ADMIN"
           },
           "response": [
             {
@@ -1583,7 +1583,7 @@
                   "value": "application/json; charset=utf-8"
                 }
               ],
-              "body": "{\n    \"newUsersToday\": 1,\n    \"pendingGuides\": 2,\n    \"openReports\": 0\n}"
+              "body": "{\n    \"newUsersCount\": 1,\n    \"newUsersTrend\": 1,\n    \"newUsersTrendText\": \"desde ontem\",\n    \"pendingGuidesCount\": 2,\n    \"pendingGuidesTrend\": 0,\n    \"pendingGuidesTrendText\": \"aguardando revisão\",\n    \"syncsCount\": 5,\n    \"syncsTrendText\": \"nas últimas 24h\",\n    \"syncsTrendPositive\": true,\n    \"reportsCount\": 0,\n    \"reportsTrend\": 0,\n    \"reportsTrendText\": \"desde ontem\"\n}"
             },
             {
               "name": "Sem ROLE_ADMIN (403)",

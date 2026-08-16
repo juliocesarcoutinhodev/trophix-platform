@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,5 +42,11 @@ public class ReportJpaAdapter implements ReportRepository {
     @Transactional(readOnly = true)
     public long countByStatus(ReportStatus status) {
         return springDataRepository.countByStatus(status);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByStatusSince(ReportStatus status, Instant since) {
+        return springDataRepository.countByStatusSince(status, since);
     }
 }

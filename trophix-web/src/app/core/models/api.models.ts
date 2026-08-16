@@ -104,6 +104,24 @@ export interface AdminUser {
   createdAt?: string;
 }
 
+export interface AdminDashboardStats {
+  newUsersCount: number;
+  newUsersTrend: number;
+  newUsersTrendText: string;
+  
+  pendingGuidesCount: number;
+  pendingGuidesTrend: number;
+  pendingGuidesTrendText: string;
+  
+  syncsCount: number;
+  syncsTrendText: string;
+  syncsTrendPositive: boolean;
+  
+  reportsCount: number;
+  reportsTrend: number;
+  reportsTrendText: string;
+}
+
 export interface GlobalSettings {
   siteName: string;
   logoUrl: string | null;

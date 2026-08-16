@@ -2,83 +2,102 @@
   <h1 class="text-3xl font-bold text-slate-100">Visão Geral</h1>
   <p class="mt-2 text-slate-400">Resumo das atividades da plataforma.</p>
 
-  <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    
-    <!-- Card: Novos Usuários -->
-    <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
-      <div class="flex justify-between mb-4">
-        <div>
-          <h3 class="text-sm font-semibold text-slate-400">Novos Usuários (Hoje)</h3>
-          <p class="mt-2 text-2xl font-bold text-slate-100">{{ newUsersCount() }}</p>
+  @if (stats()) {
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      
+      <!-- Card: Novos Usuários -->
+      <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
+        <div class="flex justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-400">Novos Usuários (Hoje)</h3>
+            <p class="mt-2 text-2xl font-bold text-slate-100">{{ stats()!.newUsersCount }}</p>
+          </div>
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10">
+            <svg class="h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
         </div>
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10">
-          <svg class="h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
+        <div class="flex items-center gap-1 text-sm">
+          <span class="font-medium" [class.text-emerald-400]="stats()!.newUsersTrend > 0" [class.text-slate-500]="stats()!.newUsersTrend === 0">
+            {{ stats()!.newUsersTrend > 0 ? '+' : '' }}{{ stats()!.newUsersTrend }} novos
+          </span>
+          <span class="text-slate-500">{{ stats()!.newUsersTrendText }}</span>
         </div>
       </div>
-      <div class="flex items-center gap-1 text-sm">
-        <span class="font-medium text-emerald-400">+24 novos</span>
-        <span class="text-slate-500">desde a última visita</span>
+
+      <!-- Card: Guias Pendentes -->
+      <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
+        <div class="flex justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-400">Guias Pendentes</h3>
+            <p class="mt-2 text-2xl font-bold text-slate-100">{{ stats()!.pendingGuidesCount }}</p>
+          </div>
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
+            <svg class="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 text-sm">
+          <span class="font-medium" [class.text-orange-400]="stats()!.pendingGuidesTrend > 0" [class.text-slate-500]="stats()!.pendingGuidesTrend === 0">
+            {{ stats()!.pendingGuidesTrend > 0 ? '+' : '' }}{{ stats()!.pendingGuidesTrend }} novos
+          </span>
+          <span class="text-slate-500">{{ stats()!.pendingGuidesTrendText }}</span>
+        </div>
+      </div>
+
+      <!-- Card: Sincronizações -->
+      <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
+        <div class="flex justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-400">Sincronizações PSN</h3>
+            <p class="mt-2 text-2xl font-bold text-slate-100">{{ stats()!.syncsCount }}</p>
+          </div>
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
+            <svg class="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 text-sm">
+          <span class="font-medium" [class.text-emerald-400]="stats()!.syncsTrendPositive" [class.text-rose-400]="!stats()!.syncsTrendPositive">
+            {{ stats()!.syncsTrendPositive ? 'Estável' : 'Instável' }}
+          </span>
+          <span class="text-slate-500">{{ stats()!.syncsTrendText }}</span>
+        </div>
+      </div>
+
+      <!-- Card: Denúncias Abertas -->
+      <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
+        <div class="flex justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-400">Denúncias Abertas</h3>
+            <p class="mt-2 text-2xl font-bold text-slate-100">{{ stats()!.reportsCount }}</p>
+          </div>
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10">
+            <svg class="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 text-sm">
+          <span class="font-medium" [class.text-rose-400]="stats()!.reportsTrend > 0" [class.text-emerald-400]="stats()!.reportsTrend === 0">
+            {{ stats()!.reportsTrend > 0 ? '+' : '' }}{{ stats()!.reportsTrend }} novas
+          </span>
+          <span class="text-slate-500">{{ stats()!.reportsTrendText }}</span>
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <div class="mt-8 flex items-center justify-center py-20">
+      <div class="flex items-center gap-3 text-slate-500">
+        <svg class="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="font-medium">Carregando métricas...</span>
       </div>
     </div>
-
-    <!-- Card: Guias Pendentes -->
-    <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
-      <div class="flex justify-between mb-4">
-        <div>
-          <h3 class="text-sm font-semibold text-slate-400">Guias Pendentes</h3>
-          <p class="mt-2 text-2xl font-bold text-slate-100">{{ pendingGuidesCount() }}</p>
-        </div>
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
-          <svg class="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
-      </div>
-      <div class="flex items-center gap-1 text-sm">
-        <span class="font-medium text-orange-400">+5 novos</span>
-        <span class="text-slate-500">nesta semana</span>
-      </div>
-    </div>
-
-    <!-- Card: Sincronizações -->
-    <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
-      <div class="flex justify-between mb-4">
-        <div>
-          <h3 class="text-sm font-semibold text-slate-400">Sincronizações PSN</h3>
-          <p class="mt-2 text-2xl font-bold text-slate-100">{{ syncsCount() }}</p>
-        </div>
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
-          <svg class="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </div>
-      </div>
-      <div class="flex items-center gap-1 text-sm">
-        <span class="font-medium text-emerald-400">Estável</span>
-        <span class="text-slate-500">nas últimas 24h</span>
-      </div>
-    </div>
-
-    <!-- Card: Denúncias Abertas -->
-    <div class="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-lg shadow-black/20">
-      <div class="flex justify-between mb-4">
-        <div>
-          <h3 class="text-sm font-semibold text-slate-400">Denúncias Abertas</h3>
-          <p class="mt-2 text-2xl font-bold text-slate-100">{{ reportsCount() }}</p>
-        </div>
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10">
-          <svg class="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-      </div>
-      <div class="flex items-center gap-1 text-sm">
-        <span class="font-medium text-emerald-400">0 novas</span>
-        <span class="text-slate-500">desde a última visita</span>
-      </div>
-    </div>
-
-  </div>
+  }
 </div>

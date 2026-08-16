@@ -5,6 +5,7 @@ import com.trophix.api.guides.model.GuideStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +34,9 @@ public interface GuideRepositoryPort {
 
     /** Total guides with the given moderation status (admin). */
     long countByStatus(GuideStatus status);
+
+    /** Total guides with the given status created at or after the given instant. */
+    long countByStatusSince(GuideStatus status, Instant since);
 
     List<Guide> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 

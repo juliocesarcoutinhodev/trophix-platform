@@ -7,8 +7,8 @@ import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
 import com.trophix.api.admin.application.ports.in.ListAllGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
-import com.trophix.api.admin.infrastructure.adapter.in.dto.DashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
@@ -59,7 +59,7 @@ public class AdminController {
     private final GuideWebMapper guideWebMapper;
 
     @GetMapping("/dashboard/stats")
-    public ResponseEntity<DashboardStatsResponse> getDashboardStats() {
+    public ResponseEntity<AdminDashboardStatsResponse> getDashboardStats() {
         GetDashboardStatsUseCase.DashboardStats stats = getDashboardStatsUseCase.getStats();
         return ResponseEntity.ok(adminWebMapper.toDashboardStatsResponse(stats));
     }

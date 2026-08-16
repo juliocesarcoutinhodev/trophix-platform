@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../../core/services/admin.service';
+import { AdminDashboardStats } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -10,16 +11,12 @@ import { AdminService } from '../../../core/services/admin.service';
 export class AdminDashboardComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
 
-  newUsersCount = signal<number>(0);
-  pendingGuidesCount = signal<number>(0);
-  syncsCount = signal<number>(0);
-  reportsCount = signal<number>(0);
+  stats = signal<AdminDashboardStats | null>(null);
 
   async ngOnInit() {
     try {
-      // Busca a primeira página com tamanho 1 só para pegar o totalElements
-      const pendingPage = await firstValueFrom(this.adminApi.getPendingGuides(0, 1));
-      this.pendingGuidesCount.set(pendingPage.totalElements);
+      const data = await firstValueFrom(this.adminApi.getDashboardStats());
+      this.stats.set(data);
     } catch (e) {
       console.error('Erro ao carregar dados do dashboard admin:', e);
     }
