@@ -33,7 +33,7 @@ public class SidecarTrophyAdapter implements TrophySyncPort {
             return List.of();
         }
         return Arrays.stream(response)
-                .map(t -> new PsnTrophy(t.idTrofeu(), t.nome(), t.descricao(), t.tipo(), t.iconeUrl()))
+                .map(t -> new PsnTrophy(t.idTrofeu(), t.nome(), t.descricao(), t.tipo(), t.iconeUrl(), t.raridade()))
                 .toList();
     }
 
@@ -52,7 +52,8 @@ public class SidecarTrophyAdapter implements TrophySyncPort {
                 .map(t -> new PsnEarnedTrophy(
                         t.idTrofeu(),
                         Boolean.TRUE.equals(t.conquistado()),
-                        t.conquistadoEm() != null ? Instant.parse(t.conquistadoEm()) : null))
+                        t.conquistadoEm() != null ? Instant.parse(t.conquistadoEm()) : null,
+                        t.raridade()))
                 .toList();
     }
 
@@ -61,12 +62,14 @@ public class SidecarTrophyAdapter implements TrophySyncPort {
             String nome,
             String descricao,
             String tipo,
-            String iconeUrl) {
+            String iconeUrl,
+            Double raridade) {
     }
 
     public record SidecarEarnedTrophyResponse(
             Integer idTrofeu,
             Boolean conquistado,
-            String conquistadoEm) {
+            String conquistadoEm,
+            Double raridade) {
     }
 }

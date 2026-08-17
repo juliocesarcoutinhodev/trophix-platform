@@ -118,7 +118,8 @@ router.get("/api/jogos/:npCommunicationId/trofeus-conquistados/:accountId", asyn
       return result.map((t) => ({
         idTrofeu: t.trophyId,
         conquistado: Boolean(t.earned),
-        conquistadoEm: t.earnedDateTime || null
+        conquistadoEm: t.earnedDateTime || null,
+        raridade: t.trophyEarnedRate ?? null
       }));
     });
 

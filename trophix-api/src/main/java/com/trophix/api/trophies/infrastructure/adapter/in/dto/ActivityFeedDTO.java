@@ -9,6 +9,7 @@ public record ActivityFeedDTO(
         String avatar,
         UUID trophyId,
         String trophyName,
+        String trophyType,
         String trophyIconUrl,
         String gameName,
         Instant earnedAt) {

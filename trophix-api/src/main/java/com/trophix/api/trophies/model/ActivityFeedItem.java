@@ -13,6 +13,7 @@ public record ActivityFeedItem(
         String avatar,
         UUID trophyId,
         String trophyName,
+        String trophyType,
         String trophyIconUrl,
         String gameName,
         Instant earnedAt) {

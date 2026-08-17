@@ -27,15 +27,15 @@ export class TrophiesComponent implements OnInit {
   }
 
   loadActivityFeed() {
-    this.trophyService.getActivityFeed(20).subscribe({
-      next: (feed) => this.activityFeed.set(feed),
+    this.trophyService.getActivityFeed(0, 40).subscribe({
+      next: (page) => this.activityFeed.set(page.content),
       error: (err) => console.error('Failed to load activity feed', err)
     });
   }
 
   loadMissingTrophies() {
-    this.trophyService.getMissingTrophies(20).subscribe({
-      next: (trophies) => this.missingTrophies.set(trophies),
+    this.trophyService.getMissingTrophies(0, 40).subscribe({
+      next: (page) => this.missingTrophies.set(page.content),
       error: (err) => console.error('Failed to load missing trophies', err)
     });
   }
@@ -44,7 +44,8 @@ export class TrophiesComponent implements OnInit {
     this.activeTab.set(tab);
   }
 
-  getTrophyTypeColor(type: string): string {
+  getTrophyTypeColor(type: string | undefined): string {
+    if (!type) return 'border-slate-600 bg-slate-800 text-slate-400';
     switch (type.toLowerCase()) {
       case 'platinum': return 'border-blue-300 bg-blue-900/30 text-blue-300';
       case 'gold': return 'border-yellow-500 bg-yellow-900/30 text-yellow-500';

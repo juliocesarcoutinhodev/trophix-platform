@@ -4,7 +4,7 @@ import { Component, input, output } from '@angular/core';
   selector: 'app-pagination',
   standalone: true,
   template: `
-    <div class="flex items-center justify-center border-t border-slate-800 bg-slate-900/40 py-4 backdrop-blur-sm">
+    <div class="flex items-center justify-center">
       <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
         <!-- First Page -->
         <button 

@@ -1,9 +1,11 @@
 package com.trophix.api.trophies.infrastructure.adapter.in.mapper;
 
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.ActivityFeedDTO;
+import com.trophix.api.trophies.infrastructure.adapter.in.dto.MissingTrophyDTO;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyStatusResponse;
 import com.trophix.api.trophies.model.ActivityFeedItem;
+import com.trophix.api.trophies.model.MissingTrophy;
 import com.trophix.api.trophies.model.Trophy;
 import com.trophix.api.trophies.model.TrophyWithStatus;
 import org.springframework.stereotype.Component;
@@ -41,8 +43,20 @@ public class TrophyWebMapper {
                 item.avatar(),
                 item.trophyId(),
                 item.trophyName(),
+                item.trophyType(),
                 item.trophyIconUrl(),
                 item.gameName(),
                 item.earnedAt());
+    }
+
+    public MissingTrophyDTO toMissingTrophyDTO(MissingTrophy missingTrophy) {
+        return new MissingTrophyDTO(
+                missingTrophy.id(),
+                missingTrophy.name(),
+                missingTrophy.description(),
+                missingTrophy.type(),
+                missingTrophy.gameName(),
+                missingTrophy.iconUrl(),
+                missingTrophy.rarity());
     }
 }

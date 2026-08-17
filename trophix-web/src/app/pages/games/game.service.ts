@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UserGame } from '../../core/models/api.models';
 
 export interface GameCatalogDTO {
   id: string;
@@ -16,6 +17,7 @@ export interface Page<T> {
   totalPages: number;
   size: number;
   number: number;
+  last?: boolean;
 }
 
 @Injectable({
@@ -25,7 +27,7 @@ export class GameService {
   private http = inject(HttpClient);
   private apiUrl = '/api';
 
-  getTrendingGames(limit: number = 10): Observable<GameCatalogDTO[]> {
+  getTrendingGames(limit: number = 20): Observable<GameCatalogDTO[]> {
     return this.http.get<GameCatalogDTO[]>(`${this.apiUrl}/public/games/trending`, {
       params: { limit: limit.toString() }
     });
@@ -39,8 +41,8 @@ export class GameService {
     return this.http.get<Page<GameCatalogDTO>>(`${this.apiUrl}/public/games`, { params });
   }
 
-  getMyGames(page: number = 0, size: number = 20): Observable<Page<GameCatalogDTO>> {
+  getMyGames(page: number = 0, size: number = 20): Observable<Page<UserGame>> {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<Page<GameCatalogDTO>>(`${this.apiUrl}/users/me/games`, { params });
+    return this.http.get<Page<UserGame>>(`${this.apiUrl}/users/me/games`, { params });
   }
 }

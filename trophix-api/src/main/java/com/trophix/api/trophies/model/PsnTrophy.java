@@ -8,5 +8,6 @@ public record PsnTrophy(
         String name,
         String description,
         String type,
-        String iconUrl) {
+        String iconUrl,
+        Double rarity) {
 }

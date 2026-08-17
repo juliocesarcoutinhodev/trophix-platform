@@ -3128,7 +3128,7 @@
                 }
               ]
             },
-            "description": "Feed de quem conquistou qual troféu recentemente (earnedAt desc), enriquecido com username, avatar, trophyName, trophyIconUrl e gameName.\n\nRota pública.\n\nResposta: Page<ActivityFeedDTO>."
+            "description": "Feed de quem conquistou qual troféu recentemente (earnedAt desc), enriquecido com username, avatar, trophyName, trophyType (Platinum/Gold/Silver/Bronze), trophyIconUrl e gameName.\n\nRota pública.\n\nResposta: Page<ActivityFeedDTO>."
           },
           "response": []
         },
@@ -3152,6 +3152,38 @@
               ]
             },
             "description": "Troféus do jogo que o usuário logado ainda não conquistou.\n\nRequer autenticação.\n\nResposta: lista de TrophyResponse."
+          },
+          "response": []
+        },
+        {
+          "name": "Meus Troféus Pendentes (global)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/trophies/missing?page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "trophies",
+                "missing"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Troféus pendentes do usuário autenticado em todos os seus jogos, paginados (Page<MissingTrophyDTO>), ordenados pelo jogo mais recente primeiro.\n\nCampos: id, name, description, type (Platinum/Gold/Silver/Bronze), gameName, iconUrl, rarity (%% dos jogadores que conquistaram).\n\nQuery params:\n- page (default 0)\n- size (default 20, máx 100)\n\nRota protegida: exige o cookie de autenticação (faça o Login antes).\n\nRespostas:\n- 200: página de troféus pendentes\n- 401/403: sem cookie de autenticação"
           },
           "response": []
         }

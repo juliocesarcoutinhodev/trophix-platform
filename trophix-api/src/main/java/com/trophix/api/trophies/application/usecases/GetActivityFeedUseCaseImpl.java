@@ -68,6 +68,7 @@ public class GetActivityFeedUseCaseImpl implements GetActivityFeedUseCase {
                 user != null ? user.avatarUrl() : null,
                 userTrophy.trophyId(),
                 trophy != null ? trophy.name() : null,
+                trophy != null ? trophy.type() : null,
                 trophy != null ? trophy.iconUrl() : null,
                 game != null ? game.name() : null,
                 userTrophy.earnedAt());

@@ -8,5 +8,6 @@ import java.time.Instant;
 public record PsnEarnedTrophy(
         Integer psnTrophyId,
         boolean earned,
-        Instant earnedAt) {
+        Instant earnedAt,
+        Double rarity) {
 }

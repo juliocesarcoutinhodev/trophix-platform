@@ -40,4 +40,7 @@ public class TrophyEntity {
 
     @Column(length = 500)
     private String iconUrl;
+
+    @Column(nullable = false)
+    private Double rarity;
 }

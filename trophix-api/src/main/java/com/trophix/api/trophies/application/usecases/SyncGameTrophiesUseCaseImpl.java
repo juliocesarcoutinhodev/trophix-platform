@@ -52,13 +52,21 @@ public class SyncGameTrophiesUseCaseImpl implements SyncGameTrophiesUseCase {
         List<PsnTrophy> catalog = trophySync.fetchGameTrophyCatalog(game.npCommunicationId());
         List<Trophy> trophies = trophyRepository.saveAllIfNotExists(gameId, catalog.stream()
                 .map(p -> Trophy.create(gameId, p.psnTrophyId(), p.name(), p.description(),
-                        p.type(), p.iconUrl()))
+                        p.type(), p.iconUrl(), p.rarity()))
                 .toList());
 
         Map<Integer, UUID> trophyIdByPsnId = trophies.stream()
                 .collect(Collectors.toMap(Trophy::psnTrophyId, Trophy::id));
 
         List<PsnEarnedTrophy> earnedStatus = trophySync.fetchUserEarnedTrophies(accountId, game.npCommunicationId());
+
+        Map<Integer, Double> rarityByPsnId = earnedStatus.stream()
+                .filter(status -> status.rarity() != null && trophyIdByPsnId.containsKey(status.psnTrophyId()))
+                .collect(Collectors.toMap(PsnEarnedTrophy::psnTrophyId, PsnEarnedTrophy::rarity, (a, b) -> a));
+        if (!rarityByPsnId.isEmpty()) {
+            trophyRepository.updateRarity(gameId, rarityByPsnId);
+        }
+
         List<UserTrophy> userTrophies = earnedStatus.stream()
                 .filter(PsnEarnedTrophy::earned)
                 .filter(earned -> trophyIdByPsnId.containsKey(earned.psnTrophyId()))

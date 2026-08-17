@@ -14,7 +14,8 @@ public class TrophyMapper {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getType(),
-                entity.getIconUrl());
+                entity.getIconUrl(),
+                entity.getRarity());
     }
 
     public TrophyEntity toEntity(Trophy trophy) {
@@ -25,6 +26,7 @@ public class TrophyMapper {
         entity.setDescription(trophy.description());
         entity.setType(trophy.type());
         entity.setIconUrl(trophy.iconUrl());
+        entity.setRarity(trophy.rarity());
         return entity;
     }
 }

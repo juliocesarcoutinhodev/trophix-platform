@@ -1,8 +1,11 @@
 package com.trophix.api.trophies.infrastructure.adapter.out;
 
 import com.trophix.api.trophies.application.ports.out.TrophyRepositoryPort;
+import com.trophix.api.trophies.model.MissingTrophy;
 import com.trophix.api.trophies.model.Trophy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,5 +74,29 @@ public class TrophyJpaAdapter implements TrophyRepositoryPort {
         return springDataRepository.findAllByIds(ids).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toMap(Trophy::id, Function.identity()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<MissingTrophy> findMissingForUser(UUID userId, Pageable pageable) {
+        return springDataRepository.findMissingForUser(userId, pageable).map(this::toMissingTrophy);
+    }
+
+    @Override
+    @Transactional
+    public void updateRarity(UUID gameId, Map<Integer, Double> rarityByPsnTrophyId) {
+        rarityByPsnTrophyId.forEach((psnTrophyId, rarity) ->
+                springDataRepository.updateRarity(gameId, psnTrophyId, rarity));
+    }
+
+    private MissingTrophy toMissingTrophy(TrophySpringDataRepository.MissingTrophyProjection projection) {
+        return new MissingTrophy(
+                projection.getId(),
+                projection.getName(),
+                projection.getDescription(),
+                projection.getType(),
+                projection.getIconUrl(),
+                projection.getRarity(),
+                projection.getGameName());
     }
 }

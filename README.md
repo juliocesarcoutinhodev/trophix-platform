@@ -59,6 +59,8 @@ E-mails transacionais (ex.: redefinição de senha) são enviados no dev pelo **
 
 O sidecar faz **cache em memória** das respostas de troféus (TTL configurável via `TROFEUS_CACHE_TTL_MS`, default 10 min), então a PSN não é consultada a cada requisição — o que deixa barato o sync automático da página de detalhes do jogo.
 
+O sync de jogos (`GET /api/jogos-usuario/{accountId}`) **mescla duas fontes da PSN**: o serviço de troféus v1 (`getUserTitles`, que traz `npCommunicationId`, progresso e contagem de troféus) com o catálogo de jogos jogados trophy2 (`getUserPlayedGames`, que lista a biblioteca completa, incluindo jogos que o serviço de troféus não rastreia). Jogos presentes só no trophy2 são salvos com o `titleId` (ex.: `PPSA...`) e sem progresso/troféus; apps de mídia (Netflix, Prime Video etc.) são filtrados. Ambos os endpoints são paginados até a última página.
+
 Acompanhe o boot do sidecar (valida o NPSSO e renova tokens sozinho):
 
 ```bash
@@ -262,8 +264,9 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | ------ | ---- | ------ | --------- |
 | GET | `/api/public/games?page=&size=&search=` | público | **Catálogo** da base interna: jogos paginados ordenados por nº de donos (`user_games`); `search` filtra por nome (case-insensitive) |
 | GET | `/api/public/games/trending?limit=10` | público | **Em alta**: jogos mais jogados/recém-sincronizados (limit default 10, máx 50) |
-| GET | `/api/public/trophies/feed?page=&size=` | público | **Feed global de atividades**: quem conquistou qual troféu recentemente (`earnedAt` desc), com `username`, `avatar`, `trophyName`, `trophyIconUrl`, `gameName` |
+| GET | `/api/public/trophies/feed?page=&size=` | público | **Feed global de atividades**: quem conquistou qual troféu recentemente (`earnedAt` desc), com `username`, `avatar`, `trophyName`, `trophyType` (Platinum/Gold/Silver/Bronze), `trophyIconUrl`, `gameName` |
 | GET | `/api/users/me/games/{gameId}/missing-trophies` | autenticado | Troféus do jogo que o usuário **ainda não conquistou** |
+| GET | `/api/users/me/trophies/missing?page=&size=` | autenticado | **Troféus pendentes globais**: troféus faltantes de todos os jogos do usuário, paginados (jogo mais recente primeiro), com `name`, `description`, `type`, `gameName`, `iconUrl`, `rarity` |
 | POST | `/api/games/{gameId}/sync-trophies` | autenticado | Sincroniza catálogo de troféus + conquistas (202, assíncrono via fila) |
 | GET | `/api/games/{gameId}/detail` | autenticado | Detalhe do jogo p/ o usuário logado (progresso + contagem por raridade) |
 | GET | `/api/games/{gameId}/my-trophies` | autenticado | Catálogo do jogo com status de conquista (earned/earnedAt) |
