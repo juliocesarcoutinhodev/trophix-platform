@@ -3,10 +3,14 @@ package com.trophix.api.games.infrastructure.adapter.out;
 import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.model.Game;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,5 +53,20 @@ public class GameJpaAdapter implements GameRepositoryPort {
         return springDataRepository.findAllById(ids).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toMap(Game::id, Function.identity()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Game> findCatalog(String search, Pageable pageable) {
+        return springDataRepository.findCatalog(search, pageable).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Game> findTrending(int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 50));
+        return springDataRepository.findTrending(PageRequest.of(0, safeLimit)).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

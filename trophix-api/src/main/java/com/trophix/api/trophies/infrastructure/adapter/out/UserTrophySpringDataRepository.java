@@ -1,5 +1,7 @@
 package com.trophix.api.trophies.infrastructure.adapter.out;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +13,6 @@ public interface UserTrophySpringDataRepository extends JpaRepository<UserTrophy
     Optional<UserTrophyEntity> findByUserIdAndTrophyId(UUID userId, UUID trophyId);
 
     List<UserTrophyEntity> findByUserIdAndTrophyIdIn(UUID userId, List<UUID> trophyIds);
+
+    Page<UserTrophyEntity> findAllByOrderByEarnedAtDesc(Pageable pageable);
 }

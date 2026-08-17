@@ -6,9 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -56,5 +60,16 @@ public class TrophyJpaAdapter implements TrophyRepositoryPort {
     @Transactional(readOnly = true)
     public Optional<Trophy> findByGameIdAndPsnTrophyId(UUID gameId, Integer psnTrophyId) {
         return springDataRepository.findByGameIdAndPsnTrophyId(gameId, psnTrophyId).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, Trophy> findAllByIds(Collection<UUID> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return springDataRepository.findAllByIds(ids).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toMap(Trophy::id, Function.identity()));
     }
 }

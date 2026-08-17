@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,4 +18,7 @@ public interface TrophySpringDataRepository extends JpaRepository<TrophyEntity, 
     List<TrophyEntity> findByGameId(UUID gameId);
 
     Optional<TrophyEntity> findByGameIdAndPsnTrophyId(UUID gameId, Integer psnTrophyId);
+
+    @Query("select t from TrophyEntity t where t.id in :ids")
+    List<TrophyEntity> findAllByIds(@Param("ids") Collection<UUID> ids);
 }

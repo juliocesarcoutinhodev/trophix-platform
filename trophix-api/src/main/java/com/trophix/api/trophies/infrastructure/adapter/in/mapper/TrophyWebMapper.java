@@ -1,7 +1,9 @@
 package com.trophix.api.trophies.infrastructure.adapter.in.mapper;
 
+import com.trophix.api.trophies.infrastructure.adapter.in.dto.ActivityFeedDTO;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyStatusResponse;
+import com.trophix.api.trophies.model.ActivityFeedItem;
 import com.trophix.api.trophies.model.Trophy;
 import com.trophix.api.trophies.model.TrophyWithStatus;
 import org.springframework.stereotype.Component;
@@ -30,5 +32,17 @@ public class TrophyWebMapper {
                 trophy.iconUrl(),
                 trophyWithStatus.earned(),
                 trophyWithStatus.earnedAt());
+    }
+
+    public ActivityFeedDTO toActivityFeedDTO(ActivityFeedItem item) {
+        return new ActivityFeedDTO(
+                item.userId(),
+                item.username(),
+                item.avatar(),
+                item.trophyId(),
+                item.trophyName(),
+                item.trophyIconUrl(),
+                item.gameName(),
+                item.earnedAt());
     }
 }

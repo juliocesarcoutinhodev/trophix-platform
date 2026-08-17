@@ -1,6 +1,8 @@
 package com.trophix.api.trophies.application.ports.out;
 
 import com.trophix.api.trophies.model.UserTrophy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,4 +21,7 @@ public interface UserTrophyRepositoryPort {
      * keyed by trophy id.
      */
     Map<UUID, Instant> findEarnedAtByUserIdAndTrophyIds(UUID userId, List<UUID> trophyIds);
+
+    /** Global activity feed: recently earned trophies, newest first. */
+    Page<UserTrophy> findRecentEarned(Pageable pageable);
 }

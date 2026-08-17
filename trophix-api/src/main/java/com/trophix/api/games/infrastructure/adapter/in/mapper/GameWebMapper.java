@@ -1,6 +1,8 @@
 package com.trophix.api.games.infrastructure.adapter.in.mapper;
 
+import com.trophix.api.games.infrastructure.adapter.in.dto.GameCatalogDTO;
 import com.trophix.api.games.infrastructure.adapter.in.dto.GameDetailResponse;
+import com.trophix.api.games.model.Game;
 import com.trophix.api.games.model.GameDetail;
 import org.springframework.stereotype.Component;
 
@@ -21,5 +23,9 @@ public class GameWebMapper {
                         detail.rarity().gold(),
                         detail.rarity().silver(),
                         detail.rarity().bronze()));
+    }
+
+    public GameCatalogDTO toGameCatalogDTO(Game game) {
+        return new GameCatalogDTO(game.id(), game.name(), game.imageUrl());
     }
 }

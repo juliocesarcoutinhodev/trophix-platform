@@ -86,6 +86,9 @@ public class SecurityConfig {
                         // Ofertas (LootBox): leitura pública + tracking de clique
                         .requestMatchers(HttpMethod.GET, "/api/public/offers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/offers/*/track-click").permitAll()
+                        // Catálogo híbrido: catálogo de games + feed de troféus públicos
+                        .requestMatchers(HttpMethod.GET, "/api/public/games", "/api/public/games/trending").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/trophies/feed").permitAll()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação

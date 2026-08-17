@@ -3,6 +3,8 @@ package com.trophix.api.trophies.infrastructure.adapter.out;
 import com.trophix.api.trophies.application.ports.out.UserTrophyRepositoryPort;
 import com.trophix.api.trophies.model.UserTrophy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class UserTrophyJpaAdapter implements UserTrophyRepositoryPort {
 
     private final UserTrophySpringDataRepository springDataRepository;
     private final TrophySpringDataRepository trophySpringDataRepository;
+    private final UserTrophyMapper mapper;
 
     @Override
     @Transactional
@@ -48,5 +51,11 @@ public class UserTrophyJpaAdapter implements UserTrophyRepositoryPort {
                 .collect(Collectors.toMap(
                         entity -> entity.getTrophy().getId(),
                         UserTrophyEntity::getEarnedAt));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserTrophy> findRecentEarned(Pageable pageable) {
+        return springDataRepository.findAllByOrderByEarnedAtDesc(pageable).map(mapper::toDomain);
     }
 }

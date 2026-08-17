@@ -260,6 +260,10 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 ### Games / Troféus
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
+| GET | `/api/public/games?page=&size=&search=` | público | **Catálogo** da base interna: jogos paginados ordenados por nº de donos (`user_games`); `search` filtra por nome (case-insensitive) |
+| GET | `/api/public/games/trending?limit=10` | público | **Em alta**: jogos mais jogados/recém-sincronizados (limit default 10, máx 50) |
+| GET | `/api/public/trophies/feed?page=&size=` | público | **Feed global de atividades**: quem conquistou qual troféu recentemente (`earnedAt` desc), com `username`, `avatar`, `trophyName`, `trophyIconUrl`, `gameName` |
+| GET | `/api/users/me/games/{gameId}/missing-trophies` | autenticado | Troféus do jogo que o usuário **ainda não conquistou** |
 | POST | `/api/games/{gameId}/sync-trophies` | autenticado | Sincroniza catálogo de troféus + conquistas (202, assíncrono via fila) |
 | GET | `/api/games/{gameId}/detail` | autenticado | Detalhe do jogo p/ o usuário logado (progresso + contagem por raridade) |
 | GET | `/api/games/{gameId}/my-trophies` | autenticado | Catálogo do jogo com status de conquista (earned/earnedAt) |

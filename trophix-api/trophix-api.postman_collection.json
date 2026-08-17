@@ -3036,6 +3036,126 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Catálogo (Híbrido)",
+      "item": [
+        {
+          "name": "Catálogo de Jogos (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/games",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Catálogo da base interna de jogos, paginado e ordenado por nº de donos (user_games). search filtra por nome.\n\nRota pública.\n\nResposta: Page<GameCatalogDTO> (id, name, coverUrl)."
+          },
+          "response": []
+        },
+        {
+          "name": "Jogos em Alta / Trending (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/games/trending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "games",
+                "trending"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Jogos mais jogados / recém-sincronizados.\n\nRota pública.\n\nResposta: lista de GameCatalogDTO."
+          },
+          "response": []
+        },
+        {
+          "name": "Feed Global de Atividades (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/trophies/feed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "trophies",
+                "feed"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Feed de quem conquistou qual troféu recentemente (earnedAt desc), enriquecido com username, avatar, trophyName, trophyIconUrl e gameName.\n\nRota pública.\n\nResposta: Page<ActivityFeedDTO>."
+          },
+          "response": []
+        },
+        {
+          "name": "Troféus Faltantes (logado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/games/{{gameId}}/missing-trophies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "games",
+                "{{gameId}}",
+                "missing-trophies"
+              ]
+            },
+            "description": "Troféus do jogo que o usuário logado ainda não conquistou.\n\nRequer autenticação.\n\nResposta: lista de TrophyResponse."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
