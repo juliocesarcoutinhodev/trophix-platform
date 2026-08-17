@@ -1,0 +1,88 @@
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-slate-100">Portal de Troféus</h1>
+      <p class="mt-2 text-slate-400">Acompanhe a comunidade e conquiste suas platinas.</p>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="border-b border-slate-800 mb-8">
+    <nav class="-mb-px flex space-x-8">
+      <button 
+        (click)="setTab('feed')"
+        [class.border-violet-500]="activeTab() === 'feed'"
+        [class.text-violet-400]="activeTab() === 'feed'"
+        [class.border-transparent]="activeTab() !== 'feed'"
+        [class.text-slate-400]="activeTab() !== 'feed'"
+        class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium hover:text-violet-300 hover:border-violet-300 transition-colors">
+        Hall da Fama (Feed Global)
+      </button>
+      
+      @if (auth.userSignal()) {
+        <button 
+          (click)="setTab('missing')"
+          [class.border-violet-500]="activeTab() === 'missing'"
+          [class.text-violet-400]="activeTab() === 'missing'"
+          [class.border-transparent]="activeTab() !== 'missing'"
+          [class.text-slate-400]="activeTab() !== 'missing'"
+          class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium hover:text-violet-300 hover:border-violet-300 transition-colors">
+          Troféus Pendentes
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- TAB: FEED DE ATIVIDADES -->
+  @if (activeTab() === 'feed') {
+    <div class="max-w-4xl mx-auto space-y-4">
+      @for (activity of activityFeed(); track activity.id) {
+        <div class="flex items-start gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-4 transition-colors hover:bg-slate-900">
+          <img [src]="activity.user.avatar" class="h-12 w-12 rounded-full border-2 border-slate-700 bg-slate-800">
+          
+          <div class="flex-1">
+            <div class="text-sm">
+              <span class="font-bold text-violet-400">{{ activity.user.username }}</span>
+              <span class="text-slate-400"> conquistou o troféu </span>
+              <span class="font-bold text-slate-200">{{ activity.trophy.name }}</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-1">
+              em <span class="font-semibold text-slate-300">{{ activity.game.name }}</span> • {{ activity.date | date:'shortTime' }}
+            </div>
+          </div>
+
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2" [ngClass]="getTrophyTypeColor(activity.trophy.type)">
+            <img [src]="activity.trophy.iconUrl" class="h-10 w-10 object-cover" [alt]="activity.trophy.name">
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- TAB: TROFÉUS FALTANTES (LOGADO) -->
+  @if (activeTab() === 'missing') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (trophy of missingTrophies(); track trophy.id) {
+        <div class="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-black/20">
+          <div class="flex items-start gap-4 mb-4">
+            <img [src]="trophy.iconUrl" [alt]="trophy.name" class="h-14 w-14 rounded border-2" [ngClass]="getTrophyTypeColor(trophy.type)">
+            <div>
+              <h3 class="font-bold text-slate-200">{{ trophy.name }}</h3>
+              <p class="text-xs font-semibold text-slate-400">{{ trophy.gameName }}</p>
+              <div class="mt-1 flex items-center gap-2">
+                <span class="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-300 uppercase">{{ trophy.type }}</span>
+                <span class="text-[10px] font-medium text-slate-500">{{ trophy.rarity }}% dos jogadores têm</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-sm text-slate-400 flex-1">{{ trophy.description }}</p>
+          <div class="mt-4 pt-4 border-t border-slate-800">
+            <button class="w-full rounded-lg bg-violet-600/10 px-4 py-2 text-sm font-bold text-violet-400 transition-colors hover:bg-violet-600/20">
+              Buscar Guias e Dicas
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

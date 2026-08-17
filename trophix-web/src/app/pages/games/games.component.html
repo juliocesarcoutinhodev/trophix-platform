@@ -1,0 +1,104 @@
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-slate-100">Catálogo de Jogos</h1>
+      <p class="mt-2 text-slate-400">Descubra novos jogos e acompanhe seu progresso.</p>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="border-b border-slate-800 mb-8">
+    <nav class="-mb-px flex space-x-8">
+      <button 
+        (click)="setTab('catalog')"
+        [class.border-violet-500]="activeTab() === 'catalog'"
+        [class.text-violet-400]="activeTab() === 'catalog'"
+        [class.border-transparent]="activeTab() !== 'catalog'"
+        [class.text-slate-400]="activeTab() !== 'catalog'"
+        class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium hover:text-violet-300 hover:border-violet-300 transition-colors">
+        Explorar Catálogo
+      </button>
+      
+      @if (auth.userSignal()) {
+        <button 
+          (click)="setTab('my-games')"
+          [class.border-violet-500]="activeTab() === 'my-games'"
+          [class.text-violet-400]="activeTab() === 'my-games'"
+          [class.border-transparent]="activeTab() !== 'my-games'"
+          [class.text-slate-400]="activeTab() !== 'my-games'"
+          class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium hover:text-violet-300 hover:border-violet-300 transition-colors">
+          Minha Biblioteca
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- TAB: CATÁLOGO -->
+  @if (activeTab() === 'catalog') {
+    <div class="mb-8">
+      <div class="relative max-w-xl">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input type="text" class="block w-full rounded-xl border-slate-700 bg-slate-900/50 py-3 pl-10 pr-3 text-slate-300 placeholder-slate-500 focus:border-violet-500 focus:ring-violet-500 sm:text-sm" placeholder="Buscar por título do jogo...">
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2">
+        <svg class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Em Alta no Trophix
+      </h2>
+      
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        @for (game of trendingGames(); track game.id) {
+          <a [routerLink]="['/games', game.id]" class="group relative flex flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all hover:border-violet-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+            <div class="aspect-[3/4] w-full overflow-hidden bg-slate-800">
+              <img [src]="game.coverUrl" [alt]="game.name" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+            </div>
+            <div class="p-4 flex flex-col flex-1">
+              <h3 class="text-sm font-bold text-slate-200 line-clamp-2 group-hover:text-violet-400 transition-colors">{{ game.name }}</h3>
+              <p class="mt-auto pt-2 text-xs text-slate-500 font-medium">{{ game.players }} caçadores</p>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB: MEUS JOGOS -->
+  @if (activeTab() === 'my-games') {
+    <div>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        @for (game of myGames(); track game.id) {
+          <a [routerLink]="['/games', game.id]" class="group relative flex flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all hover:border-violet-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+            <div class="aspect-[3/4] w-full overflow-hidden bg-slate-800 relative">
+              <img [src]="game.coverUrl" [alt]="game.name" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+              
+              <!-- Progresso Badge Overlay -->
+              <div class="absolute bottom-2 right-2 rounded-lg bg-black/80 px-2 py-1 backdrop-blur-sm border border-slate-700/50">
+                <span class="text-xs font-black" [class.text-violet-400]="(game.progress || 0) < 100" [class.text-yellow-400]="game.progress === 100">{{ game.progress || 0 }}%</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="text-sm font-bold text-slate-200 line-clamp-1 group-hover:text-violet-400 transition-colors">{{ game.name }}</h3>
+              
+              <!-- Progress Bar -->
+              <div class="mt-3 h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div class="h-full rounded-full" 
+                     [class.bg-violet-500]="(game.progress || 0) < 100" 
+                     [class.bg-yellow-500]="game.progress === 100" 
+                     [style.width.%]="game.progress || 0">
+                </div>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>
