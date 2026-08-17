@@ -319,7 +319,25 @@ Denúncias ficam com status `OPEN` até o admin **resolver** ou **descartar** (`
 
 Ao criar uma resposta, o módulo publica um **domain event local** (`ReplyCreatedEvent`) consumido via `@ApplicationModuleListener` (Spring Modulith) de forma **assíncrona e transacional**; o autor do tópico recebe um e-mail "Nova resposta no seu tópico" (via Mailpit no dev, link para `/forums/topics/{id}`). O journal de eventos usa as tabelas `event_publication`/`event_publication_archive` (migração V19/V20).
 
-> **Modulith:** o teste de arquitetura (`src/test/.../ApplicationModulesTest`) verifica a estrutura de módulos. Há **dívida técnica** de fronteiras legada na base (acessos entre módulos que não passam pela API exposta) — essas violações conhecidas estão em uma allowlist no teste e devem ser removidas conforme cada módulo for refatorado. Qualquer **violação nova** quebra o build.
+### Notícias (News)
+| Método | Rota | Acesso | Descrição |
+| ------ | ---- | ------ | --------- |
+| GET | `/api/public/news?page=&size=` | público | Agregador RSS (PlayStation Blog, MeuPlayStation, IGN Brasil): página de notícias ordenadas por `publishedAt` desc, com `imageUrl` (fallback `og:image`) e `isFeatured` |
+
+O worker (`news` → `NewsSyncScheduler`) busca os feeds a cada 30 min (delay inicial 20s), deduplica por `link`, publica `NewsDiscoveredEvent` via Modulith para cada notícia nova e marca a mais recente como destaque.
+
+### Ofertas (Offers / LootBox)
+| Método | Rota | Acesso | Descrição |
+| ------ | ---- | ------ | --------- |
+| GET | `/api/public/offers?page=&size=&category=` | público | Ofertas **ativas** paginadas; `category` filtra opcionalmente (ex.: Jogos, Consoles, Hardware, Colecionáveis) |
+| GET | `/api/admin/offers?page=&size=&category=` | **ROLE_ADMIN** | Todas as ofertas (inclusive inativas) |
+| POST | `/api/admin/offers` | **ROLE_ADMIN** | Cria oferta: `{title, imageUrl, originalPrice, discountPrice, storeName, affiliateLink, category, isFlashDeal}` |
+| PUT | `/api/admin/offers/{offerId}` | **ROLE_ADMIN** | Edita a oferta (recalcula `discountPercentage`; aceita `isActive`) |
+| DELETE | `/api/admin/offers/{offerId}` | **ROLE_ADMIN** | Exclui a oferta |
+
+O `discountPercentage` é sempre **derivado** dos preços no backend (`(original - discount) / original * 100`, arredondado half-up); o domínio rejeita `discountPrice > originalPrice`.
+
+> **Modulith:** o teste de arquitetura (`src/test/.../ApplicationModulesTest`) usa `ApplicationModules.of(...).verify()` **sem allowlist** — o projeto está 100% conforme (0 violações, ciclos quebrados, APIs expostas via `@NamedInterface`). Qualquer violação nova quebra o build.
 
 ## Fluxo do produto
 

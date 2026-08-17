@@ -2792,6 +2792,200 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Notícias",
+      "item": [
+        {
+          "name": "Notícias Recentes (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/news",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "news"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Agregador RSS de notícias de games (PlayStation Blog, MeuPlayStation, IGN Brasil). Página de notícias ordenadas por publishedAt desc.\n\nRota pública.\n\nResposta: Page<NewsArticleResponse> (id, title, link, imageUrl, source, publishedAt, isFeatured)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ofertas (LootBox)",
+      "item": [
+        {
+          "name": "Listar Ofertas Ativas (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "category",
+                  "value": "Consoles"
+                }
+              ]
+            },
+            "description": "Ofertas ativas (isActive=true) paginadas, ordenadas por criação desc. Query param category filtra opcionalmente (Jogos, Consoles, Hardware, Colecionáveis...).\n\nRota pública.\n\nResposta: Page<OfferResponse>."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todas as Ofertas (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Todas as ofertas (inclusive inativas). Requer ROLE_ADMIN.\n\nResposta: Page<OfferResponse>."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Oferta (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/offers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "offers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Console PlayStation 5 Edição Digital\", \"imageUrl\": \"https://exemplo.com/ps5.jpg\", \"originalPrice\": 3999.99, \"discountPrice\": 3499.0, \"storeName\": \"Amazon\", \"affiliateLink\": \"https://amzn.to/ps5\", \"category\": \"Consoles\", \"isFlashDeal\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cria oferta (ROLE_ADMIN). discountPercentage é calculado no backend: (original - discount)/original*100, arredondado.\n\nResposta: 201 + OfferResponse."
+          },
+          "response": []
+        },
+        {
+          "name": "Editar Oferta (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/offers/{{offerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Console PlayStation 5 Edição Digital\", \"imageUrl\": \"https://exemplo.com/ps5.jpg\", \"originalPrice\": 3999.99, \"discountPrice\": 2999.99, \"storeName\": \"Amazon\", \"affiliateLink\": \"https://amzn.to/ps5\", \"category\": \"Consoles\", \"isFlashDeal\": false, \"isActive\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Edita a oferta (ROLE_ADMIN). Recalcula discountPercentage e aceita isActive.\n\nResposta: 200 + OfferResponse."
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Oferta (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/offers/{{offerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "description": "Exclui definitivamente a oferta (ROLE_ADMIN).\n\nResposta: 204 No Content."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
