@@ -60,7 +60,7 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public Page<Guide> findAll(GuideStatus status, String search, Boolean isTrophyGuide, Pageable pageable) {
-        return springDataRepository.findAllFiltered(status, search, isTrophyGuide, pageable).map(mapper::toDomain);
+        return springDataRepository.findAllFiltered(status.name(), search, isTrophyGuide, pageable).map(mapper::toDomain);
     }
 
     @Override
@@ -98,14 +98,14 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     @Override
     @Transactional(readOnly = true)
     public List<Guide> findLatestRoadmapsByStatus(GuideStatus status, String search, int limit) {
-        return springDataRepository.findLatestRoadmaps(status, search, PageRequest.of(0, Math.max(1, limit)))
+        return springDataRepository.findLatestRoadmaps(status.name(), search, PageRequest.of(0, Math.max(1, limit)))
                 .stream().map(mapper::toDomain).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Guide> findTrophyTipsByAuthorAndGame(UUID gameId, UUID authorId, GuideStatus status) {
-        return springDataRepository.findTrophyTipsByAuthorAndGame(gameId, authorId, status)
+        return springDataRepository.findTrophyTipsByAuthorAndGame(gameId, authorId, status.name())
                 .stream().map(mapper::toDomain).toList();
     }
 

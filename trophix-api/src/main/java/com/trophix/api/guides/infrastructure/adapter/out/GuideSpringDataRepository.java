@@ -47,7 +47,7 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
                    or (:isTrophyGuide = false and g.trophy_id is null))
             """,
             nativeQuery = true)
-    Page<GuideEntity> findAllFiltered(@Param("status") GuideStatus status,
+    Page<GuideEntity> findAllFiltered(@Param("status") String status,
                                       @Param("search") String search,
                                       @Param("isTrophyGuide") Boolean isTrophyGuide,
                                       Pageable pageable);
@@ -71,7 +71,7 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
                    or lower(game.name) like lower('%' || :search || '%'))
             order by g.created_at desc
             """, nativeQuery = true)
-    List<GuideEntity> findLatestRoadmaps(@Param("status") GuideStatus status,
+    List<GuideEntity> findLatestRoadmaps(@Param("status") String status,
                                          @Param("search") String search,
                                          Pageable pageable);
 
@@ -86,7 +86,7 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
     List<GuideEntity> findTrophyTipsByAuthorAndGame(
             @Param("gameId") UUID gameId,
             @Param("authorId") UUID authorId,
-            @Param("status") GuideStatus status);
+            @Param("status") String status);
 
     @Modifying
     @Query("update GuideEntity g set g.upvotesCount = g.upvotesCount + 1 where g.id = :id")

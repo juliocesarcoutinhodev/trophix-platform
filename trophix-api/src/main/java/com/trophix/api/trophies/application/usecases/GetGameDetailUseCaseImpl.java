@@ -1,4 +1,4 @@
-package com.trophix.api.games.application.usecases;
+package com.trophix.api.trophies.application.usecases;
 
 import com.trophix.api.games.application.ports.in.GetGameDetailUseCase;
 import com.trophix.api.games.application.ports.out.UserGameRepositoryPort;

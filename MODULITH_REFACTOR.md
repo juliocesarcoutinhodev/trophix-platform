@@ -7,9 +7,9 @@ Estado atual: **629 violações** (107 únicas) — todas acessos entre módulos
 internos + 3 ciclos (`shared`, `auth`, `games`). A allowlist no `ApplicationModulesTest`
 segura o build até concluirmos.
 
-Situação após Fases 1–3: **2 violações restantes** (o ciclo `games→trophies→users→games`,
-nível use case). A allowlist contém apenas essa entrada. Falta a Fase 4 (desacoplar `admin`,
-que hoje depende de várias APIs do guides/reports) e a Fase 5 (quebrar o ciclo `games`).
+Situação após Fases 1–5: **0 violações**. O `ApplicationModulesTest` agora usa
+`ApplicationModules.of(...).verify()` sem allowlist. Falta apenas a Fase 6
+(testes por módulo, diagramas e smoke test final).
 
 Progresso:
 - **[Fase 1 concluída]** — `shared` agora é módulo folha (zero imports de outros módulos),
@@ -143,20 +143,20 @@ Padrão já usado em `forums`/`reports`: FKs como colunas UUID, sem relação JP
 
 ## Fase 4 — Desacoplar o `admin` (maior consumidor)
 
-- [ ] `admin` usa `guides...dto.GuideResponse` / `MessageResponse` / `GuideWebMapper` /
-      `GuideEnricher` → passar a usar apenas a API exposta do guides
-- [ ] Criar `GuidesAdminApi` no módulo guides (listar todas com filtros status/search/tipo,
-      revisar, editar, excluir) e o `AdminController` apenas delega
-- [ ] Redirecionar `admin` → `auth.RefreshTokenRepository` / `Role` / `RoleRepositoryPort`,
-      `users.UserRepository`, `reports.ReportRepository`, `shared.SidecarClient` pelas named interfaces
+- [x] Com a Fase 2 (APIs expostas via `@NamedInterface`), `admin` já acessa apenas a API
+      pública dos módulos guides/reports/auth/users/shared — nada mais a fazer aqui.
 
 ---
 
 ## Fase 5 — Ciclos remanescentes
 
-- [ ] Rodar `detectViolations()` e resolver resíduos (ex.: enums/read models em cadeia
-      guides→games→trophies)
-- [ ] Re-aplicar queries JPQL/FKs que dependiam das relações de entidades agora planas
+- [x] Quebrado o ciclo `games→trophies→users→games`:
+  - `GetGameDetailUseCaseImpl` movido de `games` para `trophies` (que já depende de
+    `games`); `games.application.ports.in` exposto via `@NamedInterface` para que o
+    `trophies` implemente a porta de entrada sem criar ciclo.
+  - Corrigido o binding de `GuideStatus` nas queries nativas do guides (ligado como
+    `String` via `status.name()`), eliminando o erro "character varying = smallint".
+- [x] `detectViolations()` → **0 violações**; allowlist removida por completo.
 
 ---
 
