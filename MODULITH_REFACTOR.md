@@ -162,12 +162,14 @@ Padrão já usado em `forums`/`reports`: FKs como colunas UUID, sem relação JP
 
 ## Fase 6 — Verificação e regressão
 
-- [ ] Remover entradas da **allowlist** do `ApplicationModulesTest` conforme cada item avança
-- [ ] Rodar `mvn test` (verificação do Modulith) + `mvn package` após cada fase
+- [x] Remover entradas da **allowlist** do `ApplicationModulesTest` conforme cada item avança
+      (removida por completo — teste agora usa `verify()` estrito)
+- [x] Rodar `mvn test` (verificação do Modulith) + `mvn package` após cada fase
 - [ ] Adicionar `@ApplicationModuleTest` por módulo (testes isolados de contrato)
 - [ ] Gerar os diagramas do `Documenter` e mantê-los no build (AGENTS.md)
 - [ ] **Smoke test completo** após cada fase: auth/login, sync PSN, guias, fórum
       (criar tópico + resposta + e-mail via `@ApplicationModuleListener`), dashboard admin
+      (parcialmente validado nas fases 3 e 5)
 
 ---
 
