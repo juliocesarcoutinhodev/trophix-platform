@@ -16,6 +16,7 @@ public record OfferResponse(
         String category,
         boolean isFlashDeal,
         boolean isActive,
+        long clickCount,
         Instant createdAt,
         Instant updatedAt) {
 }

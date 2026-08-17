@@ -46,4 +46,18 @@ class OfferTest {
         assertThrows(BusinessException.class,
                 () -> offer(BigDecimal.ZERO, BigDecimal.ZERO));
     }
+
+    @Test
+    void clickCountStartsAtZero() {
+        assertEquals(0L, offer(new BigDecimal("100.00"), new BigDecimal("75.00")).clickCount());
+    }
+
+    @Test
+    void clickCountIsPreservedOnUpdate() {
+        Offer created = offer(new BigDecimal("100.00"), new BigDecimal("75.00"));
+        Offer updated = created.updated("PS5 Edição Digital", "https://exemplo.com/img.jpg",
+                new BigDecimal("120.00"), new BigDecimal("90.00"), "Amazon", "https://exemplo.com/link",
+                "Consoles", false, true);
+        assertEquals(created.clickCount(), updated.clickCount());
+    }
 }

@@ -54,6 +54,9 @@ class OfferEntity {
     @Column(nullable = false)
     private boolean isActive;
 
+    @Column(nullable = false)
+    private long clickCount;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

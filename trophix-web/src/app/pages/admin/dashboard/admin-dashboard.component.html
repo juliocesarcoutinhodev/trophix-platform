@@ -91,6 +91,48 @@
 
     </div>
 
+    <!-- Seção: Top Ofertas Clicadas -->
+    <div class="mt-8 rounded-xl border border-slate-800 bg-slate-950 p-6 shadow-lg shadow-black/20">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-200">Top Ofertas (Cliques)</h2>
+          <p class="mt-1 text-sm text-slate-400">Ofertas com maior engajamento dos usuários</p>
+        </div>
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
+          <svg class="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-5">
+        @for (offer of topOffers(); track offer.id; let i = $index) {
+          <div class="flex items-center gap-4">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-slate-400 border border-slate-800">
+              {{ i + 1 }}
+            </div>
+            
+            <div class="flex-1 overflow-hidden">
+              <div class="flex justify-between mb-1.5">
+                <span class="truncate text-sm font-medium text-slate-300">{{ offer.title }} <span class="text-xs text-slate-500">({{ offer.storeName }})</span></span>
+                <span class="text-sm font-bold text-orange-400">{{ offer.clickCount || 0 }} cliques</span>
+              </div>
+              <!-- Barra de Progresso CSS (O maior valor define 100%) -->
+              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-900 border border-slate-800">
+                <div class="h-full rounded-full bg-gradient-to-r from-orange-600 to-amber-400" 
+                     [style.width.%]="topOffers()[0]?.clickCount ? (((offer.clickCount || 0) / (topOffers()[0].clickCount || 1)) * 100) : 0">
+                </div>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="flex justify-center py-8 text-sm text-slate-500">
+            Nenhuma oferta teve cliques registrados ainda.
+          </div>
+        }
+      </div>
+    </div>
+
     <!-- Seção de Monitoramento de Serviços -->
     <div class="mt-12">
       <h2 class="text-xl font-bold text-slate-200">Saúde dos Serviços</h2>

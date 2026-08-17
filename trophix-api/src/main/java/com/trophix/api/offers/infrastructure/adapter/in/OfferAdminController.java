@@ -1,6 +1,7 @@
 package com.trophix.api.offers.infrastructure.adapter.in;
 
 import com.trophix.api.offers.application.ports.in.ManageOffersUseCase;
+import com.trophix.api.offers.application.ports.in.OfferAnalyticsUseCase;
 import com.trophix.api.offers.infrastructure.adapter.in.dto.CreateOfferRequest;
 import com.trophix.api.offers.infrastructure.adapter.in.dto.OfferResponse;
 import com.trophix.api.offers.infrastructure.adapter.in.dto.UpdateOfferRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -35,6 +37,7 @@ class OfferAdminController {
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     private final ManageOffersUseCase manageOffersUseCase;
+    private final OfferAnalyticsUseCase offerAnalyticsUseCase;
     private final OfferWebMapper offerWebMapper;
 
     @GetMapping
@@ -46,6 +49,14 @@ class OfferAdminController {
                 .listAll(category, PageRequest.of(Math.max(page, 0), Math.min(size, 100)))
                 .map(offerWebMapper::toResponse);
         return ResponseEntity.ok(offers);
+    }
+
+    @GetMapping("/analytics/top-clicked")
+    public ResponseEntity<List<OfferResponse>> topClicked(@RequestParam(defaultValue = "5") int limit) {
+        List<OfferResponse> top = offerAnalyticsUseCase.getTopOffers(limit).stream()
+                .map(offerWebMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(top);
     }
 
     @PostMapping

@@ -25,6 +25,7 @@ public record Offer(
         String category,
         boolean isFlashDeal,
         boolean isActive,
+        long clickCount,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -63,7 +64,7 @@ public record Offer(
                                boolean isFlashDeal) {
         Instant now = Instant.now();
         return new Offer(UuidV7.generate(), title, imageUrl, originalPrice, discountPrice,
-                null, storeName, affiliateLink, category, isFlashDeal, true, now, now);
+                null, storeName, affiliateLink, category, isFlashDeal, true, 0L, now, now);
     }
 
     /** Returns a copy with the admin-editable fields replaced (recomputes the percentage). */
@@ -72,7 +73,7 @@ public record Offer(
                          String storeName, String affiliateLink, String category,
                          boolean isFlashDeal, boolean isActive) {
         return new Offer(id, title, imageUrl, originalPrice, discountPrice,
-                null, storeName, affiliateLink, category, isFlashDeal, isActive, createdAt, Instant.now());
+                null, storeName, affiliateLink, category, isFlashDeal, isActive, clickCount, createdAt, Instant.now());
     }
 
     /** ((original - discount) / original) * 100, rounded half-up. */

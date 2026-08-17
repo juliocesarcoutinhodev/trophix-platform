@@ -83,8 +83,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/forums/**").authenticated()
                         // Agregador de notícias: totalmente público
                         .requestMatchers(HttpMethod.GET, "/api/public/news").permitAll()
-                        // Ofertas (LootBox): leitura pública
+                        // Ofertas (LootBox): leitura pública + tracking de clique
                         .requestMatchers(HttpMethod.GET, "/api/public/offers").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/offers/*/track-click").permitAll()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação

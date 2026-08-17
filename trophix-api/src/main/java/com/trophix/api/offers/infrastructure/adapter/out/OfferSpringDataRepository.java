@@ -3,6 +3,7 @@ package com.trophix.api.offers.infrastructure.adapter.out;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,4 +22,10 @@ interface OfferSpringDataRepository extends JpaRepository<OfferEntity, UUID> {
             where (:category is null or o.category = :category)
             order by o.createdAt desc""")
     Page<OfferEntity> findAllFiltered(@Param("category") String category, Pageable pageable);
+
+    Page<OfferEntity> findAllByOrderByClickCountDesc(Pageable pageable);
+
+    @Modifying
+    @Query("update OfferEntity o set o.clickCount = o.clickCount + 1 where o.id = :id")
+    void incrementClickCount(@Param("id") UUID id);
 }

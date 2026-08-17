@@ -330,12 +330,14 @@ O worker (`news` → `NewsSyncScheduler`) busca os feeds a cada 30 min (delay in
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
 | GET | `/api/public/offers?page=&size=&category=` | público | Ofertas **ativas** paginadas; `category` filtra opcionalmente (ex.: Jogos, Consoles, Hardware, Colecionáveis) |
+| POST | `/api/public/offers/{offerId}/track-click` | público | Contabiliza 1 clique no link de afiliado (incremento atômico `UPDATE ... clickCount = clickCount + 1`); 200 sem body |
 | GET | `/api/admin/offers?page=&size=&category=` | **ROLE_ADMIN** | Todas as ofertas (inclusive inativas) |
+| GET | `/api/admin/offers/analytics/top-clicked?limit=5` | **ROLE_ADMIN** | Ranking das ofertas mais clicadas (Top N por `clickCount` desc) |
 | POST | `/api/admin/offers` | **ROLE_ADMIN** | Cria oferta: `{title, imageUrl, originalPrice, discountPrice, storeName, affiliateLink, category, isFlashDeal}` |
 | PUT | `/api/admin/offers/{offerId}` | **ROLE_ADMIN** | Edita a oferta (recalcula `discountPercentage`; aceita `isActive`) |
 | DELETE | `/api/admin/offers/{offerId}` | **ROLE_ADMIN** | Exclui a oferta |
 
-O `discountPercentage` é sempre **derivado** dos preços no backend (`(original - discount) / original * 100`, arredondado half-up); o domínio rejeita `discountPrice > originalPrice`.
+O `discountPercentage` é sempre **derivado** dos preços no backend (`(original - discount) / original * 100`, arredondado half-up); o domínio rejeita `discountPrice > originalPrice`. Cada oferta carrega também o `clickCount` (métrica de cliques de afiliado, alimentada pelo `track-click` e exibida no ranking do dashboard).
 
 > **Modulith:** o teste de arquitetura (`src/test/.../ApplicationModulesTest`) usa `ApplicationModules.of(...).verify()` **sem allowlist** — o projeto está 100% conforme (0 violações, ciclos quebrados, APIs expostas via `@NamedInterface`). Qualquer violação nova quebra o build.
 

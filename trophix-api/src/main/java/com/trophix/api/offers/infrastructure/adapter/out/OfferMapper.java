@@ -19,6 +19,7 @@ class OfferMapper {
                 entity.getCategory(),
                 entity.isFlashDeal(),
                 entity.isActive(),
+                entity.getClickCount(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
     }
@@ -36,6 +37,7 @@ class OfferMapper {
         entity.setCategory(offer.category());
         entity.setFlashDeal(offer.isFlashDeal());
         entity.setActive(offer.isActive());
+        entity.setClickCount(offer.clickCount());
         entity.setCreatedAt(offer.createdAt());
         entity.setUpdatedAt(offer.updatedAt());
         return entity;

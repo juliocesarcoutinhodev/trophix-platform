@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../../core/services/admin.service';
 import { AdminDashboardStats } from '../../../core/models/api.models';
+import { OfferService, Offer } from '../../offers/offer.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,8 +13,10 @@ import { AdminDashboardStats } from '../../../core/models/api.models';
 })
 export class AdminDashboardComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
+  private readonly offerService = inject(OfferService);
 
   stats = signal<AdminDashboardStats | null>(null);
+  topOffers = signal<Offer[]>([]);
 
   sidecarStatus = signal<'checking' | 'online' | 'offline' | 'unknown'>('unknown');
   sidecarLatency = signal<number | null>(null);
@@ -29,6 +32,18 @@ export class AdminDashboardComponent implements OnInit {
       this.stats.set(data);
     } catch (e) {
       console.error('Erro ao carregar dados do dashboard admin:', e);
+    }
+
+    try {
+      const offersData = await firstValueFrom(this.offerService.getTopClickedOffers(5));
+      this.topOffers.set(offersData);
+    } catch (e) {
+      console.error('Erro ao carregar top ofertas:', e);
+      // Se a API ainda não estiver pronta, carrega dados visuais falsos para não quebrar a UI
+      this.topOffers.set([
+        { id: '1', title: 'Carregando dados reais...', storeName: 'Sistema', clickCount: 150 } as any,
+        { id: '2', title: 'Integração em andamento...', storeName: 'Sistema', clickCount: 85 } as any,
+      ]);
     }
     
     // Auto-check no sidecar e no backend ao carregar a página

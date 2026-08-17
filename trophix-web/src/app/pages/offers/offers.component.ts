@@ -47,6 +47,12 @@ export class OffersComponent implements OnInit {
     this.loadOffers();
   }
 
+  trackClick(offerId: string) {
+    this.offerService.trackClick(offerId).subscribe({
+      error: (err) => console.error('Silent track failure:', err) // Falha silenciosa para não impactar a navegação
+    });
+  }
+
   getValidUrl(url: string | undefined): string {
     if (!url) return '#';
     if (!url.startsWith('http://') && !url.startsWith('https://')) {

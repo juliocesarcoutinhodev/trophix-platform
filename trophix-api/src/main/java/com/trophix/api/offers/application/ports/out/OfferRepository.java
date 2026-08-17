@@ -4,6 +4,7 @@ import com.trophix.api.offers.model.Offer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,4 +24,10 @@ public interface OfferRepository {
     Page<Offer> findAllFiltered(String category, Pageable pageable);
 
     void delete(Offer offer);
+
+    /** Atomically increments the click counter (no optimistic lock / race). */
+    void incrementClickCount(UUID offerId);
+
+    /** Top offers by click count (desc), limited. */
+    List<Offer> findTopByClickCount(int limit);
 }

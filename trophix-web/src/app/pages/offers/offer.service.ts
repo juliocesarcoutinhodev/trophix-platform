@@ -14,6 +14,7 @@ export interface Offer {
   category: string;
   isFlashDeal: boolean;
   isActive: boolean;
+  clickCount?: number;
 }
 
 export interface OfferPage {
@@ -34,6 +35,10 @@ export class OfferService {
 
   // --- Public Methods ---
 
+  trackClick(offerId: string): Observable<void> {
+    return this.http.post<void>(`${this.publicUrl}/${offerId}/track-click`, {});
+  }
+
   getPublicOffers(page: number = 0, size: number = 10, category?: string): Observable<OfferPage> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -47,6 +52,11 @@ export class OfferService {
   }
 
   // --- Admin Methods ---
+
+  getTopClickedOffers(limit: number = 5): Observable<Offer[]> {
+    let params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<Offer[]>(`${this.adminUrl}/analytics/top-clicked`, { params });
+  }
 
   getAdminOffers(page: number = 0, size: number = 100): Observable<OfferPage> {
     let params = new HttpParams()

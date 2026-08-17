@@ -2866,6 +2866,56 @@
           "response": []
         },
         {
+          "name": "Rastrear Clique (track-click, público)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/offers/{{offerId}}/track-click",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "offers",
+                "{{offerId}}",
+                "track-click"
+              ]
+            },
+            "description": "Incrementa em 1 o clickCount da oferta (incremento atômico no banco). Chamado silenciosamente pelo frontend quando o usuário clica no botão de comprar.\n\nRota pública (fire-and-forget).\n\nResposta: 200 sem body."
+          },
+          "response": []
+        },
+        {
+          "name": "Ranking Top Clicadas (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/offers/analytics/top-clicked",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "offers",
+                "analytics",
+                "top-clicked"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Ranking das ofertas mais clicadas, ordenado por clickCount desc. Query param limit (default 5, máx 100).\n\nRequer ROLE_ADMIN.\n\nResposta: lista de OfferResponse (com clickCount)."
+          },
+          "response": []
+        },
+        {
           "name": "Listar Todas as Ofertas (Admin)",
           "request": {
             "method": "GET",
