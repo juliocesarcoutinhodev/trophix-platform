@@ -50,9 +50,9 @@ public class RomeNewsFeedFetcher implements NewsFeedFetcher {
     private static final Pattern IMG_SRC_PATTERN = Pattern.compile(
             "(?i)<img\\b[^>]*?src\\s*=\\s*[\"']([^\"']+)[\"']");
 
-    /** URL fragments that mark placeholder/junk images (WordPress emoji, smilies...). */
+    /** URL fragments that mark placeholder/junk images (WP emoji, smilies, theme placeholders...). */
     private static final List<String> JUNK_IMAGE_FRAGMENTS = List.of(
-            "s.w.org", "emoji", "wp-smiley", "data:image");
+            "s.w.org", "emoji", "wp-smiley", "placeholder.svg", "data:image");
 
     /** Maximum entries kept per feed per refresh. */
     private static final int MAX_ITEMS = 25;
