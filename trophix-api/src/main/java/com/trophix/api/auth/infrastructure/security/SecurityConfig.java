@@ -81,6 +81,8 @@ public class SecurityConfig {
                         // Fórum: leitura pública, escrita exige login
                         .requestMatchers(HttpMethod.GET, "/api/forums/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/forums/**").authenticated()
+                        // Agregador de notícias: totalmente público
+                        .requestMatchers(HttpMethod.GET, "/api/public/news").permitAll()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação

@@ -70,6 +70,17 @@ trophix:
   forums:
     # Base da URL do front-end para os links de e-mail do fórum (/forums/topics/{id}).
     frontend-url: ${TROPHIX_WEB_URL:http://localhost:4200}
+  news:
+    # Agregador de notícias (módulo news): fontes RSS/Atom e frequência do worker.
+    refresh-interval-ms: 1800000
+    initial-delay-ms: 20000
+    sources:
+      - name: PlayStation Blog
+        url: https://blog.playstation.com/feed/
+      - name: MeuPlayStation
+        url: https://meups.com.br/feed/
+      - name: IGN Brasil
+        url: https://br.ign.com/feed.xml
   minio:
     # MinIO (S3-compatible) — armazenamento de imagens de guias e avatares.
     url: ${MINIO_URL:http://localhost:9000}
