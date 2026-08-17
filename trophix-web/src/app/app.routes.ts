@@ -52,7 +52,7 @@ export const routes: Routes = [
   { path: 'ranking', component: RankingComponent, data: { title: 'Ranking Global' } },
   { path: 'guides/:id', component: GuideDetailComponent },
   { path: 'create-guide', component: CreateGuide, canActivate: [authGuard] },
-  { path: 'games/:id', component: GameDetailComponent, canActivate: [authGuard] },
+  { path: 'games/:id', component: GameDetailComponent },
   { path: 'forums', loadComponent: () => import('./pages/public/forums/forum-home/forum-home').then(m => m.ForumHomeComponent) },
   { path: 'forums/category/:id', loadComponent: () => import('./pages/public/forums/forum-category/forum-category').then(m => m.ForumCategoryComponent) },
   { path: 'forums/topic/:id', loadComponent: () => import('./pages/public/forums/forum-topic/forum-topic').then(m => m.ForumTopicComponent) },

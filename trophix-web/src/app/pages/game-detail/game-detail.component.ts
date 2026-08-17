@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { GameDetail, TrophyStatus } from '../../core/models/api.models';
 import { PlatformFormatPipe } from '../../core/pipes/platform-format.pipe';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
@@ -23,6 +24,8 @@ export class GameDetailComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
+  protected readonly auth = inject(AuthService);
+
   async ngOnInit(): Promise<void> {
     const gameId = this.route.snapshot.paramMap.get('id');
     if (!gameId) {
@@ -31,7 +34,12 @@ export class GameDetailComponent implements OnInit {
       return;
     }
     await this.loadGame(gameId);
-    void this.syncTrophiesSilently(gameId);
+    
+    // Sincroniza com a PSN apenas se o banco não tiver nenhum troféu para este jogo,
+    // evitando requisições desnecessárias, pois os troféus (catálogo) não mudam.
+    if (this.trophies().length === 0) {
+      void this.syncTrophiesSilently(gameId);
+    }
   }
 
   async loadGame(gameId: string): Promise<void> {
@@ -47,10 +55,16 @@ export class GameDetailComponent implements OnInit {
   }
 
   private async fetchGame(gameId: string): Promise<void> {
+    const isLogged = !!this.auth.userSignal();
+    const trophiesPromise = isLogged 
+      ? firstValueFrom(this.api.getMyTrophies(gameId)) 
+      : firstValueFrom(this.api.getGameTrophies(gameId));
+
     const [game, trophies] = await Promise.all([
       firstValueFrom(this.api.getGameDetail(gameId)),
-      firstValueFrom(this.api.getMyTrophies(gameId)),
+      trophiesPromise,
     ]);
+    
     this.game.set(game);
     this.trophies.set(trophies);
   }

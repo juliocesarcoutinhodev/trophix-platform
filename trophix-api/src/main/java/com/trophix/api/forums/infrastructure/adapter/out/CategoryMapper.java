@@ -14,6 +14,8 @@ public class CategoryMapper {
 
     public CategoryListItem toListItem(CategoryWithTopicCount projection) {
         return new CategoryListItem(projection.getId(), projection.getName(),
-                projection.getDescription(), projection.getOrderIndex(), projection.getTopicsCount());
+                projection.getDescription(), projection.getOrderIndex(), projection.getTopicsCount(),
+                projection.getLastTopicId(), projection.getLastTopicTitle(),
+                projection.getLastTopicAuthor(), projection.getLastTopicUpdatedAt());
     }
 }

@@ -1,7 +1,9 @@
 package com.trophix.api.trophies.application.usecases;
 
 import com.trophix.api.games.application.ports.in.GetGameDetailUseCase;
+import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.application.ports.out.UserGameRepositoryPort;
+import com.trophix.api.games.model.Game;
 import com.trophix.api.games.model.GameDetail;
 import com.trophix.api.games.model.UserGameSummary;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
@@ -26,11 +28,16 @@ public class GetGameDetailUseCaseImpl implements GetGameDetailUseCase {
     private static final String TYPE_BRONZE = "Bronze";
 
     private final UserGameRepositoryPort userGameRepository;
+    private final GameRepositoryPort gameRepository;
     private final TrophyRepositoryPort trophyRepository;
     private final UserTrophyRepositoryPort userTrophyRepository;
 
     @Override
     public GameDetail getGameDetail(UUID userId, UUID gameId) {
+        if (userId == null) {
+            return buildVisitorDetail(gameId);
+        }
+
         UserGameSummary summary = userGameRepository.findByUserIdAndGameId(userId, gameId)
                 .orElseThrow(() -> new ResourceNotFoundException("Jogo não encontrado no seu catálogo"));
 
@@ -53,6 +60,24 @@ public class GetGameDetailUseCaseImpl implements GetGameDetailUseCase {
                 summary.earnedTrophies(),
                 summary.totalTrophies(),
                 rarity);
+    }
+
+    /**
+     * Visitor (no login): returns the game metadata and the total trophy count
+     * with zero personal progress.
+     */
+    private GameDetail buildVisitorDetail(UUID gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Jogo não encontrado"));
+        return new GameDetail(
+                game.id(),
+                game.name(),
+                game.imageUrl(),
+                game.platform(),
+                0,
+                0,
+                game.totalTrophies() != null ? game.totalTrophies() : 0,
+                new GameDetail.RarityBreakdown(0, 0, 0, 0));
     }
 
     private int countByType(Map<UUID, Instant> earnedAtByTrophy, List<Trophy> trophies, String type) {

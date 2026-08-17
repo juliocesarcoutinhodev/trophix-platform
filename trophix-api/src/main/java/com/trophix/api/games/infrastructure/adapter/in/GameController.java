@@ -26,7 +26,22 @@ public class GameController {
             @AuthenticationPrincipal String userId,
             @PathVariable UUID gameId) {
         GameDetailResponse detail = gameWebMapper.toGameDetailResponse(
-                getGameDetailUseCase.getGameDetail(UUID.fromString(userId), gameId));
+                getGameDetailUseCase.getGameDetail(parseUserId(userId), gameId));
         return ResponseEntity.ok(detail);
+    }
+
+    /**
+     * Anonymous requests leave the principal as "anonymousUser" (or null);
+     * only a valid UUID is treated as a logged-in user.
+     */
+    private UUID parseUserId(String userId) {
+        if (userId == null || userId.isBlank() || "anonymousUser".equals(userId)) {
+            return null;
+        }
+        try {
+            return UUID.fromString(userId);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

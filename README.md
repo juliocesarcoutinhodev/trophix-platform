@@ -268,7 +268,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | GET | `/api/users/me/games/{gameId}/missing-trophies` | autenticado | Troféus do jogo que o usuário **ainda não conquistou** |
 | GET | `/api/users/me/trophies/missing?page=&size=` | autenticado | **Troféus pendentes globais**: troféus faltantes de todos os jogos do usuário, paginados (jogo mais recente primeiro), com `name`, `description`, `type`, `gameName`, `iconUrl`, `rarity` |
 | POST | `/api/games/{gameId}/sync-trophies` | autenticado | Sincroniza catálogo de troféus + conquistas (202, assíncrono via fila) |
-| GET | `/api/games/{gameId}/detail` | autenticado | Detalhe do jogo p/ o usuário logado (progresso + contagem por raridade) |
+| GET | `/api/games/{gameId}/detail` | público | Detalhe do jogo (metadados + total de troféus). **Logado**: inclui progresso pessoal e contagem por raridade; **visitante**: `earnedTrophies`/`progressPercentage` zerados |
 | GET | `/api/games/{gameId}/my-trophies` | autenticado | Catálogo do jogo com status de conquista (earned/earnedAt) |
 | GET | `/api/games/{gameId}/trophies` | público | Lista os troféus do jogo (com o UUID interno) |
 
@@ -317,7 +317,7 @@ Denúncias ficam com status `OPEN` até o admin **resolver** ou **descartar** (`
 ### Fórum (Forums)
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
-| GET | `/api/forums/categories` | público | Categorias com total de tópicos (por `orderIndex`) |
+| GET | `/api/forums/categories` | público | Categorias com total de tópicos (por `orderIndex`) e o último tópico de cada uma (`lastTopicId`, `lastTopicTitle`, `lastTopicAuthor`, `lastTopicUpdatedAt`) |
 | GET | `/api/forums/categories/{categoryId}/topics?page=&size=` | público | Tópicos da categoria, ordenados por `updatedAt` desc |
 | GET | `/api/forums/topics/{topicId}` | público | Detalhe do tópico + página de respostas (incrementa `viewsCount` assíncrono) |
 | GET | `/api/forums/topics/{topicId}/replies?page=&size=` | público | Página de respostas do tópico (mais antigas primeiro) |

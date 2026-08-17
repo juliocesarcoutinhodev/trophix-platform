@@ -1,5 +1,6 @@
 package com.trophix.api.forums.infrastructure.adapter.in.dto;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record CategoryResponse(
@@ -7,5 +8,9 @@ public record CategoryResponse(
         String name,
         String description,
         int orderIndex,
-        long topicsCount) {
+        long topicsCount,
+        String lastTopicId,
+        String lastTopicTitle,
+        String lastTopicAuthor,
+        Instant lastTopicUpdatedAt) {
 }
