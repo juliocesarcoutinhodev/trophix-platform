@@ -2,7 +2,6 @@ package com.trophix.api.guides.infrastructure.adapter.out;
 
 import com.trophix.api.guides.application.ports.out.GuideVoteRepositoryPort;
 import com.trophix.api.guides.model.GuideVote;
-import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,6 @@ public class GuideVoteJpaAdapter implements GuideVoteRepositoryPort {
 
     private final GuideVoteSpringDataRepository springDataRepository;
     private final GuideSpringDataRepository guideSpringDataRepository;
-    private final UserSpringDataRepository userSpringDataRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -30,7 +28,7 @@ public class GuideVoteJpaAdapter implements GuideVoteRepositoryPort {
     public void save(GuideVote vote) {
         GuideVoteEntity entity = new GuideVoteEntity();
         entity.setGuide(guideSpringDataRepository.getReferenceById(vote.guideId()));
-        entity.setUser(userSpringDataRepository.getReferenceById(vote.userId()));
+        entity.setUserId(vote.userId());
         entity.setVotedAt(vote.votedAt());
         springDataRepository.save(entity);
     }

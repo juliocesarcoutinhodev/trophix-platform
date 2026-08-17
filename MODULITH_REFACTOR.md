@@ -17,6 +17,21 @@ Progresso:
   dependeriam de `sync` e `sync` depende deles → ciclo. Mantendo a porta em `shared`:
   `users→shared`, `trophies→shared`, `sync→{shared,users,trophies}`. O impl RabbitMQ,
   o consumer e a config ficam em `sync`.
+- **[Fase 3 concluída]** — acoplamento de infraestrutura JPA entre módulos eliminado
+  (colunas UUID planas, sem `@ManyToOne`/`getReferenceById` cross-módulo):
+  - `games/UserGameEntity.user` → coluna `user_id UUID`; porta `findByUsername`
+    removida (o use case de `users` resolve username→userId via `UserRepository`)
+  - `trophies/TrophyEntity.game` → `game_id UUID`; `trophies/UserTrophyEntity.user`
+    → `user_id UUID`
+  - `guides/GuideEntity` (trophy/game/author) → `trophy_id`/`game_id`/`author_id UUID`;
+    `guides/GuideVoteEntity.user` → `user_id UUID`
+  - Removida injeção de `UserSpringDataRepository`/`GameSpringDataRepository`/
+    `TrophySpringDataRepository` de outros módulos nos adapters
+  - Queries que buscavam por nome do jogo (`findAllFiltered`, `findLatestRoadmaps`) e
+    por `psnTrophyId` (`findTrophyTipsByAuthorAndGame`) reescritas como **native SQL**
+    (join pelas colunas planas), preservando o comportamento sem acoplamento Java
+  - **Ciclos restantes:** apenas `games→trophies→games` e `games→trophies→users→games`
+    (nível de use case/porta, não JPA) — tratados na Fase 5.
 
 ---
 
@@ -97,13 +112,17 @@ Progresso:
 
 Padrão já usado em `forums`/`reports`: FKs como colunas UUID, sem relação JPA entre módulos.
 
-- [ ] `games/UserGameEntity.user` (`@ManyToOne UserJpaEntity`) → coluna `user_id UUID`
-- [ ] `trophies/TrophyEntity.game` (`@ManyToOne GameEntity`) → coluna `game_id UUID`
-- [ ] `guides/GuideEntity` (game/trophy/author `@ManyToOne`) → colunas
+- [x] `games/UserGameEntity.user` (`@ManyToOne UserJpaEntity`) → coluna `user_id UUID`
+- [x] `trophies/TrophyEntity.game` (`@ManyToOne GameEntity`) → coluna `game_id UUID`
+- [x] `trophies/UserTrophyEntity.user` (`@ManyToOne UserJpaEntity`) → coluna `user_id UUID`
+- [x] `guides/GuideEntity` (game/trophy/author `@ManyToOne`) → colunas
       `game_id` / `trophy_id` / `author_id UUID`
-- [ ] Remover dos adapters a injeção de repos de outros módulos
+- [x] `guides/GuideVoteEntity.user` (`@ManyToOne UserJpaEntity`) → coluna `user_id UUID`
+- [x] Remover dos adapters a injeção de repos de outros módulos
       (`UserSpringDataRepository`, `GameSpringDataRepository`, `TrophySpringDataRepository` — usados via `getReferenceById`)
-- [ ] Manter `users.roles` (vira relação com `shared.Role` — ok)
+- [x] Reescrever queries com join cross-módulo como native SQL (nome do jogo,
+      `psnTrophyId`) ou via portas (username→userId em `GetUserGamesUseCaseImpl`)
+- [x] Manter `users.roles` (vira relação com `shared.Role` — ok)
 
 ---
 

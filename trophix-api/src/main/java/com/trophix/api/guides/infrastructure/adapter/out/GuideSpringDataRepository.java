@@ -20,18 +20,33 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
      * Admin listing with optional dynamic filters: exact status and/or a
      * case-insensitive search on the guide title or the game name. Null
      * filters are ignored. Ordered by creation date (newest first).
+     * Native SQL joins the games table by flat FK column (game_id), keeping
+     * the guides module free of any JPA dependency on the games module.
      */
-    @Query("""
-            select g from GuideEntity g
-            left join fetch g.game
+    @Query(value = """
+            select g.* from guides g
+            left join games game on game.id = g.game_id
             where (:status is null or g.status = :status)
               and (:search is null
-                   or lower(g.title) like lower(concat('%', cast(:search as string), '%'))
-                   or lower(g.game.name) like lower(concat('%', cast(:search as string), '%')))
-              and (:isTrophyGuide is null 
-                   or (:isTrophyGuide = true and g.trophy is not null) 
-                   or (:isTrophyGuide = false and g.trophy is null))
-            order by g.createdAt desc""")
+                   or lower(g.title) like lower('%' || :search || '%')
+                   or lower(game.name) like lower('%' || :search || '%'))
+              and (:isTrophyGuide is null
+                   or (:isTrophyGuide = true and g.trophy_id is not null)
+                   or (:isTrophyGuide = false and g.trophy_id is null))
+            order by g.created_at desc
+            """,
+            countQuery = """
+            select count(g.id) from guides g
+            left join games game on game.id = g.game_id
+            where (:status is null or g.status = :status)
+              and (:search is null
+                   or lower(g.title) like lower('%' || :search || '%')
+                   or lower(game.name) like lower('%' || :search || '%'))
+              and (:isTrophyGuide is null
+                   or (:isTrophyGuide = true and g.trophy_id is not null)
+                   or (:isTrophyGuide = false and g.trophy_id is null))
+            """,
+            nativeQuery = true)
     Page<GuideEntity> findAllFiltered(@Param("status") GuideStatus status,
                                       @Param("search") String search,
                                       @Param("isTrophyGuide") Boolean isTrophyGuide,
@@ -44,27 +59,30 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
 
     List<GuideEntity> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 
-    @Query("select g from GuideEntity g where g.trophy is null and g.game.id = :gameId and g.status = :status order by g.upvotesCount desc")
+    @Query("select g from GuideEntity g where g.trophyId is null and g.gameId = :gameId and g.status = :status order by g.upvotesCount desc")
     List<GuideEntity> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
 
-    @Query("""
-            select g from GuideEntity g
-            left join fetch g.game
-            where g.trophy is null
+    @Query(value = """
+            select g.* from guides g
+            left join games game on game.id = g.game_id
+            where g.trophy_id is null
               and g.status = :status
               and (:search is null
-                   or lower(g.game.name) like lower(concat('%', cast(:search as string), '%')))
-            order by g.createdAt desc""")
+                   or lower(game.name) like lower('%' || :search || '%'))
+            order by g.created_at desc
+            """, nativeQuery = true)
     List<GuideEntity> findLatestRoadmaps(@Param("status") GuideStatus status,
                                          @Param("search") String search,
                                          Pageable pageable);
 
-    @Query("""
-            select g from GuideEntity g
-            where g.trophy.game.id = :gameId
-              and g.author.id = :authorId
+    @Query(value = """
+            select g.* from guides g
+            join trophies t on t.id = g.trophy_id
+            where g.game_id = :gameId
+              and g.author_id = :authorId
               and g.status = :status
-            order by g.trophy.psnTrophyId asc, g.createdAt asc""")
+            order by t.psn_trophy_id asc, g.created_at asc
+            """, nativeQuery = true)
     List<GuideEntity> findTrophyTipsByAuthorAndGame(
             @Param("gameId") UUID gameId,
             @Param("authorId") UUID authorId,

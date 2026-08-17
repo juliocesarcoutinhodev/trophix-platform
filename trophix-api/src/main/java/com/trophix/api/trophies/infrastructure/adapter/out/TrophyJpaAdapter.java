@@ -1,7 +1,5 @@
 package com.trophix.api.trophies.infrastructure.adapter.out;
 
-import com.trophix.api.games.infrastructure.adapter.out.GameEntity;
-import com.trophix.api.games.infrastructure.adapter.out.GameSpringDataRepository;
 import com.trophix.api.trophies.application.ports.out.TrophyRepositoryPort;
 import com.trophix.api.trophies.model.Trophy;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,6 @@ import java.util.UUID;
 public class TrophyJpaAdapter implements TrophyRepositoryPort {
 
     private final TrophySpringDataRepository springDataRepository;
-    private final GameSpringDataRepository gameSpringDataRepository;
     private final TrophyMapper mapper;
 
     @Override
@@ -28,13 +25,12 @@ public class TrophyJpaAdapter implements TrophyRepositoryPort {
         }
 
         java.util.Set<Integer> existingIds = springDataRepository.findPsnTrophyIdsByGameId(gameId);
-        GameEntity gameReference = gameSpringDataRepository.getReferenceById(gameId);
 
         List<TrophyEntity> toSave = trophies.stream()
                 .filter(trophy -> !existingIds.contains(trophy.psnTrophyId()))
                 .map(trophy -> {
                     TrophyEntity entity = mapper.toEntity(trophy);
-                    entity.setGame(gameReference);
+                    entity.setGameId(gameId);
                     return entity;
                 })
                 .toList();

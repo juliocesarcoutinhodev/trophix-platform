@@ -9,7 +9,7 @@ public class TrophyMapper {
     public Trophy toDomain(TrophyEntity entity) {
         return new Trophy(
                 entity.getId(),
-                entity.getGame().getId(),
+                entity.getGameId(),
                 entity.getPsnTrophyId(),
                 entity.getName(),
                 entity.getDescription(),

@@ -1,11 +1,8 @@
 package com.trophix.api.guides.infrastructure.adapter.out;
 
-import com.trophix.api.games.infrastructure.adapter.out.GameSpringDataRepository;
 import com.trophix.api.guides.application.ports.out.GuideRepositoryPort;
 import com.trophix.api.guides.model.Guide;
 import com.trophix.api.guides.model.GuideStatus;
-import com.trophix.api.trophies.infrastructure.adapter.out.TrophySpringDataRepository;
-import com.trophix.api.users.infrastructure.adapter.out.UserSpringDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +20,6 @@ import java.util.UUID;
 public class GuideJpaAdapter implements GuideRepositoryPort {
 
     private final GuideSpringDataRepository springDataRepository;
-    private final TrophySpringDataRepository trophySpringDataRepository;
-    private final GameSpringDataRepository gameSpringDataRepository;
-    private final UserSpringDataRepository userSpringDataRepository;
     private final GuideMapper mapper;
 
     @Override
@@ -33,13 +27,9 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     public Guide save(Guide guide) {
         GuideEntity entity = new GuideEntity();
         entity.setId(guide.id());
-        if (guide.trophyId() != null) {
-            entity.setTrophy(trophySpringDataRepository.getReferenceById(guide.trophyId()));
-        }
-        if (guide.gameId() != null) {
-            entity.setGame(gameSpringDataRepository.getReferenceById(guide.gameId()));
-        }
-        entity.setAuthor(userSpringDataRepository.getReferenceById(guide.authorId()));
+        entity.setTrophyId(guide.trophyId());
+        entity.setGameId(guide.gameId());
+        entity.setAuthorId(guide.authorId());
         entity.setTitle(guide.title());
         entity.setDescription(guide.description());
         entity.setContent(guide.content());
