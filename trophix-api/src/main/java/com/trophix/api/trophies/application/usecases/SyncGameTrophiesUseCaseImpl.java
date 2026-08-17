@@ -49,11 +49,7 @@ public class SyncGameTrophiesUseCaseImpl implements SyncGameTrophiesUseCase {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new ResourceNotFoundException("Jogo não encontrado"));
 
-        List<PsnTrophy> catalog = trophySync.fetchGameTrophyCatalog(game.npCommunicationId());
-        List<Trophy> trophies = trophyRepository.saveAllIfNotExists(gameId, catalog.stream()
-                .map(p -> Trophy.create(gameId, p.psnTrophyId(), p.name(), p.description(),
-                        p.type(), p.iconUrl(), p.rarity()))
-                .toList());
+        List<Trophy> trophies = fetchAndSaveCatalog(gameId, game.npCommunicationId());
 
         Map<Integer, UUID> trophyIdByPsnId = trophies.stream()
                 .collect(Collectors.toMap(Trophy::psnTrophyId, Trophy::id));
@@ -78,5 +74,24 @@ public class SyncGameTrophiesUseCaseImpl implements SyncGameTrophiesUseCase {
         log.info("Troféus sincronizados para userId={} gameId={} catalogo={} conquistados={}",
                 userId, gameId, trophies.size(), userTrophies.size());
         return "Troféus sincronizados com sucesso!";
+    }
+
+    @Override
+    @Transactional
+    public String syncCatalog(UUID gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Jogo não encontrado"));
+
+        int catalogSize = fetchAndSaveCatalog(gameId, game.npCommunicationId()).size();
+        log.info("Catálogo de troféus sincronizado para gameId={} trofeus={}", gameId, catalogSize);
+        return "Catálogo de troféus sincronizado com sucesso!";
+    }
+
+    private List<Trophy> fetchAndSaveCatalog(UUID gameId, String npCommunicationId) {
+        List<PsnTrophy> catalog = trophySync.fetchGameTrophyCatalog(npCommunicationId);
+        return trophyRepository.saveAllIfNotExists(gameId, catalog.stream()
+                .map(p -> Trophy.create(gameId, p.psnTrophyId(), p.name(), p.description(),
+                        p.type(), p.iconUrl(), p.rarity()))
+                .toList());
     }
 }

@@ -189,7 +189,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
                                                     use cases de sync ──► sidecar ──► PSN ──► Postgres
 ```
 
-- `POST /api/users/me/sync` e `POST /api/games/{gameId}/sync-trophies` respondem `202` e apenas **publicam um job** (`SyncJob`: `PROFILE_SYNC` ou `TROPHY_SYNC`).
+- `POST /api/users/me/sync` e `POST /api/games/{gameId}/sync-trophies` respondem `202` e apenas **publicam um job** (`SyncJob`: `PROFILE_SYNC`, `TROPHY_SYNC` ou `TROPHY_CATALOG_SYNC`).
+- **Sincronização proativa (background sync):** ao sincronizar o perfil, o fluxo identifica os jogos **novos** (criados agora) e os que **ainda não possuem troféus** e publica `TROPHY_CATALOG_SYNC` para cada um (após o commit da transação). O worker consome e popula o catálogo de troféus do jogo via sidecar (`/api/jogos/{npId}/trofeus`), sem depender de login/interação do front — enriquecendo o catálogo público automaticamente.
 - O worker (`shared/infrastructure/amqp/SyncJobConsumer`) consome a fila (prefetch 1, 2-4 consumers) e executa os mesmos use cases existentes.
 - **Cooldown de 15 min validado no consumer** (autoritativo) — o scheduler publica livremente e jobs em cooldown são ignorados; o HTTP também valida para responder 429 ao usuário.
 - **Retry + DLQ**: falhas transitórias do sidecar (`PsnServiceException`/circuito aberto) são reentregues até 3 vezes com backoff; erros permanentes (usuário/jogo inexistente, sem `accountId`) são logados e descartados; jobs esgotados caem na `trophix.sync.queue.dlq`.

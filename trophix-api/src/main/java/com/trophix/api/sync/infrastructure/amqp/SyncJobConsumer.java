@@ -38,10 +38,10 @@ public class SyncJobConsumer {
     @RabbitListener(queues = SyncQueueConfig.SYNC_QUEUE)
     public void onMessage(SyncJob job) {
         try {
-            if (job.type() == SyncJob.Type.PROFILE_SYNC) {
-                processProfileSync(job.userId());
-            } else {
-                processTrophySync(job.userId(), job.gameId());
+            switch (job.type()) {
+                case PROFILE_SYNC -> processProfileSync(job.userId());
+                case TROPHY_SYNC -> processTrophySync(job.userId(), job.gameId());
+                case TROPHY_CATALOG_SYNC -> processCatalogSync(job.gameId());
             }
         } catch (PsnServiceException | CircuitOpenException ex) {
             throw ex;
@@ -66,5 +66,9 @@ public class SyncJobConsumer {
 
     private void processTrophySync(UUID userId, UUID gameId) {
         syncGameTrophiesUseCase.sync(userId, gameId);
+    }
+
+    private void processCatalogSync(UUID gameId) {
+        syncGameTrophiesUseCase.syncCatalog(gameId);
     }
 }

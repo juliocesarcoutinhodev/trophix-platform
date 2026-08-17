@@ -29,4 +29,11 @@ public class RabbitSyncJobPublisher implements SyncJobPublisher {
                 SyncQueueConfig.SYNC_EXCHANGE, SyncQueueConfig.SYNC_ROUTING_KEY,
                 SyncJob.trophySync(userId, gameId));
     }
+
+    @Override
+    public void publishTrophyCatalogSync(UUID gameId) {
+        rabbitTemplate.convertAndSend(
+                SyncQueueConfig.SYNC_EXCHANGE, SyncQueueConfig.SYNC_ROUTING_KEY,
+                SyncJob.trophyCatalogSync(gameId));
+    }
 }

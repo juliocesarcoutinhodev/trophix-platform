@@ -12,4 +12,13 @@ public interface SyncGameTrophiesUseCase {
      * @return success message in Brazilian Portuguese
      */
     String sync(UUID userId, UUID gameId);
+
+    /**
+     * Proactive catalog sync: fetches and persists only the game's trophy
+     * catalog from the PSN (no user involved). Idempotent.
+     *
+     * @param gameId the game whose trophy catalog will be synced
+     * @return success message in Brazilian Portuguese
+     */
+    String syncCatalog(UUID gameId);
 }

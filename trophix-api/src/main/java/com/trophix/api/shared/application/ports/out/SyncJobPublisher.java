@@ -11,4 +11,7 @@ public interface SyncJobPublisher {
     void publishProfileSync(UUID userId);
 
     void publishTrophySync(UUID userId, UUID gameId);
+
+    /** Proactive catalog sync: fetches the game's trophy catalog without a user. */
+    void publishTrophyCatalogSync(UUID gameId);
 }

@@ -2,6 +2,7 @@ package com.trophix.api.games.infrastructure.adapter.out;
 
 import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.model.Game;
+import com.trophix.api.games.model.GameSaveResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,11 +28,14 @@ public class GameJpaAdapter implements GameRepositoryPort {
     private final GameMapper mapper;
 
     @Override
-    @Transactional(readOnly = true)
-    public Game saveIfNotExists(Game game) {
-        return springDataRepository.findByNpCommunicationId(game.npCommunicationId())
-                .map(mapper::toDomain)
-                .orElseGet(() -> mapper.toDomain(springDataRepository.save(mapper.toEntity(game))));
+    @Transactional
+    public GameSaveResult saveIfNotExists(Game game) {
+        Optional<GameEntity> existing = springDataRepository.findByNpCommunicationId(game.npCommunicationId());
+        if (existing.isPresent()) {
+            return new GameSaveResult(mapper.toDomain(existing.get()), false);
+        }
+        GameEntity saved = springDataRepository.save(mapper.toEntity(game));
+        return new GameSaveResult(mapper.toDomain(saved), true);
     }
 
     @Override
@@ -53,6 +59,15 @@ public class GameJpaAdapter implements GameRepositoryPort {
         return springDataRepository.findAllById(ids).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toMap(Game::id, Function.identity()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<UUID> findGameIdsWithoutTrophies(Collection<UUID> gameIds) {
+        if (gameIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(springDataRepository.findGameIdsWithoutTrophies(gameIds));
     }
 
     @Override
