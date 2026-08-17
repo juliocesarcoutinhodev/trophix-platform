@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
@@ -9,7 +8,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [RouterLink, DatePipe, PaginationComponent],
+  imports: [DatePipe, PaginationComponent],
   templateUrl: './news.component.html',
 })
 export class NewsComponent implements OnInit {
