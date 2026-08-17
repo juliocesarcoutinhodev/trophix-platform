@@ -1,7 +1,7 @@
 package com.trophix.api.users.infrastructure.adapter.out;
 
-import com.trophix.api.auth.infrastructure.adapter.out.RoleSpringDataRepository;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.infrastructure.adapter.out.RoleSpringDataRepository;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.users.application.ports.out.UserRepository;
 import com.trophix.api.users.model.User;
 import lombok.RequiredArgsConstructor;

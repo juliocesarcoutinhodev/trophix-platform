@@ -22,8 +22,5 @@ public interface UserGameRepositoryPort {
      * Returns the games played by the user (with game metadata), paginated
      * and ordered by most recently played.
      */
-    Page<UserGameSummary> findByUsername(String username, Pageable pageable);
-
-    /** Same as {@link #findByUsername(String, Pageable)} but for the user id. */
-    Page<UserGameSummary> findByUserId(java.util.UUID userId, Pageable pageable);
+    Page<UserGameSummary> findByUserId(UUID userId, Pageable pageable);
 }

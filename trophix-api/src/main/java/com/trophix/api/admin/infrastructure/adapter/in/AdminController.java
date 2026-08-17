@@ -19,7 +19,7 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesReques
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
-import com.trophix.api.guides.infrastructure.adapter.in.dto.MessageResponse;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;
 import com.trophix.api.guides.model.GuideStatus;
 import jakarta.validation.Valid;

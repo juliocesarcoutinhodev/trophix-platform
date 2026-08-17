@@ -1,7 +1,6 @@
 package com.trophix.api.games.infrastructure.adapter.out;
 
 import com.trophix.api.shared.infrastructure.persistence.UuidV7Id;
-import com.trophix.api.users.infrastructure.adapter.out.UserJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,9 +27,8 @@ public class UserGameEntity {
     @UuidV7Id
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserJpaEntity user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "game_id", nullable = false)

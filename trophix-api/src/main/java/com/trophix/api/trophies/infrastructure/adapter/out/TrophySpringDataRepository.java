@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface TrophySpringDataRepository extends JpaRepository<TrophyEntity, UUID> {
 
-    @Query("select t.psnTrophyId from TrophyEntity t where t.game.id = :gameId")
+    @Query("select t.psnTrophyId from TrophyEntity t where t.gameId = :gameId")
     Set<Integer> findPsnTrophyIdsByGameId(@Param("gameId") UUID gameId);
 
     List<TrophyEntity> findByGameId(UUID gameId);

@@ -2,8 +2,8 @@ package com.trophix.api.admin.application.usecases;
 
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.auth.application.ports.out.RefreshTokenRepository;
-import com.trophix.api.auth.application.ports.out.RoleRepositoryPort;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.application.ports.out.RoleRepositoryPort;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.shared.exception.BusinessException;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
 import com.trophix.api.users.application.ports.out.UserRepository;

@@ -2,8 +2,8 @@ package com.trophix.api.auth.application.usecases;
 
 import com.trophix.api.auth.application.ports.in.CompleteRegistrationUseCase;
 import com.trophix.api.auth.application.ports.out.PasswordEncoderPort;
-import com.trophix.api.auth.application.ports.out.RoleRepositoryPort;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.application.ports.out.RoleRepositoryPort;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.shared.domain.UuidV7;
 import com.trophix.api.shared.exception.BusinessException;
 import com.trophix.api.shared.exception.DataIntegrityException;

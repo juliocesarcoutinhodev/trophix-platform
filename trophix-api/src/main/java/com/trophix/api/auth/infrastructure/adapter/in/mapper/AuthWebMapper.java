@@ -9,7 +9,7 @@ import com.trophix.api.auth.infrastructure.adapter.in.dto.LoginRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.RegistrationRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.ResetPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.UserResponse;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.users.model.User;
 import org.springframework.stereotype.Component;
 

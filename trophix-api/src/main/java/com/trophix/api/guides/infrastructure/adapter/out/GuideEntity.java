@@ -1,18 +1,12 @@
 package com.trophix.api.guides.infrastructure.adapter.out;
 
-import com.trophix.api.games.infrastructure.adapter.out.GameEntity;
 import com.trophix.api.guides.model.GuideStatus;
 import com.trophix.api.shared.infrastructure.persistence.UuidV7Id;
-import com.trophix.api.trophies.infrastructure.adapter.out.TrophyEntity;
-import com.trophix.api.users.infrastructure.adapter.out.UserJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,17 +26,14 @@ public class GuideEntity {
     @UuidV7Id
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trophy_id")
-    private TrophyEntity trophy;
+    @Column(name = "trophy_id")
+    private UUID trophyId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
-    private GameEntity game;
+    @Column(name = "game_id")
+    private UUID gameId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "author_id", nullable = false)
-    private UserJpaEntity author;
+    @Column(name = "author_id", nullable = false)
+    private UUID authorId;
 
     @Column(nullable = false, length = 255)
     private String title;

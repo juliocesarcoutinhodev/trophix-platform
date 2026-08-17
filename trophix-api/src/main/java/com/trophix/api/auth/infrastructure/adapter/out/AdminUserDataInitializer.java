@@ -1,8 +1,8 @@
 package com.trophix.api.auth.infrastructure.adapter.out;
 
 import com.trophix.api.auth.application.ports.out.PasswordEncoderPort;
-import com.trophix.api.auth.application.ports.out.RoleRepositoryPort;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.application.ports.out.RoleRepositoryPort;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.shared.domain.UuidV7;
 import com.trophix.api.users.application.ports.out.UserRepository;
 import com.trophix.api.users.model.User;

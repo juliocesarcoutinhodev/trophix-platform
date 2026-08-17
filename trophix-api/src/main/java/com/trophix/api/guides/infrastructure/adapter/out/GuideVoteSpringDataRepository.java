@@ -14,6 +14,6 @@ public interface GuideVoteSpringDataRepository extends JpaRepository<GuideVoteEn
 
     void deleteByGuideIdAndUserId(UUID guideId, UUID userId);
 
-    @Query("select gv.guide.id from GuideVoteEntity gv where gv.user.id = :userId and gv.guide.id in :guideIds")
+    @Query("select gv.guide.id from GuideVoteEntity gv where gv.userId = :userId and gv.guide.id in :guideIds")
     Set<UUID> findVotedGuideIdsByUser(@Param("userId") UUID userId, @Param("guideIds") Collection<UUID> guideIds);
 }

@@ -10,5 +10,5 @@ public interface UserTrophySpringDataRepository extends JpaRepository<UserTrophy
 
     Optional<UserTrophyEntity> findByUserIdAndTrophyId(UUID userId, UUID trophyId);
 
-    List<UserTrophyEntity> findByUserIdAndTrophy_IdIn(UUID userId, List<UUID> trophyIds);
+    List<UserTrophyEntity> findByUserIdAndTrophyIdIn(UUID userId, List<UUID> trophyIds);
 }

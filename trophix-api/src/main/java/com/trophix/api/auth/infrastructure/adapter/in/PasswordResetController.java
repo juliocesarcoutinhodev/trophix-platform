@@ -3,7 +3,7 @@ package com.trophix.api.auth.infrastructure.adapter.in;
 import com.trophix.api.auth.application.ports.in.ForgotPasswordUseCase;
 import com.trophix.api.auth.application.ports.in.ResetPasswordUseCase;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.ForgotPasswordRequest;
-import com.trophix.api.auth.infrastructure.adapter.in.dto.MessageResponse;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.ResetPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.mapper.AuthWebMapper;
 import jakarta.validation.Valid;
