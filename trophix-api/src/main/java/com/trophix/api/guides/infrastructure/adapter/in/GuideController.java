@@ -14,7 +14,7 @@ import com.trophix.api.guides.infrastructure.adapter.in.dto.SubmitGuideRequest;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.VoteResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;
 import com.trophix.api.guides.model.Guide;
-import com.trophix.api.shared.infrastructure.security.AuthenticatedUser;
+import com.trophix.api.auth.infrastructure.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

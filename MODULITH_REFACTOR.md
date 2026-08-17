@@ -7,6 +7,17 @@ Estado atual: **629 violações** (107 únicas) — todas acessos entre módulos
 internos + 3 ciclos (`shared`, `auth`, `games`). A allowlist no `ApplicationModulesTest`
 segura o build até concluirmos.
 
+Progresso:
+- **[Fase 1 concluída]** — `shared` agora é módulo folha (zero imports de outros módulos),
+  0 ciclos detectados. `Role` + persistência de roles movidos para `shared`; segurança
+  (`SecurityConfig`, `JwtAuthenticationFilter`, `CustomUserDetailsService`, `AuthenticatedUser`)
+  movida para `auth`; orquestração de sync movida para o novo módulo `sync`.
+- **Decisão de design (Fase 1.3):** a porta `SyncJobPublisher` **permanece em `shared`**
+  (apenas interface, folha). Se ela fosse para o módulo `sync`, `users`/`trophies`
+  dependeriam de `sync` e `sync` depende deles → ciclo. Mantendo a porta em `shared`:
+  `users→shared`, `trophies→shared`, `sync→{shared,users,trophies}`. O impl RabbitMQ,
+  o consumer e a config ficam em `sync`.
+
 ---
 
 ## Fase 0 — Decisões e fundação
@@ -37,7 +48,7 @@ segura o build até concluirmos.
 
 ## Fase 1 — Tornar `shared` um módulo folha (quebra os ciclos `shared`, `auth`, `games`)
 
-- [ ] **1.1 Mover `Role` de `auth` → `shared`** (quebra o ciclo auth↔users; auth e users
+- [x] **1.1 Mover `Role` de `auth` → `shared`** (quebra o ciclo auth↔users; auth e users
       passam a depender só de shared):
   - `auth/model/Role.java`
   - `auth/infrastructure/adapter/out/RoleJpaEntity.java`
@@ -45,13 +56,13 @@ segura o build até concluirmos.
   - `auth/infrastructure/adapter/out/PostgresRoleAdapter.java`
   - `auth/infrastructure/adapter/out/RoleDataInitializer.java`
   - `auth/application/ports/out/RoleRepositoryPort.java`
-- [ ] **1.2 Mover a segurança de `shared.infrastructure.security` → `auth`** (remove
+- [x] **1.2 Mover a segurança de `shared.infrastructure.security` → `auth`** (remove
       shared→auth via `TokenValidatorPort`/`Role`):
   - `SecurityConfig.java`
   - `JwtAuthenticationFilter.java`
   - `CustomUserDetailsService.java`
   - `AuthenticatedUser.java` (passa a ser exposto pela API do auth)
-- [ ] **1.3 Mover a orquestração de sync do `shared` → novo módulo `sync`** (remove
+- [x] **1.3 Mover a orquestração de sync do `shared` → novo módulo `sync`** (remove
       shared→users/trophies):
   - `shared/infrastructure/amqp/SyncJobConsumer.java`
   - `shared/infrastructure/amqp/RabbitSyncJobPublisher.java`
@@ -59,9 +70,12 @@ segura o build até concluirmos.
   - `shared/application/ports/out/SyncJobPublisher.java`
   - `shared/domain/SyncJob.java`
   - O módulo `sync` depende de `users` + `trophies` (via APIs expostas).
-- [ ] **1.4 Conferir que `shared` só tenha** (zero imports de outros módulos):
+  - Nota: a porta `SyncJobPublisher` e o `SyncJob` ficam em `shared` (folha) para evitar
+    ciclo `sync`↔`users`/`trophies`; a orquestração/impl/queue ficam em `sync`.
+- [x] **1.4 Conferir que `shared` só tenha** (zero imports de outros módulos):
   - `UuidV7`, exceptions PT-BR, `UuidV7Id`, storage (MinIO),
-    `RestClient`/`SidecarClient`, rate-limit, circuit-breaker, `AsyncConfig`.
+    `RestClient`/`SidecarClient`, rate-limit, circuit-breaker, `AsyncConfig`,
+    `Role` (+ port/adapters/JPA).
 
 ---
 

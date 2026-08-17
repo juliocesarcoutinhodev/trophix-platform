@@ -1,4 +1,4 @@
-package com.trophix.api.auth.infrastructure.adapter.out;
+package com.trophix.api.shared.infrastructure.adapter.out;
 
 import com.trophix.api.shared.infrastructure.persistence.UuidV7Id;
 import jakarta.persistence.Column;

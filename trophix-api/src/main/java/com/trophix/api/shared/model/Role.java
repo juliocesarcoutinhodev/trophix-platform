@@ -1,4 +1,4 @@
-package com.trophix.api.auth.model;
+package com.trophix.api.shared.model;
 
 import java.util.UUID;
 

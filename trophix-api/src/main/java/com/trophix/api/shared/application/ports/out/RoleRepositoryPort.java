@@ -1,6 +1,6 @@
-package com.trophix.api.auth.application.ports.out;
+package com.trophix.api.shared.application.ports.out;
 
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.model.Role;
 
 import java.util.List;
 import java.util.Optional;

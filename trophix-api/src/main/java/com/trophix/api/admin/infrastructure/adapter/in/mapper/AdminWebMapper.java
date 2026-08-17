@@ -10,7 +10,7 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideRespon
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SidecarStatusResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SystemHealthResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.guides.model.Guide;
 import com.trophix.api.guides.model.GuideListItem;
 import com.trophix.api.users.model.User;

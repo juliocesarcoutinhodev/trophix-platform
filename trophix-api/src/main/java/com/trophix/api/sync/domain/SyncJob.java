@@ -1,4 +1,4 @@
-package com.trophix.api.shared.domain;
+package com.trophix.api.sync.domain;
 
 import java.util.UUID;
 

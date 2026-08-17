@@ -1,4 +1,4 @@
-package com.trophix.api.shared.infrastructure.security;
+package com.trophix.api.auth.infrastructure.security;
 
 import com.trophix.api.users.application.ports.out.UserRepository;
 import lombok.RequiredArgsConstructor;

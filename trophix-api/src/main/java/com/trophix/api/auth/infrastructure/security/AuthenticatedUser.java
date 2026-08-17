@@ -1,4 +1,4 @@
-package com.trophix.api.shared.infrastructure.security;
+package com.trophix.api.auth.infrastructure.security;
 
 import org.springframework.stereotype.Component;
 

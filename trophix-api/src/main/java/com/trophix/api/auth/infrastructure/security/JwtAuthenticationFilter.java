@@ -1,4 +1,4 @@
-package com.trophix.api.shared.infrastructure.security;
+package com.trophix.api.auth.infrastructure.security;
 
 import com.trophix.api.auth.application.ports.out.TokenValidatorPort;
 import io.jsonwebtoken.JwtException;

@@ -1,6 +1,6 @@
 package com.trophix.api.users.infrastructure.adapter.out;
 
-import com.trophix.api.auth.infrastructure.adapter.out.RoleJpaEntity;
+import com.trophix.api.shared.infrastructure.adapter.out.RoleJpaEntity;
 import com.trophix.api.shared.infrastructure.persistence.UuidV7Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

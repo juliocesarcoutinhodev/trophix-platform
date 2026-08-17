@@ -1,7 +1,7 @@
-package com.trophix.api.shared.infrastructure.amqp;
+package com.trophix.api.sync.infrastructure.amqp;
 
 import com.trophix.api.shared.application.ports.out.SyncJobPublisher;
-import com.trophix.api.shared.domain.SyncJob;
+import com.trophix.api.sync.domain.SyncJob;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 

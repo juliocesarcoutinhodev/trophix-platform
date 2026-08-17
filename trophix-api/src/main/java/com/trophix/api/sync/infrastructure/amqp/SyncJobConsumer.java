@@ -1,6 +1,6 @@
-package com.trophix.api.shared.infrastructure.amqp;
+package com.trophix.api.sync.infrastructure.amqp;
 
-import com.trophix.api.shared.domain.SyncJob;
+import com.trophix.api.sync.domain.SyncJob;
 import com.trophix.api.shared.exception.BusinessException;
 import com.trophix.api.shared.exception.CircuitOpenException;
 import com.trophix.api.shared.exception.PsnServiceException;

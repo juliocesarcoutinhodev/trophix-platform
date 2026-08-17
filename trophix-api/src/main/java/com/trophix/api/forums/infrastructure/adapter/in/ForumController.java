@@ -15,7 +15,7 @@ import com.trophix.api.forums.infrastructure.adapter.in.mapper.ForumWebMapper;
 import com.trophix.api.forums.model.ReplyListItem;
 import com.trophix.api.forums.model.TopicListItem;
 import com.trophix.api.shared.exception.BusinessException;
-import com.trophix.api.shared.infrastructure.security.AuthenticatedUser;
+import com.trophix.api.auth.infrastructure.security.AuthenticatedUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

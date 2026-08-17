@@ -1,4 +1,4 @@
-package com.trophix.api.auth.infrastructure.adapter.out;
+package com.trophix.api.shared.infrastructure.adapter.out;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

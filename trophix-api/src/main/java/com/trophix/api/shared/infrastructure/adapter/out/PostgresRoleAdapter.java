@@ -1,7 +1,7 @@
-package com.trophix.api.auth.infrastructure.adapter.out;
+package com.trophix.api.shared.infrastructure.adapter.out;
 
-import com.trophix.api.auth.application.ports.out.RoleRepositoryPort;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.application.ports.out.RoleRepositoryPort;
+import com.trophix.api.shared.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

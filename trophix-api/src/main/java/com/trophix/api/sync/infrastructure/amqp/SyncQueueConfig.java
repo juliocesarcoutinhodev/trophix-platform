@@ -1,4 +1,4 @@
-package com.trophix.api.shared.infrastructure.amqp;
+package com.trophix.api.sync.infrastructure.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Binding;

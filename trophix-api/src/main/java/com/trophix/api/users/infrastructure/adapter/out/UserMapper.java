@@ -1,7 +1,7 @@
 package com.trophix.api.users.infrastructure.adapter.out;
 
-import com.trophix.api.auth.infrastructure.adapter.out.RoleJpaEntity;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.infrastructure.adapter.out.RoleJpaEntity;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.users.model.User;
 import org.springframework.stereotype.Component;
 

@@ -3,7 +3,7 @@ package com.trophix.api.users.infrastructure.adapter.in.mapper;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.LoginRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.RegistrationRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.UserResponse;
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.games.model.UserGameSummary;
 import com.trophix.api.users.infrastructure.adapter.in.dto.AccountLinkTokenResponse;
 import com.trophix.api.users.infrastructure.adapter.in.dto.AccountLinkValidationResponse;

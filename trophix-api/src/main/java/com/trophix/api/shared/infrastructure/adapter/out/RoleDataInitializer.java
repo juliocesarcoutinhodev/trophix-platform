@@ -1,4 +1,4 @@
-package com.trophix.api.auth.infrastructure.adapter.out;
+package com.trophix.api.shared.infrastructure.adapter.out;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

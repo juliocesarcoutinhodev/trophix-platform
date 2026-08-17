@@ -1,6 +1,6 @@
 package com.trophix.api.users.model;
 
-import com.trophix.api.auth.model.Role;
+import com.trophix.api.shared.model.Role;
 import com.trophix.api.shared.domain.UuidV7;
 
 import java.time.Duration;

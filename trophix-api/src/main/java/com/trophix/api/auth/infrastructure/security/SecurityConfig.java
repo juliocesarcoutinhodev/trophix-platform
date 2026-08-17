@@ -1,4 +1,4 @@
-package com.trophix.api.shared.infrastructure.security;
+package com.trophix.api.auth.infrastructure.security;
 
 import com.trophix.api.shared.infrastructure.ratelimit.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Value;
