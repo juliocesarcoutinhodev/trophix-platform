@@ -9,7 +9,7 @@ import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.application.ports.in.SubmitGuideUseCase;
 import com.trophix.api.guides.application.ports.in.VoteGuideUseCase;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
-import com.trophix.api.guides.infrastructure.adapter.in.dto.MessageResponse;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.SubmitGuideRequest;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.VoteResponse;
 import com.trophix.api.guides.infrastructure.adapter.in.mapper.GuideWebMapper;

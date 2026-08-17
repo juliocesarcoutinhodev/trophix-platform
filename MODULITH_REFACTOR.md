@@ -7,6 +7,10 @@ Estado atual: **629 violações** (107 únicas) — todas acessos entre módulos
 internos + 3 ciclos (`shared`, `auth`, `games`). A allowlist no `ApplicationModulesTest`
 segura o build até concluirmos.
 
+Situação após Fases 1–3: **2 violações restantes** (o ciclo `games→trophies→users→games`,
+nível use case). A allowlist contém apenas essa entrada. Falta a Fase 4 (desacoplar `admin`,
+que hoje depende de várias APIs do guides/reports) e a Fase 5 (quebrar o ciclo `games`).
+
 Progresso:
 - **[Fase 1 concluída]** — `shared` agora é módulo folha (zero imports de outros módulos),
   0 ciclos detectados. `Role` + persistência de roles movidos para `shared`; segurança
@@ -32,6 +36,16 @@ Progresso:
     (join pelas colunas planas), preservando o comportamento sem acoplamento Java
   - **Ciclos restantes:** apenas `games→trophies→games` e `games→trophies→users→games`
     (nível de use case/porta, não JPA) — tratados na Fase 5.
+- **[Fase 2 concluída]** — APIs públicas de cada módulo expostas via `@NamedInterface`
+  (package-info). Todas as violações de "non-exposed type" foram eliminadas:
+  **629 → 2 violações** (as 2 são o mesmo ciclo `games`). A allowlist foi reduzida a
+  apenas a entrada do ciclo.
+  - `shared`: exception, domain, model, ports.out, persistence, ratelimit, web, jpa (roles)
+  - `auth`: ports.out (email/tokens/refresh), infrastructure.security (`AuthenticatedUser`)
+  - `users`: ports.out (UserRepository/PsnProfileFetcherPort), model, async (UserProfileSyncExecutor)
+  - `games`/`trophies`/`reports`: ports.out + model (+ `trophies.ports.in` p/ `SyncGameTrophiesUseCase`)
+  - `guides`: ports.in/out, service (GuideEnricher), model, dto, mapper
+  - **`MessageResponse` unificado** em `shared.dto` (removidas as duplicatas de `auth` e `guides`).
 
 ---
 
@@ -96,15 +110,16 @@ Progresso:
 
 ## Fase 2 — Expor a API pública de cada módulo (`@NamedInterface`)
 
-- [ ] `shared`: exceptions, `UuidV7`, `UuidV7Id`, `SidecarClient`, storage
-- [ ] `auth`: `AuthenticatedUser`, `EmailSenderPort`, `RefreshTokenRepository`, `TokenValidatorPort`
-- [ ] `users`: `UserRepository`, `User`, `PsnProfileFetcherPort`, `PsnProfile`
-- [ ] `games`: `GameRepositoryPort`, `Game`, `UserGameRepositoryPort`, `UserGame(Summary)`
-- [ ] `trophies`: `TrophyRepositoryPort`, `Trophy`, `UserTrophyRepositoryPort`
-- [ ] `guides`: `GuideRepositoryPort`, `Guide`, `GuideStatus`, `GuideListItem`,
+- [x] `shared`: exceptions, `UuidV7`, `UuidV7Id`, `SidecarClient`, storage, `Role`/ports
+- [x] `auth`: `AuthenticatedUser`, `EmailSenderPort`, `RefreshTokenRepository`, `TokenValidatorPort`
+- [x] `users`: `UserRepository`, `User`, `PsnProfileFetcherPort`, `PsnProfile`, `UserProfileSyncExecutor`
+- [x] `games`: `GameRepositoryPort`, `Game`, `UserGameRepositoryPort`, `UserGame(Summary)`
+- [x] `trophies`: `TrophyRepositoryPort`, `Trophy`, `UserTrophyRepositoryPort`, `SyncGameTrophiesUseCase`
+- [x] `guides`: `GuideRepositoryPort`, `Guide`, `GuideStatus`, `GuideListItem`,
       `GuideResponse`, `GuideEnricher`, casos de uso de moderação (usados pelo admin)
-- [ ] `reports`: `ReportRepository`, `Report`, `ReportStatus`
-- [ ] **Unificar `MessageResponse`** (duplicado hoje em `auth` e `guides`) em `shared`.
+- [x] `reports`: `ReportRepository`, `Report`, `ReportStatus`
+- [x] **Unificar `MessageResponse`** (duplicado hoje em `auth` e `guides`) em `shared`.
+- [x] Allowlist reduzida: **629 → 2** (apenas o ciclo `games` restante).
 
 ---
 
