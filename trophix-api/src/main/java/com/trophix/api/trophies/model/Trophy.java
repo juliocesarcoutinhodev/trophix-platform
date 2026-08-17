@@ -17,6 +17,10 @@ public record Trophy(
         String iconUrl,
         Double rarity) {
 
+    public Trophy {
+        rarity = rarity != null ? rarity : 0.0;
+    }
+
     public static Trophy create(UUID gameId, Integer psnTrophyId, String name,
                                 String description, String type, String iconUrl, Double rarity) {
         return new Trophy(UuidV7.generate(), gameId, psnTrophyId, name, description, type, iconUrl, rarity);

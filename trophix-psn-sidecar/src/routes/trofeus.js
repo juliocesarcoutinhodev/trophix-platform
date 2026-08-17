@@ -13,6 +13,15 @@ const TIPO_TROFEU = {
   platinum: "Platinum"
 };
 
+// O serviço de troféus da PSN só entende ids NPWR (ex.: NPWR24170_00). Jogos
+// salvos a partir do catálogo trophy2 usam titleId (PPSA/CUSA) e não possuem
+// dados de troféus — respondemos lista vazia em vez de 502.
+const EH_NPWR = /^NPWR\d+_00$/i;
+
+function isNpwr(npCommunicationId) {
+  return EH_NPWR.test(npCommunicationId || "");
+}
+
 const serviceCache = new Map();
 const dataCache = createCache(config.trophyCacheTtlMs);
 
@@ -78,6 +87,11 @@ router.get("/api/jogos/:npCommunicationId/trofeus", async (req, res) => {
   const cacheKey = `catalog:${npCommunicationId.toUpperCase()}`;
   console.log(`[trofeus] GET /api/jogos/${npCommunicationId}/trofeus`);
 
+  if (!isNpwr(npCommunicationId)) {
+    console.log(`[trofeus] id sem dados de trofeus (${npCommunicationId}); retornando vazio.`);
+    return res.json([]);
+  }
+
   try {
     const trofeus = await cachedFetch(cacheKey, async () => {
       const { result } = await withAuthorization((auth) =>
@@ -108,6 +122,11 @@ router.get("/api/jogos/:npCommunicationId/trofeus-conquistados/:accountId", asyn
   const { npCommunicationId, accountId } = req.params;
   const cacheKey = `earned:${npCommunicationId.toUpperCase()}:${accountId}`;
   console.log(`[trofeus] GET /api/jogos/${npCommunicationId}/trofeus-conquistados/${accountId}`);
+
+  if (!isNpwr(npCommunicationId)) {
+    console.log(`[trofeus] id sem dados de trofeus (${npCommunicationId}); retornando vazio.`);
+    return res.json([]);
+  }
 
   try {
     const conquistados = await cachedFetch(cacheKey, async () => {

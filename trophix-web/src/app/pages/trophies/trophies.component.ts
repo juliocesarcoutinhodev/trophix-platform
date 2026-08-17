@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { TrophyService, ActivityFeedDTO, MissingTrophyDTO } from './trophy.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-trophies',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, PaginationComponent],
   templateUrl: './trophies.component.html'
 })
 export class TrophiesComponent implements OnInit {
@@ -17,27 +18,52 @@ export class TrophiesComponent implements OnInit {
   activeTab = signal<'feed' | 'missing'>('feed');
 
   activityFeed = signal<ActivityFeedDTO[]>([]);
+  feedPage = signal(0);
+  feedTotalPages = signal(0);
+  feedTotalElements = signal(0);
+
   missingTrophies = signal<MissingTrophyDTO[]>([]);
+  missingPage = signal(0);
+  missingTotalPages = signal(0);
+  missingTotalElements = signal(0);
 
   ngOnInit() {
-    this.loadActivityFeed();
+    this.loadActivityFeed(0);
     if (this.auth.userSignal()) {
-      this.loadMissingTrophies();
+      this.loadMissingTrophies(0);
     }
   }
 
-  loadActivityFeed() {
-    this.trophyService.getActivityFeed(0, 40).subscribe({
-      next: (page) => this.activityFeed.set(page.content),
+  loadActivityFeed(page: number) {
+    this.trophyService.getActivityFeed(page, 20).subscribe({
+      next: (pageData) => {
+        this.activityFeed.set(pageData.content);
+        this.feedPage.set(pageData.number);
+        this.feedTotalPages.set(pageData.totalPages);
+        this.feedTotalElements.set(pageData.totalElements);
+      },
       error: (err) => console.error('Failed to load activity feed', err)
     });
   }
 
-  loadMissingTrophies() {
-    this.trophyService.getMissingTrophies(0, 40).subscribe({
-      next: (page) => this.missingTrophies.set(page.content),
+  onFeedPageChange(newPage: number) {
+    this.loadActivityFeed(newPage);
+  }
+
+  loadMissingTrophies(page: number) {
+    this.trophyService.getMissingTrophies(page, 20).subscribe({
+      next: (pageData) => {
+        this.missingTrophies.set(pageData.content);
+        this.missingPage.set(pageData.number);
+        this.missingTotalPages.set(pageData.totalPages);
+        this.missingTotalElements.set(pageData.totalElements);
+      },
       error: (err) => console.error('Failed to load missing trophies', err)
     });
+  }
+
+  onMissingPageChange(newPage: number) {
+    this.loadMissingTrophies(newPage);
   }
 
   setTab(tab: 'feed' | 'missing') {

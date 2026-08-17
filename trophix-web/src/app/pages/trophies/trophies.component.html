@@ -57,6 +57,18 @@
         </div>
       }
     </div>
+
+    <!-- Feed Pagination -->
+    @if (feedTotalPages() > 0) {
+      <div class="mt-12 flex justify-center">
+        <app-pagination
+          [currentPage]="feedPage()"
+          [totalPages]="feedTotalPages()"
+          [totalElements]="feedTotalElements()"
+          (pageChange)="onFeedPageChange($event)"
+        ></app-pagination>
+      </div>
+    }
   }
 
   <!-- TAB: TROFÉUS FALTANTES (LOGADO) -->
@@ -84,5 +96,17 @@
         </div>
       }
     </div>
+
+    <!-- Missing Pagination -->
+    @if (missingTotalPages() > 0) {
+      <div class="mt-12 flex justify-center">
+        <app-pagination
+          [currentPage]="missingPage()"
+          [totalPages]="missingTotalPages()"
+          [totalElements]="missingTotalElements()"
+          (pageChange)="onMissingPageChange($event)"
+        ></app-pagination>
+      </div>
+    }
   }
 </div>

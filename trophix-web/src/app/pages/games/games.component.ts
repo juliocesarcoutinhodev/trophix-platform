@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { GameService, GameCatalogDTO } from './game.service';
 import { UserGame } from '../../core/models/api.models';
@@ -10,7 +11,7 @@ import { PlatformFormatPipe } from '../../core/pipes/platform-format.pipe';
 @Component({
   selector: 'app-games',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, PaginationComponent, PlatformFormatPipe],
+  imports: [CommonModule, RouterLink, DatePipe, FormsModule, PaginationComponent, PlatformFormatPipe],
   templateUrl: './games.component.html'
 })
 export class GamesComponent implements OnInit {
@@ -24,6 +25,10 @@ export class GamesComponent implements OnInit {
   catalogPage = signal(0);
   catalogTotalPages = signal(0);
   catalogTotalElements = signal(0);
+  
+  // Search
+  searchInput = signal<string>('');
+  currentSearchQuery = signal<string | undefined>(undefined);
 
   myGames = signal<UserGame[]>([]);
   myGamesPage = signal(0);
@@ -39,7 +44,7 @@ export class GamesComponent implements OnInit {
   }
 
   loadCatalogGames(page: number) {
-    this.gameService.getPublicGames(page, 20).subscribe({
+    this.gameService.getPublicGames(page, 20, this.currentSearchQuery()).subscribe({
       next: (pageData) => {
         this.catalogGames.set(pageData.content);
         this.catalogPage.set(pageData.number);
@@ -52,6 +57,12 @@ export class GamesComponent implements OnInit {
 
   onCatalogPageChange(newPage: number) {
     this.loadCatalogGames(newPage);
+  }
+
+  onSearch() {
+    const term = this.searchInput().trim();
+    this.currentSearchQuery.set(term ? term : undefined);
+    this.loadCatalogGames(0);
   }
 
   loadMyGames(page: number) {
