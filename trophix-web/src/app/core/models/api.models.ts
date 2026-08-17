@@ -206,3 +206,13 @@ export interface CreateReplyRequest {
   topicId: string;
   content: string;
 }
+
+export interface NewsArticleResponse {
+  id: string;
+  title: string;
+  link: string;
+  imageUrl: string | null;
+  source: string;
+  publishedAt: string;
+  isFeatured: boolean;
+}

@@ -13,7 +13,8 @@
         { label: 'JOGOS', route: '/games' },
         { label: 'TROFÉUS', route: '/trophies' },
         { label: 'GUIAS', route: '/guides' },
-        { label: 'FÓRUNS', route: '/forums' }
+        { label: 'FÓRUNS', route: '/forums' },
+        { label: 'NOTÍCIAS', route: '/news' }
       ]; track item.route) {
         <a
           routerLink="{{ item.route }}"
@@ -24,6 +25,13 @@
           {{ item.label }}
         </a>
       }
+      <a routerLink="/ofertas" routerLinkActive="text-orange-400 border-b-2 border-orange-400" class="relative pb-1 text-sm font-black tracking-widest text-orange-500 transition-colors hover:text-orange-400">
+        OFERTAS
+        <span class="absolute -right-3 -top-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-600">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+        </span>
+      </a>
     </div>
 
     <!-- Right side -->

@@ -35,6 +35,7 @@ export const routes: Routes = [
       { path: 'all-guides', component: AdminAllGuidesComponent },
       { path: 'guides/create', component: CreateGuide },
       { path: 'settings', component: AdminSettingsComponent },
+      { path: 'ofertas', loadComponent: () => import('./pages/admin/offers/offers-admin.component').then(m => m.OffersAdminComponent) },
     ]
   },
   { path: '', component: HomeComponent },
@@ -45,6 +46,8 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'games', component: ComingSoonComponent, data: { title: 'Games' } },
   { path: 'trophies', component: ComingSoonComponent, data: { title: 'Trophies' } },
+  { path: 'news', loadComponent: () => import('./pages/news/news.component').then(m => m.NewsComponent), data: { title: 'Notícias' } },
+  { path: 'ofertas', loadComponent: () => import('./pages/offers/offers.component').then(m => m.OffersComponent), data: { title: 'LootBox' } },
   { path: 'guides', component: Guides },
   { path: 'ranking', component: RankingComponent, data: { title: 'Ranking Global' } },
   { path: 'guides/:id', component: GuideDetailComponent },

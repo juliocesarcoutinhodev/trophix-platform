@@ -1,0 +1,184 @@
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-100">Gerenciar Ofertas</h1>
+      <p class="mt-2 text-sm text-slate-400">Gerencie seus links de afiliados, cadastre produtos e descontos.</p>
+    </div>
+    <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+      <button 
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 rounded-md bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        Nova Oferta
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-8 flow-root">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+        <div class="overflow-hidden shadow ring-1 ring-white/5 sm:rounded-lg">
+          <table class="min-w-full divide-y divide-slate-800">
+            <thead class="bg-slate-900/50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Produto</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Loja</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Preço</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">Ações</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 bg-slate-900">
+              @for (offer of offers(); track offer.id) {
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 sm:pl-6">
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 flex-shrink-0 bg-white/5 rounded p-1">
+                        <img class="h-full w-full object-contain" [src]="offer.imageUrl" alt="" />
+                      </div>
+                      <div class="ml-4">
+                        <div class="font-medium text-white max-w-xs truncate">{{ offer.title }}</div>
+                        <div class="text-slate-500">{{ offer.category }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-300">
+                    <span class="inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-xs font-medium text-slate-400 ring-1 ring-inset ring-slate-400/20">
+                      {{ offer.storeName }}
+                    </span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    <div class="text-emerald-400 font-bold">{{ offer.discountPrice | currency:'BRL' }}</div>
+                    <div class="text-slate-500 text-xs line-through">{{ offer.originalPrice | currency:'BRL' }}</div>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    <button 
+                      (click)="toggleActive(offer)"
+                      [class.bg-emerald-400/10]="offer.isActive"
+                      [class.text-emerald-400]="offer.isActive"
+                      [class.bg-red-400/10]="!offer.isActive"
+                      [class.text-red-400]="!offer.isActive"
+                      class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ring-current transition-colors"
+                    >
+                      {{ offer.isActive ? 'Ativo' : 'Inativo' }}
+                    </button>
+                  </td>
+                  <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <button (click)="openEditModal(offer)" class="text-violet-400 hover:text-violet-300 mr-4">Editar</button>
+                    <button (click)="deleteOffer(offer.id)" class="text-red-400 hover:text-red-300">Excluir</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+@if (showModal()) {
+  <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-visible rounded-xl bg-slate-900 px-4 pb-4 pt-5 text-left shadow-xl transition-all border border-slate-700 sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
+          
+          <div class="mb-5 border-b border-slate-800 pb-4">
+            <h3 class="text-lg font-semibold leading-6 text-white" id="modal-title">
+              {{ isEditing() ? 'Editar Oferta' : 'Nova Oferta' }}
+            </h3>
+          </div>
+          
+          <form (ngSubmit)="saveOffer()" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-slate-300">Título do Produto</label>
+                <div class="mt-2">
+                  <input type="text" [(ngModel)]="currentOffer().title" name="title" required class="block w-full rounded-md border-0 bg-slate-950/50 py-2 px-3 text-white shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-violet-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+              
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-slate-300">URL da Imagem</label>
+                <div class="mt-2">
+                  <input type="url" [(ngModel)]="currentOffer().imageUrl" name="imageUrl" required class="block w-full rounded-md border-0 bg-slate-950/50 py-2 px-3 text-white shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-violet-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium leading-6 text-slate-300">Preço Original (R$)</label>
+                <div class="mt-2 relative">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span class="text-slate-500 sm:text-sm">R$</span>
+                  </div>
+                  <input type="text" [value]="formatCurrency(currentOffer().originalPrice)" (input)="onOriginalPriceChange($event)" name="originalPrice" class="block w-full rounded-md border-0 bg-slate-950/50 py-2 px-3 pl-10 text-white shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-violet-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium leading-6 text-slate-300">Preço com Desconto (R$)</label>
+                <div class="mt-2 relative">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span class="text-slate-500 sm:text-sm">R$</span>
+                  </div>
+                  <input type="text" [value]="formatCurrency(currentOffer().discountPrice)" (input)="onDiscountPriceChange($event)" name="discountPrice" class="block w-full rounded-md border-0 bg-slate-950/50 py-2 px-3 pl-10 text-white shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-violet-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-slate-300">Link de Afiliado</label>
+                <div class="mt-2">
+                  <input type="url" [(ngModel)]="currentOffer().affiliateLink" name="affiliateLink" required class="block w-full rounded-md border-0 bg-slate-950/50 py-2 px-3 text-white shadow-sm ring-1 ring-inset ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-violet-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium leading-6 text-slate-300 mb-2">Loja</label>
+                <app-dropdown
+                  [options]="storeOptions"
+                  [value]="currentOffer().storeName || null"
+                  (valueChange)="currentOffer().storeName = $any($event)"
+                ></app-dropdown>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium leading-6 text-slate-300 mb-2">Categoria</label>
+                <app-dropdown
+                  [options]="categoryOptions"
+                  [value]="currentOffer().category || null"
+                  (valueChange)="currentOffer().category = $any($event)"
+                ></app-dropdown>
+              </div>
+
+              <div class="sm:col-span-2 mt-2 flex items-center gap-4">
+                <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="currentOffer().isFlashDeal" name="isFlashDeal" class="rounded border-slate-700 bg-slate-950/50 text-violet-500 focus:ring-violet-500">
+                  É Oferta Relâmpago?
+                </label>
+                
+                <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="currentOffer().isActive" name="isActive" class="rounded border-slate-700 bg-slate-950/50 text-violet-500 focus:ring-violet-500">
+                  Ativo na Loja
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-end gap-x-3">
+              <button type="button" (click)="closeModal()" class="rounded-md px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800">
+                Cancelar
+              </button>
+              <button type="submit" class="rounded-md bg-violet-600 px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600">
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+}

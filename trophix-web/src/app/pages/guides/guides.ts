@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiService } from '../../core/services/api.service';
@@ -9,21 +10,28 @@ import { GuideResponse } from '../../core/models/api.models';
 @Component({
   selector: 'app-guides',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, FormsModule],
   templateUrl: './guides.html',
 })
 export class Guides implements OnInit {
   private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   
   protected readonly guides = signal<GuideResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly searchQuery = signal<string | null>(null);
+  protected searchInput = signal<string>('');
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(async params => {
       const search = params['search'];
       this.searchQuery.set(search || null);
+      if (search) {
+        this.searchInput.set(search);
+      } else {
+        this.searchInput.set('');
+      }
       
       try {
         this.loading.set(true);
@@ -34,6 +42,15 @@ export class Guides implements OnInit {
       } finally {
         this.loading.set(false);
       }
+    });
+  }
+
+  onSearch(): void {
+    const term = this.searchInput().trim();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: term ? term : null },
+      queryParamsHandling: 'merge',
     });
   }
 }

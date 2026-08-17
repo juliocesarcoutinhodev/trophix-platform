@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
-import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse } from '../models/api.models';
+import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse, NewsArticleResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -128,5 +128,12 @@ export class ApiService {
 
   submitGameGuide(gameId: string, request: SubmitGuideRequest) {
     return this.http.post<MessageResponse>(`/api/games/${gameId}/guides`, request);
+  }
+
+  // ---- News ----
+  getLatestNews(page = 0, size = 4) {
+    return this.http.get<Page<NewsArticleResponse>>('/api/public/news', {
+      params: { page: String(page), size: String(size) },
+    });
   }
 }

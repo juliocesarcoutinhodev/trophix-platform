@@ -1,0 +1,101 @@
+<div class="mx-auto max-w-7xl px-4 pt-28 pb-16 sm:px-6 lg:px-8">
+  
+  <!-- Header & Filtros -->
+  <div class="mb-10 flex flex-col gap-6 border-b border-slate-800 pb-8">
+    <div class="text-center sm:text-left">
+      <div class="flex items-center justify-center sm:justify-start gap-3 mb-2">
+        <h1 class="text-4xl font-black text-white tracking-tight sm:text-5xl">Loot<span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">Box</span></h1>
+        <svg class="h-10 w-10 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <p class="text-lg text-slate-400 max-w-2xl">Garimpamos os melhores descontos da internet para você não pagar caro no seu setup.</p>
+    </div>
+    
+    <!-- Filtros na linha de baixo -->
+    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
+      @for (category of categories(); track category) {
+        <button 
+          (click)="setCategory(category)"
+          [class.bg-orange-500]="selectedCategory() === category"
+          [class.text-white]="selectedCategory() === category"
+          [class.bg-slate-800]="selectedCategory() !== category"
+          [class.text-slate-300]="selectedCategory() !== category"
+          class="rounded-full px-5 py-2 text-sm font-semibold transition-colors hover:bg-orange-500 hover:text-white">
+          {{ category }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Grid de Ofertas -->
+  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    @for (offer of filteredOffers; track offer.id) {
+      <div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-all hover:-translate-y-2 hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-900/20">
+        
+        <!-- Badge de Desconto / Destaque -->
+        <div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+          <span class="rounded bg-red-600 px-2 py-1 text-xs font-black uppercase tracking-wider text-white shadow-lg">
+            {{ offer.discountPercentage }}% OFF
+          </span>
+          @if (offer.isFlashDeal) {
+            <span class="flex items-center gap-1 rounded bg-orange-500 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg animate-pulse">
+              <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd" /></svg>
+              Oferta Relâmpago
+            </span>
+          }
+        </div>
+
+        <!-- Loja Badge -->
+        <div class="absolute top-3 right-3 z-10">
+          <span class="rounded bg-slate-950/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-300 backdrop-blur-md ring-1 ring-slate-700">
+            {{ offer.storeName }}
+          </span>
+        </div>
+
+        <!-- Imagem do Produto -->
+        <div class="relative h-56 w-full overflow-hidden bg-white/5">
+          <img [src]="offer.imageUrl" [alt]="offer.title" class="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
+        </div>
+        
+        <!-- Conteúdo -->
+        <div class="flex flex-1 flex-col p-5">
+          <div class="mb-2">
+            <span class="text-xs font-semibold text-orange-400">{{ offer.category }}</span>
+          </div>
+          
+          <h3 class="mb-4 text-lg font-bold text-slate-100 leading-tight line-clamp-2 transition-colors group-hover:text-orange-400">
+            {{ offer.title }}
+          </h3>
+          
+          <div class="mt-auto flex flex-col gap-1">
+            <span class="text-sm font-semibold text-slate-500 line-through">
+              {{ offer.originalPrice | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+            <span class="text-2xl font-black text-emerald-400">
+              {{ offer.discountPrice | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+          </div>
+          
+          <!-- Botão Comprar -->
+          <a [href]="offer.affiliateLink" target="_blank" class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 py-3 text-sm font-bold text-white shadow-lg shadow-orange-900/30 transition-all hover:bg-orange-500 hover:shadow-orange-900/50 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            Ver na {{ offer.storeName }}
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+  
+  @if (filteredOffers.length === 0) {
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/50 py-20 text-center">
+      <svg class="mb-4 h-16 w-16 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <h3 class="text-xl font-bold text-slate-300">Nenhuma oferta nesta categoria</h3>
+      <p class="mt-2 text-slate-500">Tente selecionar outra categoria ou volte mais tarde.</p>
+    </div>
+  }
+</div>

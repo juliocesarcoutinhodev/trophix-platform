@@ -1,14 +1,15 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
-import { GuideResponse } from '../../core/models/api.models';
+import { GuideResponse, NewsArticleResponse } from '../../core/models/api.models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './home.html',
 })
 export class HomeComponent implements OnInit {
@@ -31,6 +32,10 @@ export class HomeComponent implements OnInit {
       // 2. Carrega Últimos Guias
       const guides = await firstValueFrom(this.api.getLatestGuides());
       this.recentGuides.set(guides.slice(0, 4));
+
+      // 3. Carrega Notícias
+      const newsPage = await firstValueFrom(this.api.getLatestNews(0, 4));
+      this.latestNews.set(newsPage.content);
     } catch (e) {
       console.error('Erro de API, redirecionando para manutenção:', e);
       this.router.navigate(['/maintenance']);
@@ -114,44 +119,7 @@ export class HomeComponent implements OnInit {
     { name: 'Cyberpunk 2077', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg', guidesCount: 30 }
   ]);
 
-  latestNews = signal([
-    {
-      id: '1',
-      title: 'Atualização Massiva: Tudo o que chega na nova season do Helldivers 2 e as novas patentes',
-      source: 'PlayStation Blog',
-      imageUrl: 'https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=2000&auto=format&fit=crop',
-      link: '#',
-      publishedAt: 'Há 2 horas',
-      isFeatured: true
-    },
-    {
-      id: '2',
-      title: 'Rumor: Novo jogo do Spider-Man pode ter modo co-op online',
-      source: 'IGN Brasil',
-      imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop',
-      link: '#',
-      publishedAt: 'Há 4 horas',
-      isFeatured: false
-    },
-    {
-      id: '3',
-      title: 'Review: Final Fantasy VII Rebirth é a obra-prima que esperávamos',
-      source: 'MeuPlayStation',
-      imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop',
-      link: '#',
-      publishedAt: 'Há 6 horas',
-      isFeatured: false
-    },
-    {
-      id: '4',
-      title: 'Os 10 jogos mais aguardados para o próximo mês de outubro',
-      source: 'GameSpot',
-      imageUrl: 'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?q=80&w=2070&auto=format&fit=crop',
-      link: '#',
-      publishedAt: 'Há 12 horas',
-      isFeatured: false
-    }
-  ]);
+  latestNews = signal<NewsArticleResponse[]>([]);
 
   topHunters = signal<Array<{ rank: number; username: string; platinums: number; level: number; avatarUrl?: string | null }>>([]);
 }
