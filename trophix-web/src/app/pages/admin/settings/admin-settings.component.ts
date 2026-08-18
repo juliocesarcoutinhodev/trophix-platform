@@ -3,17 +3,18 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../../core/services/admin.service';
 import { GlobalSettings } from '../../../core/models/api.models';
+import { AdminGamesComponent } from '../games/admin-games.component';
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, AdminGamesComponent],
   templateUrl: './admin-settings.component.html',
 })
 export class AdminSettingsComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   
-  protected readonly activeTab = signal<'general' | 'appearance' | 'moderation' | 'seo'>('general');
+  protected readonly activeTab = signal<'general' | 'appearance' | 'moderation' | 'seo' | 'games'>('general');
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
   protected readonly uploadingLogo = signal(false);

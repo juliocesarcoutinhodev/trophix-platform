@@ -9,6 +9,7 @@ export interface GameCatalogDTO {
   coverUrl: string;
   players?: number; // Depending on backend
   progress?: number; // Only for logged in user
+  isFeatured?: boolean;
 }
 
 export interface Page<T> {
@@ -27,14 +28,10 @@ export class GameService {
   private http = inject(HttpClient);
   private apiUrl = '/api';
 
-  getTrendingGames(limit: number = 20): Observable<GameCatalogDTO[]> {
-    return this.http.get<GameCatalogDTO[]>(`${this.apiUrl}/public/games/trending`, {
-      params: { limit: limit.toString() }
-    });
-  }
-
-  getPublicGames(page: number = 0, size: number = 20, search?: string): Observable<Page<GameCatalogDTO>> {
-    let params = new HttpParams().set('page', page).set('size', size);
+  getPublicGames(page: number, size: number, search?: string): Observable<Page<GameCatalogDTO>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     if (search) {
       params = params.set('search', search);
     }

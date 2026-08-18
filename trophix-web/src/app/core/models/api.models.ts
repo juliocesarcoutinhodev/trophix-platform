@@ -50,6 +50,7 @@ export interface GameDetail {
     silver: number;
     bronze: number;
   };
+  isFeatured?: boolean;
 }
 
 export interface TrophyStatus {

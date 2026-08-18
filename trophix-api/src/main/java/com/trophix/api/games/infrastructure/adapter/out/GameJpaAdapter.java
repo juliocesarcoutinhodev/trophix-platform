@@ -3,6 +3,7 @@ package com.trophix.api.games.infrastructure.adapter.out;
 import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.model.Game;
 import com.trophix.api.games.model.GameSaveResult;
+import com.trophix.api.games.model.TrendingGame;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +37,12 @@ public class GameJpaAdapter implements GameRepositoryPort {
         }
         GameEntity saved = springDataRepository.save(mapper.toEntity(game));
         return new GameSaveResult(mapper.toDomain(saved), true);
+    }
+
+    @Override
+    @Transactional
+    public Game save(Game game) {
+        return mapper.toDomain(springDataRepository.save(mapper.toEntity(game)));
     }
 
     @Override
@@ -78,10 +85,17 @@ public class GameJpaAdapter implements GameRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Game> findTrending(int limit) {
-        int safeLimit = Math.max(1, Math.min(limit, 50));
-        return springDataRepository.findTrending(PageRequest.of(0, safeLimit)).stream()
-                .map(mapper::toDomain)
+    public List<TrendingGame> findFeatured(int limit) {
+        return springDataRepository.findFeaturedGames(PageRequest.of(0, Math.max(1, Math.min(limit, 50)))).stream()
+                .map(row -> new TrendingGame(row.getId(), row.getName(), row.getImageUrl(), row.getGuidesCount()))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrendingGame> findPopular(int limit) {
+        return springDataRepository.findPopularGames(PageRequest.of(0, Math.max(1, Math.min(limit, 50)))).stream()
+                .map(row -> new TrendingGame(row.getId(), row.getName(), row.getImageUrl(), row.getGuidesCount()))
                 .toList();
     }
 }

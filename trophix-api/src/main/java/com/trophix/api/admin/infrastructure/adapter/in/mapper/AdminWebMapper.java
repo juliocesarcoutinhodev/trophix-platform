@@ -3,12 +3,14 @@ package com.trophix.api.admin.infrastructure.adapter.in.mapper;
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.GetSidecarStatusUseCase;
 import com.trophix.api.admin.application.ports.in.GetSystemHealthUseCase;
+import com.trophix.api.admin.application.ports.in.SetGameFeaturedUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SidecarStatusResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SystemHealthResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGameFeaturedRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.shared.model.Role;
 import com.trophix.api.guides.model.Guide;
@@ -77,6 +79,11 @@ public class AdminWebMapper {
     public UpdateGuideUseCase.UpdateGuideCommand toUpdateGuideCommand(UUID guideId, UpdateGuideRequest request) {
         return new UpdateGuideUseCase.UpdateGuideCommand(
                 guideId, request.title(), request.description(), request.content(), request.videoUrl());
+    }
+
+    public SetGameFeaturedUseCase.SetGameFeaturedCommand toSetGameFeaturedCommand(
+            UUID gameId, UpdateGameFeaturedRequest request) {
+        return new SetGameFeaturedUseCase.SetGameFeaturedCommand(gameId, request.isFeatured());
     }
 
     public SidecarStatusResponse toSidecarStatusResponse(GetSidecarStatusUseCase.SidecarStatus status) {

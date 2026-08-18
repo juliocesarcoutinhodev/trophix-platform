@@ -13,7 +13,8 @@ public class GameMapper {
                 entity.getName(),
                 entity.getImageUrl(),
                 entity.getPlatform(),
-                entity.getTotalTrophies());
+                entity.getTotalTrophies(),
+                entity.isFeatured());
     }
 
     public GameEntity toEntity(Game game) {
@@ -24,6 +25,7 @@ public class GameMapper {
         entity.setImageUrl(game.imageUrl());
         entity.setPlatform(game.platform());
         entity.setTotalTrophies(game.totalTrophies());
+        entity.setFeatured(game.featured());
         return entity;
     }
 }

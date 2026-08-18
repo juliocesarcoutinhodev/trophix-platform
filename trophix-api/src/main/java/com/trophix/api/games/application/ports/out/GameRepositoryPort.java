@@ -2,6 +2,7 @@ package com.trophix.api.games.application.ports.out;
 
 import com.trophix.api.games.model.Game;
 import com.trophix.api.games.model.GameSaveResult;
+import com.trophix.api.games.model.TrendingGame;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,6 +21,9 @@ public interface GameRepositoryPort {
      */
     GameSaveResult saveIfNotExists(Game game);
 
+    /** Persists the given game state (used for updates). */
+    Game save(Game game);
+
     Optional<Game> findById(UUID gameId);
 
     Optional<Game> findByNpCommunicationId(String npCommunicationId);
@@ -36,6 +40,9 @@ public interface GameRepositoryPort {
     /** Public catalog: games ordered by number of owners (user_games), newest-tie by name. */
     Page<Game> findCatalog(String search, Pageable pageable);
 
-    /** Most owned / recently synced games, limited. */
-    List<Game> findTrending(int limit);
+    /** Manually featured games, most recently registered first. */
+    List<TrendingGame> findFeatured(int limit);
+
+    /** Most played games (highest number of linked players), newest first on tie. */
+    List<TrendingGame> findPopular(int limit);
 }

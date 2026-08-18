@@ -7,6 +7,7 @@ import com.trophix.api.admin.application.ports.in.GetSidecarStatusUseCase;
 import com.trophix.api.admin.application.ports.in.GetSystemHealthUseCase;
 import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
 import com.trophix.api.admin.application.ports.in.ListAllGuidesUseCase;
+import com.trophix.api.admin.application.ports.in.SetGameFeaturedUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
@@ -14,6 +15,7 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SidecarStatusResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SystemHealthResponse;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGameFeaturedRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
@@ -31,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -61,6 +64,7 @@ public class AdminController {
     private final UpdateGuideUseCase updateGuideUseCase;
     private final DeleteGuideUseCase deleteGuideUseCase;
     private final ReviewGuideUseCase reviewGuideUseCase;
+    private final SetGameFeaturedUseCase setGameFeaturedUseCase;
     private final AdminWebMapper adminWebMapper;
     private final GuideWebMapper guideWebMapper;
 
@@ -158,5 +162,13 @@ public class AdminController {
         String message = reviewGuideUseCase.review(UUID.fromString(adminId), guideId,
                 ReviewGuideUseCase.ReviewAction.REJECT);
         return ResponseEntity.ok(new MessageResponse(message));
+    }
+
+    @PatchMapping("/games/{gameId}/feature")
+    public ResponseEntity<MessageResponse> updateGameFeatured(
+            @PathVariable UUID gameId,
+            @Valid @RequestBody UpdateGameFeaturedRequest request) {
+        setGameFeaturedUseCase.execute(adminWebMapper.toSetGameFeaturedCommand(gameId, request));
+        return ResponseEntity.ok(new MessageResponse("Destaque do jogo atualizado com sucesso."));
     }
 }

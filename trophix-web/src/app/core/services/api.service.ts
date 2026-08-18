@@ -115,6 +115,11 @@ export class ApiService {
     return this.http.post<MessageResponse>(`/api/games/${gameId}/sync-trophies`, {});
   }
 
+  // ---- Admin ----
+  toggleGameFeature(gameId: string, isFeatured: boolean) {
+    return this.http.patch<MessageResponse>(`/api/admin/games/${gameId}/feature`, { isFeatured });
+  }
+
   // ---- Guides ----
   getLatestGuides(search?: string) {
     let params: any = {};

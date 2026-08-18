@@ -5,5 +5,6 @@ import java.util.UUID;
 public record GameCatalogDTO(
         UUID id,
         String name,
-        String coverUrl) {
+        String coverUrl,
+        boolean isFeatured) {
 }

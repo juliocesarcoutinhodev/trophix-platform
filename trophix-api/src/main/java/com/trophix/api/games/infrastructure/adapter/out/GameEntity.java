@@ -34,4 +34,7 @@ public class GameEntity {
 
     @Column(nullable = false)
     private Integer totalTrophies;
+
+    @Column(name = "is_featured", nullable = false)
+    private boolean featured = false;
 }

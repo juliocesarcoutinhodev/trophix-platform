@@ -2,6 +2,7 @@ package com.trophix.api.games.infrastructure.adapter.in;
 
 import com.trophix.api.games.application.ports.in.GetGameCatalogUseCase;
 import com.trophix.api.games.infrastructure.adapter.in.dto.GameCatalogDTO;
+import com.trophix.api.games.infrastructure.adapter.in.dto.TrendingGameResponse;
 import com.trophix.api.games.infrastructure.adapter.in.mapper.GameWebMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,10 +40,14 @@ public class GameCatalogController {
         return ResponseEntity.ok(catalog);
     }
 
+    /**
+     * Hybrid trending for the home page: manually featured games first, then the
+     * most played ones, up to a maximum of 5.
+     */
     @GetMapping("/trending")
-    public ResponseEntity<List<GameCatalogDTO>> getTrending(@RequestParam(defaultValue = "10") int limit) {
-        List<GameCatalogDTO> trending = getGameCatalogUseCase.getTrending(limit).stream()
-                .map(gameWebMapper::toGameCatalogDTO)
+    public ResponseEntity<List<TrendingGameResponse>> getTrending(@RequestParam(defaultValue = "5") int limit) {
+        List<TrendingGameResponse> trending = getGameCatalogUseCase.getTrending(limit).stream()
+                .map(gameWebMapper::toTrendingGameResponse)
                 .toList();
         return ResponseEntity.ok(trending);
     }
