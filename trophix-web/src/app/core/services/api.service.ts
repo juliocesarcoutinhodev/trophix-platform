@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse, NewsArticleResponse, TrendingGameResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
+  private readonly adminUrl = '/api/admin';
 
   // ---- Auth ----
   login(email: string, password: string) {
@@ -137,6 +139,15 @@ export class ApiService {
 
   submitGameGuide(gameId: string, request: SubmitGuideRequest) {
     return this.http.post<MessageResponse>(`/api/games/${gameId}/guides`, request);
+  }
+
+  // ADMIN: PSN Import
+  searchPsnGames(query: string): Observable<{ id: string, name: string, coverUrl: string }[]> {
+    return this.http.get<{ id: string, name: string, coverUrl: string }[]>(`${this.adminUrl}/games/search-psn`, { params: { q: query } });
+  }
+
+  importGameFromPsn(npCommunicationId: string): Observable<void> {
+    return this.http.post<void>(`${this.adminUrl}/games/import`, null, { params: { npCommunicationId } });
   }
 
   // ---- News ----

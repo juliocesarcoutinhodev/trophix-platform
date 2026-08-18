@@ -37,6 +37,10 @@ export class AdminGamesComponent implements OnInit {
       });
   }
 
+  protected readonly importModalOpen = signal(false);
+  protected readonly importSearchQuery = signal('');
+  protected readonly importLoading = signal(false);
+
   ngOnInit(): void {
     // initial load is triggered by the subscribe in constructor due to signal initial value
   }
@@ -52,6 +56,33 @@ export class AdminGamesComponent implements OnInit {
       this.error.set(apiErrorMessage(e, 'Erro ao carregar jogos.'));
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  protected openImportModal(): void {
+    this.importSearchQuery.set('');
+    this.importModalOpen.set(true);
+  }
+
+  protected closeImportModal(): void {
+    this.importModalOpen.set(false);
+  }
+
+  protected async importGame(): Promise<void> {
+    if (!this.importSearchQuery().trim()) return;
+    
+    this.importLoading.set(true);
+    this.error.set(null);
+    
+    try {
+      await firstValueFrom(this.apiService.importGameFromPsn(this.importSearchQuery().trim()));
+      this.successMessage.set('Jogo importado com sucesso!');
+      this.closeImportModal();
+      this.loadGames(); // Refresh list
+    } catch (e) {
+      this.error.set(apiErrorMessage(e, 'Erro ao importar jogo. Verifique se o ID está correto ou se o backend já tem essa rota implementada.'));
+    } finally {
+      this.importLoading.set(false);
     }
   }
 
