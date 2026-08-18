@@ -90,6 +90,8 @@ public class SecurityConfig {
                         // Catálogo híbrido: catálogo de games + feed de troféus públicos
                         .requestMatchers(HttpMethod.GET, "/api/public/games", "/api/public/games/trending").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/trophies/feed").permitAll()
+                        // Health check público e ultraleve (ping do frontend)
+                        .requestMatchers(HttpMethod.GET, "/api/public/health").permitAll()
                         .anyRequest().authenticated())
 
                 // Filtro JWT executa antes do filtro padrão de autenticação
