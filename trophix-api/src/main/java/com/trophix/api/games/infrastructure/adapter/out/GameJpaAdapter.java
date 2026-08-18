@@ -4,6 +4,7 @@ import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.model.Game;
 import com.trophix.api.games.model.GameSaveResult;
 import com.trophix.api.games.model.TrendingGame;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ public class GameJpaAdapter implements GameRepositoryPort {
 
     private final GameSpringDataRepository springDataRepository;
     private final GameMapper mapper;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
@@ -42,7 +44,16 @@ public class GameJpaAdapter implements GameRepositoryPort {
     @Override
     @Transactional
     public Game save(Game game) {
-        return mapper.toDomain(springDataRepository.save(mapper.toEntity(game)));
+        return mapper.toDomain(springDataRepository.saveAndFlush(mapper.toEntity(game)));
+    }
+
+    @Override
+    @Transactional
+    public Game insert(Game game) {
+        GameEntity entity = mapper.toEntity(game);
+        entityManager.persist(entity);
+        entityManager.flush();
+        return mapper.toDomain(entity);
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGameFeaturedReq
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
+import com.trophix.api.games.application.ports.in.ImportGameUseCase;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
 import com.trophix.api.shared.dto.MessageResponse;
@@ -65,6 +66,7 @@ public class AdminController {
     private final DeleteGuideUseCase deleteGuideUseCase;
     private final ReviewGuideUseCase reviewGuideUseCase;
     private final SetGameFeaturedUseCase setGameFeaturedUseCase;
+    private final ImportGameUseCase importGameUseCase;
     private final AdminWebMapper adminWebMapper;
     private final GuideWebMapper guideWebMapper;
 
@@ -170,5 +172,12 @@ public class AdminController {
             @Valid @RequestBody UpdateGameFeaturedRequest request) {
         setGameFeaturedUseCase.execute(adminWebMapper.toSetGameFeaturedCommand(gameId, request));
         return ResponseEntity.ok(new MessageResponse("Destaque do jogo atualizado com sucesso."));
+    }
+
+    @PostMapping("/games/import")
+    public ResponseEntity<MessageResponse> importGame(
+            @RequestParam String npCommunicationId) {
+        importGameUseCase.execute(new ImportGameUseCase.ImportGameCommand(npCommunicationId));
+        return ResponseEntity.ok(new MessageResponse("Jogo importado da PSN com sucesso."));
     }
 }

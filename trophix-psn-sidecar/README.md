@@ -63,6 +63,23 @@ Retorna a lista base de troféus do jogo (grupo `all`, inclui DLCs):
 
 `tipo` assume `Bronze`, `Silver`, `Gold` ou `Platinum`. `404` quando o jogo não existe na PSN.
 
+### `GET /api/jogos/:npCommunicationId/details`
+
+Retorna os dados oficiais do título (nome, capa, plataforma e total de troféus) a partir do `npCommunicationId` (formato NPWR). Usado pelo painel admin da Trophix API para a importação de jogos:
+
+```json
+{
+  "name": "ASTRO BOT",
+  "coverUrl": "https://psnobj.prod.dl.playstation.net/psnobj/NPWR24170_00/...png",
+  "platform": "PS5",
+  "totalTrophies": 63
+}
+```
+
+- `400` quando o id não é um NPWR (ex.: PPSA/CUSA, que não possuem dados de troféus).
+- `404` quando o jogo não existe na PSN.
+- `502` quando a consulta à PSN falha.
+
 ## Estrutura
 
 ```
@@ -72,5 +89,6 @@ src/
 ├── psnClient.js      # autenticação NPSSO + refresh de token + wrapper com retry
 └── routes/
     ├── perfil.js     # GET /api/perfil/:psnId
-    └── trofeus.js    # GET /api/jogos/:npCommunicationId/trofeus
+    ├── trofeus.js    # GET /api/jogos/:npCommunicationId/trofeus e .../trofeus-conquistados/:accountId
+    └── detalhes.js   # GET /api/jogos/:npCommunicationId/details
 ```

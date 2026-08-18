@@ -2534,6 +2534,120 @@
               "body": "{\n    \"siteName\": \"Trophix BR\",\n    \"contactEmail\": \"contato@trophix.com\",\n    \"discordUrl\": \"https://discord.gg/trophix\",\n    \"twitterUrl\": \"https://x.com/trophix\",\n    \"youtubeUrl\": \"\",\n    \"instagramUrl\": \"\",\n    \"heroTitle\": \"Guias de troféus da PSN\",\n    \"heroSubtitle\": \"Ajude a comunidade a platinar\",\n    \"globalAlertEnabled\": true,\n    \"globalAlertText\": \"Manutenção sábado às 22h\",\n    \"footerText\": \"Feito pela comunidade\",\n    \"requireGuideApproval\": true,\n    \"forbiddenWords\": \"spoiler,cheat\",\n    \"metaTitle\": \"Trophix — Guias\",\n    \"metaDescription\": \"Descubra guias e roadmaps\"\n}"
             }
           ]
+        },
+        {
+          "name": "Marcar/Desmarcar Destaque de Jogo (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"isFeatured\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/games/{{gameId}}/feature",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "games",
+                "{{gameId}}",
+                "feature"
+              ]
+            },
+            "description": "Marca/desmarca um jogo como destaque manual (usado no Trending híbrido da Home).\n\nProtegida por ROLE_ADMIN.\n\nRespostas:\n- 200: message de sucesso\n- 400: isFeatured ausente\n- 403: sem ROLE_ADMIN\n- 404: jogo não encontrado"
+          },
+          "response": [
+            {
+              "name": "Destaque atualizado (200)",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"isFeatured\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/games/{{gameId}}/feature"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Destaque do jogo atualizado com sucesso.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Importar Jogo da PSN (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/games/import?npCommunicationId={{npCommunicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "games",
+                "import"
+              ],
+              "query": [
+                {
+                  "key": "npCommunicationId",
+                  "value": "{{npCommunicationId}}"
+                }
+              ]
+            },
+            "description": "Importa um jogo da PSN via sidecar: busca detalhes oficiais (/details) e o catálogo de troféus (/trofeus), baixa a capa e os ícones para o MinIO e salva o Game + Trophies no banco. Idempotente: se o jogo já existe, atualiza os dados sem duplicar troféus.\n\nProtegida por ROLE_ADMIN. Pode demorar (download de todos os ícones).\n\nRespostas:\n- 200: message de sucesso\n- 403: sem ROLE_ADMIN\n- 404: jogo não encontrado na PSN\n- 409: falha de integridade\n- 502: sidecar/PSN indisponível"
+          },
+          "response": [
+            {
+              "name": "Jogo importado (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/games/import?npCommunicationId=NPWR12453_00"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Jogo importado da PSN com sucesso.\"\n}"
+            }
+          ]
         }
       ]
     },
@@ -3070,9 +3184,30 @@
                 }
               ]
             },
-            "description": "Catálogo da base interna de jogos, paginado e ordenado por nº de donos (user_games). search filtra por nome.\n\nRota pública.\n\nResposta: Page<GameCatalogDTO> (id, name, coverUrl)."
+            "description": "Catálogo da base interna de jogos, paginado e ordenado por nº de donos (user_games). search filtra por nome.\n\nRota pública.\n\nResposta: Page<GameCatalogDTO> (id, name, coverUrl, isFeatured)."
           },
-          "response": []
+          "response": [
+            {
+              "name": "Catálogo com isFeatured (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/public/games?page=0&size=2"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": \"019ff741-f2f9-7e16-8fbd-69196f71399d\",\n            \"name\": \"ASTRO BOT\",\n            \"coverUrl\": \"https://psnobj.prod.dl.playstation.net/psnobj/NPWR24170_00/98d93fe3-44bb-49bf-8e88-9b7c3e6570d4.png\",\n            \"isFeatured\": false\n        }\n    ],\n    \"totalElements\": 1,\n    \"totalPages\": 1,\n    \"size\": 2,\n    \"number\": 0\n}"
+            }
+          ]
         },
         {
           "name": "Jogos em Alta / Trending (público)",
@@ -3080,7 +3215,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/public/games/trending",
+              "raw": "{{baseUrl}}/api/public/games/trending?limit=5",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -3093,13 +3228,34 @@
               "query": [
                 {
                   "key": "limit",
-                  "value": "10"
+                  "value": "5"
                 }
               ]
             },
-            "description": "Jogos mais jogados / recém-sincronizados.\n\nRota pública.\n\nResposta: lista de GameCatalogDTO."
+            "description": "Jogos em alta para a Home: primeiro os marcados como destaque (isFeatured=true) e depois os mais jogados (maior nº de jogadores vinculados), até no máximo 5.\n\nRota pública.\n\nResposta: lista de TrendingGameResponse (id, name, imageUrl, guidesCount)."
           },
-          "response": []
+          "response": [
+            {
+              "name": "Trending híbrido (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/public/games/trending?limit=5"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "[\n    {\n        \"id\": \"019ff741-f2f9-7e16-8fbd-69196f71399d\",\n        \"name\": \"ASTRO BOT\",\n        \"imageUrl\": \"https://psnobj.prod.dl.playstation.net/psnobj/NPWR24170_00/98d93fe3-44bb-49bf-8e88-9b7c3e6570d4.png\",\n        \"guidesCount\": 0\n    }\n]"
+            }
+          ]
         },
         {
           "name": "Feed Global de Atividades (público)",
@@ -3131,6 +3287,42 @@
             "description": "Feed de quem conquistou qual troféu recentemente (earnedAt desc), enriquecido com username, avatar, trophyName, trophyType (Platinum/Gold/Silver/Bronze), trophyIconUrl e gameName.\n\nRota pública.\n\nResposta: Page<ActivityFeedDTO>."
           },
           "response": []
+        },
+        {
+          "name": "Health Check (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "health"
+              ]
+            },
+            "description": "Ping ultraleve para o frontend verificar se a API está de pé. Não toca em banco de dados nem Use Case.\n\nRota pública (permitAll).\n\nResposta:\n- 200: vazio (body vazio)"
+          },
+          "response": [
+            {
+              "name": "UP (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/public/health"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "body": ""
+            }
+          ]
         },
         {
           "name": "Troféus Faltantes (logado)",

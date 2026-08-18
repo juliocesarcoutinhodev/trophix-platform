@@ -294,6 +294,59 @@
           "body": "{\n    \"error\": \"Conta nao encontrada ou privada\"\n}"
         }
       ]
+    },
+    {
+      "name": "Detalhes Oficiais de um Jogo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/details",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "jogos", "{{npCommunicationId}}", "details"]
+        },
+        "description": "Retorna os dados oficiais do título (nome, capa, plataforma e total de troféus) a partir do npCommunicationId (NPWR). Usado pelo painel admin para a importação de jogos.\n\nRespostas:\n- 200: nome, capa e contagem oficial\n- 400: id inválido (não é um NPWR)\n- 404: jogo inexistente na PSN\n- 502: falha na consulta à PSN"
+      },
+      "response": [
+        {
+          "name": "Detalhes encontrados (200)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/details",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "details"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"name\": \"ASTRO BOT\",\n    \"coverUrl\": \"https://psnobj.prod.dl.playstation.net/psnobj/NPWR24170_00/98d93fe3-44bb-49bf-8e88-9b7c3e6570d4.png\",\n    \"platform\": \"PS5\",\n    \"totalTrophies\": 63\n}"
+        },
+        {
+          "name": "ID inválido (400)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/jogos/{{npCommunicationId}}/details",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jogos", "{{npCommunicationId}}", "details"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n    \"error\": \"npCommunicationId invalido: esperado um id NPWR (ex.: NPWR24170_00)\"\n}"
+        }
+      ]
     }
   ]
 }

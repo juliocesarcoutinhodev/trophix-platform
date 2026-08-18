@@ -50,9 +50,41 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
 
   protected statusFilter = signal<string>('');
   protected searchQuery = signal<string>('');
-  protected typeFilter = signal<'game' | 'trophy' | undefined>(undefined);
-  protected viewMode = signal<'cards' | 'table'>('table');
+  protected readonly typeFilter = signal<'game' | 'trophy' | undefined>(undefined);
+  protected readonly viewMode = signal<'cards' | 'table'>('table');
   private searchTimeout: any;
+
+  // PSN Import State
+  protected readonly importModalOpen = signal(false);
+  protected readonly importSearchQuery = signal('');
+  protected readonly importLoading = signal(false);
+
+  protected openImportModal(): void {
+    this.importSearchQuery.set('');
+    this.importModalOpen.set(true);
+  }
+
+  protected closeImportModal(): void {
+    this.importModalOpen.set(false);
+  }
+
+  protected async importGame(): Promise<void> {
+    if (!this.importSearchQuery().trim()) return;
+    
+    this.importLoading.set(true);
+    this.error.set(null);
+    
+    try {
+      await firstValueFrom(this.api.importGameFromPsn(this.importSearchQuery().trim()));
+      this.successMessage.set('Jogo importado com sucesso da PSN!');
+      this.closeImportModal();
+      // Optional: Could navigate to create guide or just show success
+    } catch (e: any) {
+      this.error.set(e.error?.detalhe || e.error?.error || 'Erro ao importar jogo. Verifique se o ID está correto ou se a PSN está respondendo.');
+    } finally {
+      this.importLoading.set(false);
+    }
+  }
 
   togglePreview(guideId: string): void {
     this.previewStates.update(states => ({

@@ -106,6 +106,38 @@ public class MinioStorageService {
         return publicUrl(objectName);
     }
 
+    /**
+     * Uploads raw bytes (e.g. a remote image downloaded by a job) into
+     * {@code folder} and returns its public URL.
+     *
+     * @param stream      the raw content to store
+     * @param size        content length in bytes
+     * @param contentType MIME type of the content
+     * @param folder      destination folder under the bucket
+     * @param filename    original file name, used only to infer the extension
+     */
+    public String upload(InputStream stream, long size, String contentType, String folder, String filename) {
+        if (stream == null || size <= 0) {
+            throw new StorageException("Nenhum arquivo enviado.");
+        }
+        String objectName = objectName(folder, filename);
+        try {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(properties.bucket())
+                    .object(objectName)
+                    .stream(stream, size, -1)
+                    .contentType(contentType != null ? contentType : "application/octet-stream")
+                    .build());
+        } catch (ErrorResponseException e) {
+            log.error("MinIO recusou o upload de '{}'", objectName, e);
+            throw new StorageException("Falha ao armazenar o arquivo. Verifique as credenciais do MinIO.");
+        } catch (Exception e) {
+            log.error("Falha no upload do arquivo '{}'", objectName, e);
+            throw new StorageException("Falha ao armazenar o arquivo. Tente novamente.");
+        }
+        return publicUrl(objectName);
+    }
+
     private String objectName(String folder, String originalFilename) {
         String extension = extensionOf(originalFilename);
         String name = UUID.randomUUID().toString().replace("-", "");

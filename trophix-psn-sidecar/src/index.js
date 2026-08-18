@@ -5,6 +5,7 @@ const perfilRouter = require("./routes/perfil");
 const trofeusRouter = require("./routes/trofeus");
 const resumoRouter = require("./routes/resumo");
 const jogosUsuarioRouter = require("./routes/jogosUsuario");
+const detalhesRouter = require("./routes/detalhes");
 
 async function bootstrap() {
   if (!config.npssoToken) {
@@ -30,6 +31,7 @@ async function bootstrap() {
   app.use(trofeusRouter);
   app.use(resumoRouter);
   app.use(jogosUsuarioRouter);
+  app.use(detalhesRouter);
 
   app.get("/health", (req, res) => {
     res.json({ status: "UP" });

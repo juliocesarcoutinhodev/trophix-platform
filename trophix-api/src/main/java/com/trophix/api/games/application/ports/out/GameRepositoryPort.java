@@ -24,6 +24,9 @@ public interface GameRepositoryPort {
     /** Persists the given game state (used for updates). */
     Game save(Game game);
 
+    /** Persists a brand-new game, keeping its assigned id. */
+    Game insert(Game game);
+
     Optional<Game> findById(UUID gameId);
 
     Optional<Game> findByNpCommunicationId(String npCommunicationId);

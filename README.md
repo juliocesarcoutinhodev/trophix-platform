@@ -232,6 +232,7 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | ---- | --------- |
 | `GET /api/perfil/:psnId` | Perfil público (psnId, aboutMe, avatarUrl) |
 | `GET /api/jogos/:npCommunicationId/trofeus` | Catálogo de troféus do jogo (com cache) |
+| `GET /api/jogos/:npCommunicationId/details` | **Detalhes oficiais** do título (name, coverUrl, platform, totalTrophies) — usado na importação admin |
 | `GET /api/jogos/:npCommunicationId/trofeus-conquistados/:accountId` | Status de conquista de cada troféu (com cache) |
 | `GET /api/resumo/:psnId` | Nível, progresso e totais do jogador |
 | `GET /api/jogos-usuario/:accountId` | Histórico de jogos com progresso e troféus |
@@ -263,8 +264,9 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 ### Games / Troféus
 | Método | Rota | Acesso | Descrição |
 | ------ | ---- | ------ | --------- |
-| GET | `/api/public/games?page=&size=&search=` | público | **Catálogo** da base interna: jogos paginados ordenados por nº de donos (`user_games`); `search` filtra por nome (case-insensitive) |
-| GET | `/api/public/games/trending?limit=10` | público | **Em alta**: jogos mais jogados/recém-sincronizados (limit default 10, máx 50) |
+| GET | `/api/public/health` | público | **Ping ultraleve** (Health Check) para o frontend: responde `200` vazio sem tocar em banco/use cases |
+| GET | `/api/public/games?page=&size=&search=` | público | **Catálogo** da base interna: jogos paginados ordenados por nº de donos (`user_games`); `search` filtra por nome (case-insensitive). Inclui `isFeatured` por jogo |
+| GET | `/api/public/games/trending?limit=5` | público | **Em alta (híbrido)** para a Home: primeiro os `isFeatured=true`, completando com os mais jogados até o limite (máx 5). Resposta: `TrendingGameResponse` (`id`, `name`, `imageUrl`, `guidesCount`) |
 | GET | `/api/public/trophies/feed?page=&size=` | público | **Feed global de atividades**: quem conquistou qual troféu recentemente (`earnedAt` desc), com `username`, `avatar`, `trophyName`, `trophyType` (Platinum/Gold/Silver/Bronze), `trophyIconUrl`, `gameName` |
 | GET | `/api/users/me/games/{gameId}/missing-trophies` | autenticado | Troféus do jogo que o usuário **ainda não conquistou** |
 | GET | `/api/users/me/trophies/missing?page=&size=` | autenticado | **Troféus pendentes globais**: troféus faltantes de todos os jogos do usuário, paginados (jogo mais recente primeiro), com `name`, `description`, `type`, `gameName`, `iconUrl`, `rarity` |
@@ -305,6 +307,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | POST | `/api/admin/reports/{reportId}/dismiss` | **ROLE_ADMIN** | Descarta a denúncia (OPEN → DISMISSED) |
 | GET | `/api/admin/settings` | **ROLE_ADMIN** | Configurações globais (ou defaults, se ainda não salvas) |
 | PUT | `/api/admin/settings` | **ROLE_ADMIN** | Salva as configurações globais (siteName, contato, redes, hero, alerta, footer, palavras proibidas, meta) |
+| PATCH | `/api/admin/games/{gameId}/feature` | **ROLE_ADMIN** | Marca/desmarca o **destaque manual** do jogo (`{"isFeatured": true/false}`) — alimenta o Trending híbrido da Home |
+| POST | `/api/admin/games/import?npCommunicationId=` | **ROLE_ADMIN** | **Importa um jogo da PSN**: busca detalhes/catálogo no sidecar, baixa capa e ícones para o MinIO e persiste `Game` + `Trophy` (idempotente) |
 
 > Proteção central no `SecurityConfig` (`.requestMatchers("/api/admin/**").hasRole("ADMIN")`). A troca de cargos revoga os refresh tokens do usuário, forçando novo login com o token atualizado.
 
