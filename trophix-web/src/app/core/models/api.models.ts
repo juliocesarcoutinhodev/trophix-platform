@@ -216,3 +216,10 @@ export interface NewsArticleResponse {
   publishedAt: string;
   isFeatured: boolean;
 }
+
+export interface TrendingGameResponse {
+  id: string;
+  name: string;
+  imageUrl: string;
+  guidesCount: number;
+}

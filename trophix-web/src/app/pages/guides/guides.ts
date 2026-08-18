@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiService } from '../../core/services/api.service';
@@ -22,6 +24,15 @@ export class Guides implements OnInit {
   protected readonly loading = signal(true);
   protected readonly searchQuery = signal<string | null>(null);
   protected searchInput = signal<string>('');
+
+  constructor() {
+    toObservable(this.searchInput).pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.onSearch();
+    });
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(async params => {

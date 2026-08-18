@@ -172,3 +172,49 @@
     }
   }
 </main>
+
+<!-- LOGIN MODAL -->
+@if (showLoginModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div 
+      class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+      (click)="showLoginModal.set(false)"
+    ></div>
+    
+    <!-- Modal Dialog -->
+    <div class="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+      <!-- Decorativo -->
+      <div class="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-violet-500/20 blur-3xl"></div>
+      
+      <div class="relative p-6 sm:p-8">
+        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-slate-100">Crie sua conta</h2>
+        <p class="mt-2 text-slate-400">
+          Para curtir este guia e salvar seu progresso nos troféus, você precisa estar conectado à Trophix.
+        </p>
+        
+        <div class="mt-8 flex flex-col gap-3">
+          <a routerLink="/login" class="flex w-full items-center justify-center rounded-lg bg-violet-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-violet-500">
+            Fazer Login
+          </a>
+          <a routerLink="/register" class="flex w-full items-center justify-center rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 font-semibold text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
+            Criar conta grátis
+          </a>
+        </div>
+        
+        <button 
+          (click)="showLoginModal.set(false)"
+          class="mt-6 flex w-full justify-center text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          Agora não
+        </button>
+      </div>
+    </div>
+  </div>
+}

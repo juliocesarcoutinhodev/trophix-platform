@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import { GuideResponse, TrophyStatus } from '../../core/models/api.models';
 @Component({
   selector: 'app-guide-detail',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './guide-detail.html',
 })
 export class GuideDetailComponent implements OnInit {
@@ -118,7 +118,14 @@ export class GuideDetailComponent implements OnInit {
     }
   }
 
+  showLoginModal = signal(false);
+
   async toggleVote() {
+    if (!this.auth.isAuthenticated()) {
+      this.showLoginModal.set(true);
+      return;
+    }
+
     const g = this.guide();
     if (!g || this.voting()) return;
 

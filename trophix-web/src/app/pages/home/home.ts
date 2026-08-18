@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
-import { GuideResponse, NewsArticleResponse } from '../../core/models/api.models';
+import { GuideResponse, NewsArticleResponse, TrendingGameResponse } from '../../core/models/api.models';
 
 @Component({
   selector: 'app-home',
@@ -36,6 +36,10 @@ export class HomeComponent implements OnInit {
       // 3. Carrega Notícias
       const newsPage = await firstValueFrom(this.api.getLatestNews(0, 4));
       this.latestNews.set(newsPage.content);
+
+      // 4. Carrega Jogos Populares (Trending Games)
+      const trending = await firstValueFrom(this.api.getTrendingGames());
+      this.trendingGames.set(trending);
     } catch (e) {
       console.error('Erro de API, redirecionando para manutenção:', e);
       this.router.navigate(['/maintenance']);
@@ -111,13 +115,7 @@ export class HomeComponent implements OnInit {
 
   recentGuides = signal<GuideResponse[]>([]);
 
-  trendingGames = signal([
-    { name: 'Elden Ring', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg', guidesCount: 12 },
-    { name: 'Final Fantasy VII Rebirth', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co7i0e.jpg', guidesCount: 8 },
-    { name: 'Helldivers 2', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co79i1.jpg', guidesCount: 24 },
-    { name: 'Baldur\'s Gate 3', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co670h.jpg', guidesCount: 15 },
-    { name: 'Cyberpunk 2077', imageUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvt.jpg', guidesCount: 30 }
-  ]);
+  trendingGames = signal<TrendingGameResponse[]>([]);
 
   latestNews = signal<NewsArticleResponse[]>([]);
 

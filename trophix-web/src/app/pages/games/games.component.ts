@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { GameService, GameCatalogDTO } from './game.service';
 import { UserGame } from '../../core/models/api.models';
@@ -35,8 +37,21 @@ export class GamesComponent implements OnInit {
   myGamesTotalPages = signal(0);
   myGamesTotalElements = signal(0);
 
+  constructor() {
+    toObservable(this.searchInput).pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      const trimmed = term.trim();
+      this.currentSearchQuery.set(trimmed ? trimmed : undefined);
+      this.loadCatalogGames(0);
+    });
+  }
+
   ngOnInit() {
-    this.loadCatalogGames(0);
+    // Initial load will be handled by the subscription on searchInput above, 
+    // because the signal starts with '' and triggers the observable.
+    // However, if we remove this, `loadCatalogGames(0)` is called exactly once by the constructor logic.
     if (this.auth.userSignal()) {
       this.activeTab.set('my-games');
       this.loadMyGames(0);
@@ -57,12 +72,6 @@ export class GamesComponent implements OnInit {
 
   onCatalogPageChange(newPage: number) {
     this.loadCatalogGames(newPage);
-  }
-
-  onSearch() {
-    const term = this.searchInput().trim();
-    this.currentSearchQuery.set(term ? term : undefined);
-    this.loadCatalogGames(0);
   }
 
   loadMyGames(page: number) {

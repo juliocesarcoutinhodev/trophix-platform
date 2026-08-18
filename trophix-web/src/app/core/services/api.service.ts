@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
-import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse, NewsArticleResponse } from '../models/api.models';
+import { GameDetail, MessageResponse, Page, TrophyStatus, UserGame, UserProfile, GuideResponse, SubmitGuideRequest, VoteResponse, NewsArticleResponse, TrendingGameResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -82,6 +82,10 @@ export class ApiService {
   }
 
   // ---- Games ----
+  getTrendingGames() {
+    return this.http.get<TrendingGameResponse[]>('/api/public/games/trending');
+  }
+
   getGameDetail(gameId: string) {
     return this.http.get<GameDetail>(`/api/games/${gameId}/detail`);
   }
