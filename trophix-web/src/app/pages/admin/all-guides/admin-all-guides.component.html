@@ -128,8 +128,54 @@
                     <textarea [(ngModel)]="editDescription" rows="2" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-slate-400">Conteúdo Completo</label>
-                    <textarea [(ngModel)]="editContent" rows="6" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 font-mono text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"></textarea>
+                    <div class="mb-2 flex items-center justify-between">
+                      <label class="block text-sm font-medium text-slate-400">Conteúdo Completo (Markdown)</label>
+                      <button 
+                        (click)="generateMainGuideAi(guide.id)"
+                        [disabled]="isGeneratingMainGuide()"
+                        class="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-fuchsia-600 to-violet-600 px-3 py-1 text-xs font-bold text-white transition-all hover:from-fuchsia-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-900/30"
+                      >
+                        @if (isGeneratingMainGuide()) {
+                          <div class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                          Pesquisando...
+                        } @else {
+                          ✨ Gerar Guia com IA
+                        }
+                      </button>
+                    </div>
+
+                    <div class="border-b border-slate-800 mb-2">
+                      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <button
+                          (click)="activeEditTab.set('write')"
+                          [class.border-violet-500]="activeEditTab() === 'write'"
+                          [class.text-violet-400]="activeEditTab() === 'write'"
+                          [class.border-transparent]="activeEditTab() !== 'write'"
+                          [class.text-slate-400]="activeEditTab() !== 'write'"
+                          class="whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors hover:border-violet-300 hover:text-violet-300"
+                        >
+                          Escrever
+                        </button>
+                        <button
+                          (click)="activeEditTab.set('preview')"
+                          [class.border-violet-500]="activeEditTab() === 'preview'"
+                          [class.text-violet-400]="activeEditTab() === 'preview'"
+                          [class.border-transparent]="activeEditTab() !== 'preview'"
+                          [class.text-slate-400]="activeEditTab() !== 'preview'"
+                          class="whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors hover:border-violet-300 hover:text-violet-300"
+                        >
+                          Preview
+                        </button>
+                      </nav>
+                    </div>
+
+                    @if (activeEditTab() === 'write') {
+                      <textarea [(ngModel)]="editContent" rows="6" [disabled]="isGeneratingMainGuide()" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 font-mono text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-wait"></textarea>
+                    } @else {
+                      <div class="w-full min-h-[160px] max-h-96 overflow-y-auto rounded-lg bg-slate-950 p-4 border border-slate-700">
+                        <div class="prose prose-invert prose-violet max-w-none text-sm" [innerHTML]="getParsedContent(editContent)"></div>
+                      </div>
+                    }
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-400">URL do Vídeo (Opcional)</label>
@@ -168,6 +214,20 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         {{ isPreviewing(guide.id) ? 'Código' : 'Preview' }}
+                      </button>
+
+                      <button 
+                        (click)="generateMainGuideAi(guide.id)"
+                        [disabled]="isGeneratingMainGuide() || processingId() === guide.id"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-fuchsia-400 transition-colors hover:bg-fuchsia-900/30 disabled:opacity-50"
+                        title="Forçar Geração com IA Novamente"
+                      >
+                        @if (isGeneratingMainGuide()) {
+                          <div class="h-3 w-3 animate-spin rounded-full border-2 border-fuchsia-400/30 border-t-fuchsia-400"></div>
+                        } @else {
+                          ✨
+                        }
+                        Gerar IA
                       </button>
 
                       <button 
@@ -312,16 +372,31 @@
                             <div>
                               <div class="mb-2 flex items-center justify-between">
                                 <label class="text-xs font-medium text-slate-400">Dica do Troféu (Markdown)</label>
-                                <button 
-                                  (click)="togglePreviewTip(trophy.id)"
-                                  class="flex items-center gap-1.5 rounded bg-violet-600/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-400 transition-colors hover:bg-violet-600/20"
-                                >
-                                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                  </svg>
-                                  {{ trophyTips()[trophy.id].isPreviewingTip ? 'Código' : 'Preview' }}
-                                </button>
+                                <div class="flex items-center gap-2">
+                                  <button 
+                                    (click)="generateTrophyTipAi(trophy.id, trophy.name)"
+                                    [disabled]="generatingTips()[trophy.id]"
+                                    class="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-fuchsia-600 to-violet-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white transition-all hover:from-fuchsia-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-violet-900/20"
+                                  >
+                                    @if (generatingTips()[trophy.id]) {
+                                      <div class="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                                      Gerando...
+                                    } @else {
+                                      ✨ Auto-Dica IA
+                                    }
+                                  </button>
+                                  
+                                  <button 
+                                    (click)="togglePreviewTip(trophy.id)"
+                                    class="flex items-center gap-1.5 rounded bg-violet-600/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-400 transition-colors hover:bg-violet-600/20"
+                                  >
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    {{ trophyTips()[trophy.id].isPreviewingTip ? 'Código' : 'Preview' }}
+                                  </button>
+                                </div>
                               </div>
                               
                               @if (trophyTips()[trophy.id].isPreviewingTip) {
@@ -333,7 +408,7 @@
                                   }
                                 </div>
                               } @else {
-                                <textarea [(ngModel)]="trophyTips()[trophy.id].content" rows="4" class="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600" placeholder="Como conquistar este troféu..."></textarea>
+                                <textarea [(ngModel)]="trophyTips()[trophy.id].content" rows="4" [disabled]="generatingTips()[trophy.id]" class="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-sm text-slate-200 outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600 disabled:opacity-50 disabled:cursor-wait" placeholder="Como conquistar este troféu..."></textarea>
                               }
                             </div>
                             <div>
@@ -359,19 +434,36 @@
               </div>
 
               <!-- Main Save / Cancel Actions -->
-              <div class="flex items-center justify-end gap-3 border-t border-slate-800 pt-6">
-                <button 
-                  (click)="cancelEditing()" 
-                  [disabled]="processingId() === guide.id"
-                  class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
-                  Cancelar
-                </button>
-                <button 
-                  (click)="updateGuide(guide.id)" 
-                  [disabled]="processingId() === guide.id"
-                  class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
-                  Salvar Guia Principal
-                </button>
+              <div class="flex items-center justify-between border-t border-slate-800 pt-6">
+                <div>
+                  <button 
+                    (click)="generateMainGuideAi(guide.id)"
+                    [disabled]="isGeneratingMainGuide() || processingId() === guide.id"
+                    class="flex items-center gap-2 rounded-lg border border-fuchsia-500/30 bg-fuchsia-600/10 px-4 py-2 text-sm font-semibold text-fuchsia-400 transition-colors hover:bg-fuchsia-600/20 disabled:opacity-50"
+                  >
+                    @if (isGeneratingMainGuide()) {
+                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-fuchsia-400/30 border-t-fuchsia-400"></div>
+                      Gerando...
+                    } @else {
+                      ✨ Forçar Geração IA
+                    }
+                  </button>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                  <button 
+                    (click)="cancelEditing()" 
+                    [disabled]="processingId() === guide.id"
+                    class="rounded-lg px-5 py-2 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200 disabled:opacity-50">
+                    Cancelar
+                  </button>
+                  <button 
+                    (click)="updateGuide(guide.id)" 
+                    [disabled]="processingId() === guide.id"
+                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
+                    Salvar Guia Principal
+                  </button>
+                </div>
               </div>
 
             </div>

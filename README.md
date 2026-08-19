@@ -225,6 +225,27 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_PSN_ID` | Seed do admin inicial (dev tem defaults) |
 | `TROPHIX_CORS_ORIGIN` | Origem CORS permitida (prod; dev usa `http://localhost:4200`) |
 | `TROPHIX_SIDECAR_BASEURL` | URL do sidecar (opcional; default `http://localhost:3000`) |
+| `GOOGLE_API_KEY` | **obrigatória** — chave do Google AI Studio (Gemini). Sem ela o app **não sobe** (o auto-config do Spring AI falha). Gere em `https://aistudio.google.com/app/apikey` |
+| `GOOGLE_AI_MODEL` | Modelo Gemini (default `gemini-3.6-flash`). Obs.: contas novas não têm acesso à linha `1.5/2.5` |
+| `TROPHIX_SIDECAR_BASEURL` | URL do sidecar PSN (default `http://localhost:3000`) |
+
+## Geração de guias com IA (Gemini + RabbitMQ)
+
+O admin dispara a geração por IA dos guias (roadmap/platina ou dica de troféu). Como o LLM demora, o fluxo é **100% assíncrono** e não prende a thread HTTP:
+
+```
+POST /api/admin/guides/{id}/generate-ai ──► RabbitMQ (trophix.ai.exchange ──► trophix.ai.queue) ──► @RabbitListener (worker)
+   (202 imediato)                                                                                        │
+                                                                                                        ▼
+                             gera via Gemini (gemini-3.6-flash + Search Grounding) ──► atualiza `content` (status preservado)
+```
+
+- **Google Search Grounding**: habilitado via `spring.ai.google.genai.chat.google-search-retrieval=true`, faz o modelo pesquisar na web real (PSNProfiles, PowerPyx etc.) em vez de alucinar troféus.
+- O adapter (`GeminiAiGuideGeneratorAdapter`) usa o `ChatClient` do Spring AI atrás da porta `AiGuideGeneratorPort` — o domínio não conhece Gemini.
+- **Falha controlada**: se o Gemini lançar exceção (timeout/429) ou retornar conteúdo vazio, o worker grava no `content` a mensagem `"Falha na geração do conteúdo via IA. Por favor, tente novamente..."` — o polling do front-end sai do loop imediatamente e avisa o usuário, em vez de travar no "Gerando conteúdo...".
+- **Retry + DLQ**: erros permanentes (guia/jogo/troféu inexistentes, troféu fora do guia) são logados e descartados; jobs esgotados caem na `trophix.ai.queue.dlq`.
+- O `content` é preenchido em Markdown limpo (sem blocos ```) e o status do guia (**`IMPORTED`/`PENDING`**) fica intacto para o admin revisar antes de aprovar.
+- **Quota**: o Search Grounding consome quota premium do Gemini — com chave free/temporária a chamada pode responder `429`; use uma chave com quota de grounding para produção.
 
 ## Endpoints do sidecar (porta 3000)
 
@@ -309,6 +330,8 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | PUT | `/api/admin/settings` | **ROLE_ADMIN** | Salva as configurações globais (siteName, contato, redes, hero, alerta, footer, palavras proibidas, meta) |
 | PATCH | `/api/admin/games/{gameId}/feature` | **ROLE_ADMIN** | Marca/desmarca o **destaque manual** do jogo (`{"isFeatured": true/false}`) — alimenta o Trending híbrido da Home |
 | POST | `/api/admin/games/import?npCommunicationId=` | **ROLE_ADMIN** | **Importa um jogo da PSN**: busca detalhes/catálogo no sidecar, baixa capa e ícones para o MinIO e persiste `Game` + `Trophy` (idempotente). Após importar, cria automaticamente um **guia draft vazio** (`status=IMPORTED`, título "Guia Oficial: {nome}", autor = admin) para a fila de moderação — idempotente (não duplica se já existe guia do jogo) |
+| POST | `/api/admin/guides/{guideId}/generate-ai` | **ROLE_ADMIN** | Dispara a **geração do roadmap/platina por IA** (Gemini + Search Grounding). Enfileira o job e responde **202 Accepted** imediatamente; o worker atualiza o `content` do guia em segundo plano, preservando o status (`IMPORTED`/`PENDING`) para revisão antes de aprovar |
+| POST | `/api/admin/guides/{guideId}/trophies/{trophyId}/generate-ai` | **ROLE_ADMIN** | Dispara a **geração de dica de um troféu por IA**. Mesmo fluxo assíncrono: 202 imediato, worker preenche o `content` do guia da dica preservando o status |
 
 > Proteção central no `SecurityConfig` (`.requestMatchers("/api/admin/**").hasRole("ADMIN")`). A troca de cargos revoga os refresh tokens do usuário, forçando novo login com o token atualizado.
 

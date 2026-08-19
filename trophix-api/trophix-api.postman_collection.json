@@ -2648,6 +2648,54 @@
               "body": "{\n    \"message\": \"Jogo importado da PSN com sucesso.\"\n}"
             }
           ]
+        },
+        {
+          "name": "Gerar Guia por IA (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/generate-ai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{baseUrl}}",
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}",
+                "generate-ai"
+              ]
+            },
+            "description": "Dispara a geracao do roadmap/platina do guia por IA (Gemini + Search Grounding). Responde 202 Accepted imediatamente; o worker atualiza o content em segundo plano preservando o status.\n\nProtegida por ROLE_ADMIN.\nRespostas:\n- 202: job enfileirado\n- 403: sem ROLE_ADMIN\n- 404: guia inexistente"
+          },
+          "response": []
+        },
+        {
+          "name": "Gerar Dica de Trofeu por IA (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}/trophies/{{trophyId}}/generate-ai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{baseUrl}}",
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}",
+                "trophies",
+                "{{trophyId}}",
+                "generate-ai"
+              ]
+            },
+            "description": "Dispara a geracao da dica de um trofeu especifico por IA (Gemini + Search Grounding). Responde 202 Accepted imediatamente; o worker preenche o content preservando o status.\n\nProtegida por ROLE_ADMIN.\nRespostas:\n- 202: job enfileirado\n- 403: sem ROLE_ADMIN\n- 404: guia/trofeu inexistente"
+          },
+          "response": []
         }
       ]
     },

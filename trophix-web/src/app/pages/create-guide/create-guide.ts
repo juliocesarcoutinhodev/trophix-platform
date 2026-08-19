@@ -11,6 +11,8 @@ import { AuthService } from '../../core/services/auth.service';
 
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 
+import { AdminService } from '../../core/services/admin.service';
+
 @Component({
   selector: 'app-create-guide',
   standalone: true,
@@ -21,6 +23,7 @@ export class CreateGuide implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   private readonly auth = inject(AuthService);
+  private readonly adminApi = inject(AdminService);
 
   modalOpen = false;
   modalTitle = '';
@@ -111,9 +114,91 @@ export class CreateGuide implements OnInit {
     }
   }
 
+  isGeneratingWithAi = signal(false);
+
+  async createAndGenerateWithAi() {
+    if (!this.selectedGameId()) {
+      this.showModal('Atenção', 'Selecione um jogo primeiro para usar a IA.', 'warning');
+      return;
+    }
+    if (!this.title()) {
+      const game = this.selectedGame();
+      const gameName = game?.name || '';
+      const platformStr = game?.platform ? ` (${game.platform})` : '';
+      this.title.set(`Guia de Troféus e Platina: ${gameName}${platformStr}`.replace(' ()', '').trim());
+    }
+
+    this.isGeneratingWithAi.set(true);
+    try {
+      // 1. Criar o guia em branco
+      await firstValueFrom(this.api.submitGameGuide(this.selectedGameId(), {
+        title: this.title(),
+        description: this.description(),
+        content: this.content() || 'Gerando conteúdo...',
+        videoUrl: this.videoUrl()
+      }));
+
+      // 2. Buscar o ID do guia recém criado
+      if (this.isAdminRoute()) {
+        const page = await firstValueFrom(this.adminApi.getAllGuides(0, 10, '', this.title()));
+        const guide = page.content.find(g => g.gameId === this.selectedGameId() && g.title === this.title());
+        
+        if (guide) {
+          // 3. Chamar a IA
+          await firstValueFrom(this.adminApi.generateGuideAi(guide.id));
+          
+          // 4. Polling até a IA terminar
+          const finalContent = await this.pollUntilGenerated(guide.id);
+          
+          this.isGeneratingWithAi.set(false);
+          
+          if (finalContent.includes('Falha na geração do conteúdo via IA')) {
+            this.showModal('Erro na IA', 'A IA falhou em gerar o conteúdo. O guia foi salvo e você pode tentar gerar novamente na edição.', 'error');
+          } else {
+            this.showModal('Sucesso!', 'Guia gerado com sucesso pela IA! Redirecionando para a moderação...', 'success');
+          }
+          
+          setTimeout(() => {
+            this.router.navigate(['/admin/all-guides']);
+          }, 2000);
+          return;
+        }
+      }
+      
+      this.isGeneratingWithAi.set(false);
+      this.showModal('Sucesso!', 'Guia criado. Não foi possível engatilhar a IA automaticamente, você pode fazer isso pela edição.', 'success');
+    } catch (error) {
+      console.error('Erro ao gerar guia com IA:', error);
+      this.isGeneratingWithAi.set(false);
+      this.showModal('Erro', 'Ocorreu um erro ou a geração demorou muito.', 'error');
+    }
+  }
+
+  private pollUntilGenerated(guideId: string, attempts = 0): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (attempts > 15) {
+        reject(new Error('Timeout esperando a IA.'));
+        return;
+      }
+      
+      setTimeout(async () => {
+        try {
+          const guide = await firstValueFrom(this.api.getGuideById(guideId));
+          if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
+            resolve(guide.content);
+          } else {
+            this.pollUntilGenerated(guideId, attempts + 1).then(resolve).catch(reject);
+          }
+        } catch {
+          this.pollUntilGenerated(guideId, attempts + 1).then(resolve).catch(reject);
+        }
+      }, 4000);
+    });
+  }
+
   goBack() {
     if (this.isAdminRoute()) {
-      this.router.navigate(['/admin/guides']);
+      this.router.navigate(['/admin/all-guides']);
     } else {
       this.router.navigate(['/']);
     }

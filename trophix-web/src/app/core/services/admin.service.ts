@@ -58,6 +58,14 @@ export class AdminService {
     return this.http.put<void>(`/api/admin/guides/${guideId}`, data);
   }
 
+  generateGuideAi(guideId: string) {
+    return this.http.post<void>(`/api/admin/guides/${guideId}/generate-ai`, {});
+  }
+
+  generateTrophyGuideAi(guideId: string, trophyId: string) {
+    return this.http.post<void>(`/api/admin/guides/${guideId}/trophies/${trophyId}/generate-ai`, {});
+  }
+
   getGlobalSettings() {
     return this.http.get<GlobalSettings>('/api/admin/settings');
   }

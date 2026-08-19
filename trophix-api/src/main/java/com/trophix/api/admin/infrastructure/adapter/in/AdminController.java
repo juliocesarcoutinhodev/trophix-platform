@@ -19,6 +19,7 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGameFeaturedReq
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.mapper.AdminWebMapper;
+import com.trophix.api.ai.application.ports.in.RequestGuideAiGenerationUseCase;
 import com.trophix.api.games.application.ports.in.ImportGameUseCase;
 import com.trophix.api.guides.application.ports.in.ReviewGuideUseCase;
 import com.trophix.api.guides.infrastructure.adapter.in.dto.GuideResponse;
@@ -67,6 +68,7 @@ public class AdminController {
     private final ReviewGuideUseCase reviewGuideUseCase;
     private final SetGameFeaturedUseCase setGameFeaturedUseCase;
     private final ImportGameUseCase importGameUseCase;
+    private final RequestGuideAiGenerationUseCase requestGuideAiGenerationUseCase;
     private final AdminWebMapper adminWebMapper;
     private final GuideWebMapper guideWebMapper;
 
@@ -180,5 +182,19 @@ public class AdminController {
             @RequestParam String npCommunicationId) {
         importGameUseCase.execute(new ImportGameUseCase.ImportGameCommand(npCommunicationId, UUID.fromString(adminId)));
         return ResponseEntity.ok(new MessageResponse("Jogo importado da PSN com sucesso."));
+    }
+
+    @PostMapping("/guides/{guideId}/generate-ai")
+    public ResponseEntity<Void> generateGuideAi(@PathVariable UUID guideId) {
+        requestGuideAiGenerationUseCase.requestRoadmapGeneration(guideId);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/guides/{guideId}/trophies/{trophyId}/generate-ai")
+    public ResponseEntity<Void> generateTrophyAi(
+            @PathVariable UUID guideId,
+            @PathVariable UUID trophyId) {
+        requestGuideAiGenerationUseCase.requestTrophyTipGeneration(guideId, trophyId);
+        return ResponseEntity.accepted().build();
     }
 }

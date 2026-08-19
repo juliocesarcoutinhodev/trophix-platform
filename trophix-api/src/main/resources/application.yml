@@ -38,13 +38,24 @@ spring:
       mail.smtp.connectiontimeout: 5000
       mail.smtp.timeout: 5000
       mail.smtp.writetimeout: 5000
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY:}
+        chat:
+          model: ${GOOGLE_AI_MODEL:gemini-3.6-flash}
+          temperature: 0.3
+          # Desativado temporariamente p/ teste: o Search Grounding consome quota
+          # premium e retorna 429 com chave free/temporaria.
+          # google-search-retrieval: true
+          # include-server-side-tool-invocations: true
 
 server:
   port: 8080
 
 trophix:
   sidecar:
-    base-url: http://localhost:3000
+    base-url: ${TROPHIX_SIDECAR_BASEURL:http://localhost:3000}
     connect-timeout: 2s
     read-timeout: 5s
     circuit-breaker:
@@ -90,7 +101,7 @@ trophix:
     # Base usada para montar a URL pública (pode ser um CDN/reverse proxy).
     public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
   cors:
-    allowed-origin: http://localhost:4200
+    allowed-origin: ${TROPHIX_CORS_ORIGIN:http://localhost:4200}
   rate-limit:
     enabled: true
     trust-forwarded-header: false

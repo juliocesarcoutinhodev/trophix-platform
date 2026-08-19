@@ -40,6 +40,7 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
   protected editDescription = '';
   protected editContent = '';
   protected editVideoUrl = '';
+  protected activeEditTab = signal<'write' | 'preview'>('write');
 
   // Preview state
   protected previewStates = signal<Record<string, boolean>>({});
@@ -58,6 +59,10 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
   protected readonly importModalOpen = signal(false);
   protected readonly importSearchQuery = signal('');
   protected readonly importLoading = signal(false);
+
+  // AI Generation State
+  protected readonly isGeneratingMainGuide = signal(false);
+  protected readonly generatingTips = signal<Record<string, boolean>>({});
 
   protected openImportModal(): void {
     this.importSearchQuery.set('');
@@ -146,6 +151,14 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
       this.currentPage.set(page.number);
       this.totalPages.set(page.totalPages);
       this.totalElements.set(page.totalElements);
+
+      // Retoma o polling se algum guia estiver em geração
+      page.content.forEach(guide => {
+        if (guide.content === 'Gerando conteúdo...') {
+          this.isGeneratingMainGuide.set(true);
+          this.pollMainGuideGeneration(guide.id);
+        }
+      });
     } catch (e) {
       this.error.set('Falha ao carregar guias. Verifique se a API /api/admin/guides já foi implementada.');
     } finally {
@@ -371,5 +384,129 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
     } finally {
       this.processingId.set(null);
     }
+  }
+
+  async generateMainGuideAi(guideId: string): Promise<void> {
+    this.isGeneratingMainGuide.set(true);
+    this.error.set(null);
+    try {
+      await firstValueFrom(this.adminApi.generateGuideAi(guideId));
+      this.successMessage.set('✨ IA iniciou a pesquisa na web... (Isso leva cerca de 10-30 seg)');
+      this.pollMainGuideGeneration(guideId);
+    } catch (e) {
+      this.error.set('Erro ao iniciar a geração com IA.');
+      this.isGeneratingMainGuide.set(false);
+    }
+  }
+
+  private pollMainGuideGeneration(guideId: string, attempts = 0) {
+    if (attempts > 12) {
+      this.error.set('A geração demorou muito. Verifique novamente mais tarde ou atualize a página.');
+      this.isGeneratingMainGuide.set(false);
+      return;
+    }
+    
+    setTimeout(async () => {
+      try {
+        const guide = await firstValueFrom(this.api.getGuideById(guideId));
+        if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
+          if (this.editingGuideId() === guideId) {
+            this.editContent = guide.content;
+          }
+          this.guides.update(list => {
+            const index = list.findIndex(g => g.id === guideId);
+            if (index !== -1) list[index] = { ...list[index], content: guide.content };
+            return [...list];
+          });
+          
+          this.isGeneratingMainGuide.set(false);
+          
+          if (guide.content.includes('Falha na geração do conteúdo via IA')) {
+            this.error.set('A IA falhou em gerar o conteúdo. Tente novamente.');
+            setTimeout(() => this.error.set(null), 5000);
+          } else {
+            this.successMessage.set('✨ Guia gerado com sucesso pela IA!');
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
+        } else {
+          this.pollMainGuideGeneration(guideId, attempts + 1);
+        }
+      } catch {
+        this.pollMainGuideGeneration(guideId, attempts + 1);
+      }
+    }, 5000);
+  }
+
+  async generateTrophyTipAi(trophyId: string, trophyName: string): Promise<void> {
+    const tip = this.trophyTips()[trophyId];
+    if (!tip) return;
+
+    this.generatingTips.update(map => ({ ...map, [trophyId]: true }));
+    this.error.set(null);
+
+    try {
+      let currentGuideId = tip.guideId;
+
+      if (!currentGuideId) {
+        const payload = {
+          title: `Dica: ${trophyName}`,
+          description: '',
+          content: '',
+        };
+        await firstValueFrom(this.api.submitTrophyGuide(trophyId, payload));
+        const guide = this.guides().find(g => g.id === this.editingGuideId());
+        if (guide) {
+           const authorGuides = await firstValueFrom(this.api.getAuthorTrophyGuides(guide.gameId, guide.authorId));
+           const created = authorGuides.find(g => g.trophyId === trophyId);
+           if (created) {
+             currentGuideId = created.id;
+             this.trophyTips.update(m => { m[trophyId].guideId = currentGuideId; return { ...m }; });
+           }
+        }
+      }
+
+      if (!currentGuideId) throw new Error('Falha ao criar o draft da dica.');
+
+      await firstValueFrom(this.adminApi.generateTrophyGuideAi(currentGuideId, trophyId));
+      this.successMessage.set(`✨ IA pesquisando dica para: ${trophyName}...`);
+      this.pollTrophyTipGeneration(currentGuideId, trophyId, 0);
+
+    } catch (e) {
+      this.error.set('Erro ao gerar dica com IA. Tente novamente.');
+      this.generatingTips.update(map => ({ ...map, [trophyId]: false }));
+    }
+  }
+
+  private pollTrophyTipGeneration(guideId: string, trophyId: string, attempts = 0) {
+    if (attempts > 12) {
+      this.error.set('A geração da dica demorou muito.');
+      this.generatingTips.update(map => ({ ...map, [trophyId]: false }));
+      return;
+    }
+    
+    setTimeout(async () => {
+      try {
+        const guide = await firstValueFrom(this.api.getGuideById(guideId));
+        if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
+          this.trophyTips.update(m => { 
+            if (m[trophyId]) m[trophyId].content = guide.content;
+            return { ...m }; 
+          });
+          this.generatingTips.update(map => ({ ...map, [trophyId]: false }));
+          
+          if (guide.content.includes('Falha na geração do conteúdo via IA')) {
+            this.error.set('A IA falhou em gerar a dica. Tente novamente.');
+            setTimeout(() => this.error.set(null), 5000);
+          } else {
+            this.successMessage.set('✨ Dica gerada com sucesso pela IA!');
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
+        } else {
+          this.pollTrophyTipGeneration(guideId, trophyId, attempts + 1);
+        }
+      } catch {
+        this.pollTrophyTipGeneration(guideId, trophyId, attempts + 1);
+      }
+    }, 5000);
   }
 }
