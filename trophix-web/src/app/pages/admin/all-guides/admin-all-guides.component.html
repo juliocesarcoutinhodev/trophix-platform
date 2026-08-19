@@ -57,6 +57,7 @@
       <!-- Status Tabs -->
       <div class="flex space-x-1 rounded-lg bg-slate-950 p-1">
         <button (click)="setStatusFilter('')" [class.bg-slate-800]="statusFilter() === ''" [class.text-slate-200]="statusFilter() === ''" [class.text-slate-500]="statusFilter() !== ''" class="rounded px-3 py-1.5 text-xs font-medium transition-colors hover:text-slate-300">Todos</button>
+        <button (click)="setStatusFilter('IMPORTED')" [class.bg-slate-800]="statusFilter() === 'IMPORTED'" [class.text-slate-200]="statusFilter() === 'IMPORTED'" [class.text-slate-500]="statusFilter() !== 'IMPORTED'" class="rounded px-3 py-1.5 text-xs font-medium transition-colors hover:text-slate-300">Importados</button>
         <button (click)="setStatusFilter('PENDING')" [class.bg-slate-800]="statusFilter() === 'PENDING'" [class.text-slate-200]="statusFilter() === 'PENDING'" [class.text-slate-500]="statusFilter() !== 'PENDING'" class="rounded px-3 py-1.5 text-xs font-medium transition-colors hover:text-slate-300">Pendentes</button>
         <button (click)="setStatusFilter('APPROVED')" [class.bg-slate-800]="statusFilter() === 'APPROVED'" [class.text-slate-200]="statusFilter() === 'APPROVED'" [class.text-slate-500]="statusFilter() !== 'APPROVED'" class="rounded px-3 py-1.5 text-xs font-medium transition-colors hover:text-slate-300">Aprovados</button>
         <button (click)="setStatusFilter('REJECTED')" [class.bg-slate-800]="statusFilter() === 'REJECTED'" [class.text-slate-200]="statusFilter() === 'REJECTED'" [class.text-slate-500]="statusFilter() !== 'REJECTED'" class="rounded px-3 py-1.5 text-xs font-medium transition-colors hover:text-slate-300">Rejeitados</button>
@@ -150,6 +151,8 @@
                         <span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-bold text-green-400 ring-1 ring-inset ring-green-500/20">Aprovado</span>
                       } @else if (guide.status === 'PENDING') {
                         <span class="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-bold text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Pendente</span>
+                      } @else if (guide.status === 'IMPORTED') {
+                        <span class="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-bold text-blue-400 ring-1 ring-inset ring-blue-500/20">Importado</span>
                       } @else {
                         <span class="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-400 ring-1 ring-inset ring-red-500/20">{{ guide.status }}</span>
                       }
@@ -174,6 +177,24 @@
                       >
                         Editar
                       </button>
+
+                      @if (guide.status === 'PENDING' || guide.status === 'IMPORTED') {
+                        <button 
+                          (click)="approveGuide(guide.id)"
+                          [disabled]="processingId() === guide.id"
+                          class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-green-400 transition-colors hover:bg-green-950 hover:text-green-300 disabled:opacity-50"
+                        >
+                          Aprovar
+                        </button>
+                        
+                        <button 
+                          (click)="rejectGuide(guide.id)"
+                          [disabled]="processingId() === guide.id"
+                          class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-rose-400 transition-colors hover:bg-rose-950 hover:text-rose-300 disabled:opacity-50"
+                        >
+                          Rejeitar
+                        </button>
+                      }
                       
                       <button 
                         (click)="deleteGuide(guide.id)"
@@ -420,6 +441,11 @@
                       <span class="inline-flex items-center gap-1.5 rounded bg-red-500/10 px-2 py-1 text-xs font-semibold text-red-400">
                         <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                         Rejeitado
+                      </span>
+                    } @else if (guide.status === 'IMPORTED') {
+                      <span class="inline-flex items-center gap-1.5 rounded bg-blue-500/10 px-2 py-1 text-xs font-semibold text-blue-400">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                        Importado
                       </span>
                     } @else {
                       <span class="inline-flex items-center gap-1.5 rounded bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-400">

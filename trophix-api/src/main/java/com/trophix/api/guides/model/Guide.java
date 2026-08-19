@@ -30,6 +30,14 @@ public record Guide(
                 content, videoUrl, GuideStatus.PENDING, 0, now, now);
     }
 
+    /** Blank draft created automatically when a game is imported from the PSN. */
+    public static Guide createImported(UUID trophyId, UUID gameId, UUID authorId,
+                                       String title, String description, String content, String videoUrl) {
+        Instant now = Instant.now();
+        return new Guide(UuidV7.generate(), trophyId, gameId, authorId, title, description,
+                content, videoUrl, GuideStatus.IMPORTED, 0, now, now);
+    }
+
     /** Returns a copy with the editable fields replaced (admin edit). */
     public Guide updated(String newTitle, String newDescription, String newContent, String newVideoUrl) {
         return new Guide(id, trophyId, gameId, authorId, newTitle, newDescription, newContent,

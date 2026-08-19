@@ -176,8 +176,9 @@ public class AdminController {
 
     @PostMapping("/games/import")
     public ResponseEntity<MessageResponse> importGame(
+            @AuthenticationPrincipal String adminId,
             @RequestParam String npCommunicationId) {
-        importGameUseCase.execute(new ImportGameUseCase.ImportGameCommand(npCommunicationId));
+        importGameUseCase.execute(new ImportGameUseCase.ImportGameCommand(npCommunicationId, UUID.fromString(adminId)));
         return ResponseEntity.ok(new MessageResponse("Jogo importado da PSN com sucesso."));
     }
 }

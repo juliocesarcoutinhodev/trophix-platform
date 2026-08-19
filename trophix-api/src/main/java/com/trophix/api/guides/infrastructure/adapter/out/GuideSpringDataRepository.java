@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,6 +62,8 @@ public interface GuideSpringDataRepository extends JpaRepository<GuideEntity, UU
 
     @Query("select g from GuideEntity g where g.trophyId is null and g.gameId = :gameId and g.status = :status order by g.upvotesCount desc")
     List<GuideEntity> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
+
+    boolean existsByGameIdAndStatusIn(UUID gameId, Collection<GuideStatus> statuses);
 
     @Query(value = """
             select g.* from guides g

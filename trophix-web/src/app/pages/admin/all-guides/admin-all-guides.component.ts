@@ -185,6 +185,25 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
     }
   }
 
+  async approveGuide(guideId: string): Promise<void> {
+    this.processingId.set(guideId);
+    this.error.set(null);
+    try {
+      await firstValueFrom(this.adminApi.approveGuide(guideId));
+      this.guides.update(list => {
+        const index = list.findIndex(g => g.id === guideId);
+        if (index !== -1) list[index] = { ...list[index], status: 'APPROVED' };
+        return [...list];
+      });
+      this.successMessage.set('Guia aprovado com sucesso!');
+      setTimeout(() => this.successMessage.set(null), 3000);
+    } catch (e) {
+      this.error.set('Erro ao aprovar guia.');
+    } finally {
+      this.processingId.set(null);
+    }
+  }
+
   async startEditing(guide: GuideResponse): Promise<void> {
     this.viewMode.set('cards');
     this.editingGuideId.set(guide.id);

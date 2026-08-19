@@ -297,18 +297,18 @@ Controller/Scheduler ──► RabbitMQ (trophix.sync.exchange ──► trophix
 | GET | `/api/admin/users?page=&size=&search=&role=` | **ROLE_ADMIN** | Lista paginada de usuários; `search` filtra por username/email (LIKE case-insensitive) e `role` por cargo — combináveis |
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |
-| GET | `/api/admin/guides?page=&size=&status=&search=` | **ROLE_ADMIN** | Lista paginada de guias; `status` filtra exatamente por status (PENDING/APPROVED/REJECTED) e `search` busca case-insensitive no título ou nome do jogo — combináveis |
+| GET | `/api/admin/guides?page=&size=&status=&search=` | **ROLE_ADMIN** | Lista paginada de guias; `status` filtra exatamente por status (PENDING/APPROVED/REJECTED/IMPORTED) e `search` busca case-insensitive no título ou nome do jogo — combináveis |
 | PUT | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Edita title/description/content/videoUrl do guia (status e metadados preservados) |
 | DELETE | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Exclui definitivamente o guia (e seus votos, via cascade) |
-| POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING → APPROVED) |
-| POST | `/api/admin/guides/{guideId}/reject` | **ROLE_ADMIN** | Rejeita o guia (PENDING → REJECTED) |
+| POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING ou IMPORTED → APPROVED) |
+| POST | `/api/admin/guides/{guideId}/reject` | **ROLE_ADMIN** | Rejeita o guia (PENDING ou IMPORTED → REJECTED) |
 | GET | `/api/admin/reports?page=&size=` | **ROLE_ADMIN** | Fila de denúncias abertas (status OPEN) |
 | POST | `/api/admin/reports/{reportId}/resolve` | **ROLE_ADMIN** | Resolve a denúncia (OPEN → RESOLVED) |
 | POST | `/api/admin/reports/{reportId}/dismiss` | **ROLE_ADMIN** | Descarta a denúncia (OPEN → DISMISSED) |
 | GET | `/api/admin/settings` | **ROLE_ADMIN** | Configurações globais (ou defaults, se ainda não salvas) |
 | PUT | `/api/admin/settings` | **ROLE_ADMIN** | Salva as configurações globais (siteName, contato, redes, hero, alerta, footer, palavras proibidas, meta) |
 | PATCH | `/api/admin/games/{gameId}/feature` | **ROLE_ADMIN** | Marca/desmarca o **destaque manual** do jogo (`{"isFeatured": true/false}`) — alimenta o Trending híbrido da Home |
-| POST | `/api/admin/games/import?npCommunicationId=` | **ROLE_ADMIN** | **Importa um jogo da PSN**: busca detalhes/catálogo no sidecar, baixa capa e ícones para o MinIO e persiste `Game` + `Trophy` (idempotente) |
+| POST | `/api/admin/games/import?npCommunicationId=` | **ROLE_ADMIN** | **Importa um jogo da PSN**: busca detalhes/catálogo no sidecar, baixa capa e ícones para o MinIO e persiste `Game` + `Trophy` (idempotente). Após importar, cria automaticamente um **guia draft vazio** (`status=IMPORTED`, título "Guia Oficial: {nome}", autor = admin) para a fila de moderação — idempotente (não duplica se já existe guia do jogo) |
 
 > Proteção central no `SecurityConfig` (`.requestMatchers("/api/admin/**").hasRole("ADMIN")`). A troca de cargos revoga os refresh tokens do usuário, forçando novo login com o token atualizado.
 

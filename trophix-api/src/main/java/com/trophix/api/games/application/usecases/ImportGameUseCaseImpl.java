@@ -6,11 +6,13 @@ import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.games.application.ports.out.ImageStoragePort;
 import com.trophix.api.games.application.ports.out.TrophyCatalogPort;
 import com.trophix.api.games.model.Game;
+import com.trophix.api.games.model.GameImportedEvent;
 import com.trophix.api.games.model.PsnGameDetail;
 import com.trophix.api.games.model.PsnTrophy;
 import com.trophix.api.shared.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ImportGameUseCaseImpl implements ImportGameUseCase {
     private final TrophyCatalogPort trophyCatalogPort;
     private final ImageStoragePort imageStoragePort;
     private final GameRepositoryPort gameRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -60,6 +63,8 @@ public class ImportGameUseCaseImpl implements ImportGameUseCase {
                 ? gameRepository.save(game)
                 : gameRepository.insert(game);
         int savedCount = trophyCatalogPort.saveCatalog(saved.id(), imported);
+
+        eventPublisher.publishEvent(new GameImportedEvent(saved.id(), command.adminId()));
 
         log.info("Jogo importado da PSN: gameId={} npCommunicationId={} trofeusSalvos={}",
                 saved.id(), npCommunicationId, savedCount);

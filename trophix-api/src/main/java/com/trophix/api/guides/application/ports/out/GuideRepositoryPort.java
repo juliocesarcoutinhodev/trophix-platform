@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +42,9 @@ public interface GuideRepositoryPort {
     List<Guide> findByTrophyIdAndStatusOrderByUpvotesCountDesc(UUID trophyId, GuideStatus status);
 
     List<Guide> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status);
+
+    /** Whether any guide already targets the game with one of the given statuses. */
+    boolean existsByGameIdAndStatusIn(UUID gameId, Collection<GuideStatus> statuses);
 
     /**
      * Returns the latest game roadmaps (guides without a trophy target) for

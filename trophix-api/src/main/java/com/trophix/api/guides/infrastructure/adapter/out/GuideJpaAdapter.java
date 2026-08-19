@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -95,6 +96,12 @@ public class GuideJpaAdapter implements GuideRepositoryPort {
     public List<Guide> findByGameIdAndStatusOrderByUpvotesCountDesc(UUID gameId, GuideStatus status) {
         return springDataRepository.findByGameIdAndStatusOrderByUpvotesCountDesc(gameId, status)
                 .stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByGameIdAndStatusIn(UUID gameId, Collection<GuideStatus> statuses) {
+        return springDataRepository.existsByGameIdAndStatusIn(gameId, statuses);
     }
 
     @Override

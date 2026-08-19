@@ -25,7 +25,7 @@ public class ReviewGuideUseCaseImpl implements ReviewGuideUseCase {
         var guide = guideRepository.findById(guideId)
                 .orElseThrow(() -> new ResourceNotFoundException("Guia não encontrado"));
 
-        if (guide.status() != GuideStatus.PENDING) {
+        if (guide.status() != GuideStatus.PENDING && guide.status() != GuideStatus.IMPORTED) {
             throw new BusinessException("Guia já foi moderado.");
         }
 

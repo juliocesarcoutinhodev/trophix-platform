@@ -2624,7 +2624,7 @@
                 }
               ]
             },
-            "description": "Importa um jogo da PSN via sidecar: busca detalhes oficiais (/details) e o catálogo de troféus (/trofeus), baixa a capa e os ícones para o MinIO e salva o Game + Trophies no banco. Idempotente: se o jogo já existe, atualiza os dados sem duplicar troféus.\n\nProtegida por ROLE_ADMIN. Pode demorar (download de todos os ícones).\n\nRespostas:\n- 200: message de sucesso\n- 403: sem ROLE_ADMIN\n- 404: jogo não encontrado na PSN\n- 409: falha de integridade\n- 502: sidecar/PSN indisponível"
+            "description": "Importa um jogo da PSN via sidecar: busca detalhes oficiais (/details) e o catálogo de troféus (/trofeus), baixa a capa e os ícones para o MinIO e salva o Game + Trophies no banco. Idempotente: se o jogo já existe, atualiza os dados sem duplicar troféus.\n\nProtegida por ROLE_ADMIN. Pode demorar (download de todos os ícones).\n\nRespostas:\n- 200: message de sucesso\n- 403: sem ROLE_ADMIN\n- 404: jogo não encontrado na PSN\n- 409: falha de integridade\n- 502: sidecar/PSN indisponível\n\nApos importar, o backend publica o evento GameImportedEvent e o listener do modulo guides cria automaticamente um guia draft vazio (status=IMPORTED, titulo \"Guia Oficial: {nome}\", autor = admin logado) para a fila de moderacao (aba Importados). Idempotente: se o jogo ja possui um guia IMPORTED/PENDING/APPROVED, o draft nao e duplicado."
           },
           "response": [
             {
