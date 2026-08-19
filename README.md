@@ -242,7 +242,7 @@ POST /api/admin/guides/{id}/generate-ai ──► RabbitMQ (trophix.ai.exchange 
 
 - **Google Search Grounding**: habilitado via `spring.ai.google.genai.chat.google-search-retrieval=true`, faz o modelo pesquisar na web real (PSNProfiles, PowerPyx etc.) em vez de alucinar troféus.
 - O adapter (`GeminiAiGuideGeneratorAdapter`) usa o `ChatClient` do Spring AI atrás da porta `AiGuideGeneratorPort` — o domínio não conhece Gemini.
-- **Falha controlada**: se o Gemini lançar exceção (timeout/429) ou retornar conteúdo vazio, o worker grava no `content` a mensagem `"Falha na geração do conteúdo via IA. Por favor, tente novamente..."` — o polling do front-end sai do loop imediatamente e avisa o usuário, em vez de travar no "Gerando conteúdo...".
+- **Falha controlada**: se o Gemini lançar exceção (timeout/429) ou retornar conteúdo vazio, o worker **tenta de novo automaticamente** (até 3 tentativas, com pequeno intervalo) — o cold-start do modelo costuma falhar só na 1ª chamada. Se todas falharem, grava no `content` a mensagem `"Falha na geração do conteúdo via IA. Por favor, tente novamente..."` — o polling do front-end sai do loop imediatamente e avisa o usuário, em vez de travar no "Gerando conteúdo...".
 - **Retry + DLQ**: erros permanentes (guia/jogo/troféu inexistentes, troféu fora do guia) são logados e descartados; jobs esgotados caem na `trophix.ai.queue.dlq`.
 - O `content` é preenchido em Markdown limpo (sem blocos ```) e o status do guia (**`IMPORTED`/`PENDING`**) fica intacto para o admin revisar antes de aprovar.
 - **Quota**: o Search Grounding consome quota premium do Gemini — com chave free/temporária a chamada pode responder `429`; use uma chave com quota de grounding para produção.
