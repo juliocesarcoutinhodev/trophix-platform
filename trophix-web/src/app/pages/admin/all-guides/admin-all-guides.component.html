@@ -1,4 +1,10 @@
 <div>
+  <app-ai-spinner 
+    [isVisible]="isGeneratingMainGuide()" 
+    title="IA Gerando Conteúdo..." 
+    message="O Gemini está escrevendo o guia. Isso pode levar até 90 segundos.">
+  </app-ai-spinner>
+
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold text-slate-100">
@@ -118,6 +124,54 @@
               
               @if (editingGuideId() === guide.id) {
                 <!-- Edit Form (Top Part) -->
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div class="flex items-center gap-3">
+                    <span class="rounded bg-violet-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-violet-400">
+                      {{ guide.gameName || 'Jogo Desconhecido' }} <span class="text-slate-400 font-normal lowercase">- editando</span>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <!-- Status Badge (same as Display Mode) -->
+                    @if (guide.status === 'APPROVED') {
+                      <span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-bold text-green-400 ring-1 ring-inset ring-green-500/20">Aprovado</span>
+                    } @else if (guide.status === 'PENDING') {
+                      <span class="inline-flex items-center rounded-md bg-yellow-500/10 px-2 py-1 text-xs font-bold text-yellow-400 ring-1 ring-inset ring-yellow-500/20">Pendente</span>
+                    } @else if (guide.status === 'IMPORTED') {
+                      <span class="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-xs font-bold text-blue-400 ring-1 ring-inset ring-blue-500/20">Importado</span>
+                    } @else {
+                      <span class="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-400 ring-1 ring-inset ring-red-500/20">{{ guide.status }}</span>
+                    }
+
+                    <div class="h-4 w-px bg-slate-700 mx-2"></div>
+
+                    @if (guide.status === 'PENDING' || guide.status === 'IMPORTED') {
+                      <button 
+                        (click)="approveGuide(guide.id)"
+                        [disabled]="processingId() === guide.id"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-green-400 transition-colors hover:bg-green-950 hover:text-green-300 disabled:opacity-50"
+                      >
+                        Aprovar
+                      </button>
+                      
+                      <button 
+                        (click)="rejectGuide(guide.id)"
+                        [disabled]="processingId() === guide.id"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-rose-400 transition-colors hover:bg-rose-950 hover:text-rose-300 disabled:opacity-50"
+                      >
+                        Rejeitar
+                      </button>
+                    }
+                    
+                    <button 
+                      (click)="deleteGuide(guide.id)"
+                      [disabled]="processingId() === guide.id"
+                      class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-950 hover:text-red-300 disabled:opacity-50"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+                
                 <div class="flex flex-col gap-4">
                   <div>
                     <label class="block text-sm font-medium text-slate-400">Título</label>
@@ -451,6 +505,34 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
+                  @if (guide.status === 'PENDING' || guide.status === 'IMPORTED') {
+                    <button 
+                      (click)="approveGuide(guide.id)"
+                      [disabled]="processingId() === guide.id"
+                      class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold text-green-400 transition-colors hover:bg-green-950 hover:text-green-300 disabled:opacity-50"
+                    >
+                      Aprovar
+                    </button>
+                    
+                    <button 
+                      (click)="rejectGuide(guide.id)"
+                      [disabled]="processingId() === guide.id"
+                      class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold text-rose-400 transition-colors hover:bg-rose-950 hover:text-rose-300 disabled:opacity-50"
+                    >
+                      Rejeitar
+                    </button>
+                  }
+                  
+                  <button 
+                    (click)="deleteGuide(guide.id)"
+                    [disabled]="processingId() === guide.id"
+                    class="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold text-red-400 transition-colors hover:bg-red-950 hover:text-red-300 disabled:opacity-50"
+                  >
+                    Excluir
+                  </button>
+
+                  <div class="h-6 w-px bg-slate-700 mx-2"></div>
+
                   <button 
                     (click)="cancelEditing()" 
                     [disabled]="processingId() === guide.id"
@@ -460,8 +542,8 @@
                   <button 
                     (click)="updateGuide(guide.id)" 
                     [disabled]="processingId() === guide.id"
-                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50">
-                    Salvar Guia Principal
+                    class="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50 shadow-lg shadow-violet-900/20">
+                    Salvar Guia
                   </button>
                 </div>
               </div>
@@ -619,4 +701,16 @@
       </div>
     </div>
   }
+
+  <app-modal
+    [isOpen]="confirmModalOpen()"
+    [title]="confirmModalTitle()"
+    [message]="confirmModalMessage()"
+    type="warning"
+    [showCancel]="true"
+    confirmText="Confirmar"
+    cancelText="Cancelar"
+    (confirm)="executePendingAction()"
+    (cancel)="cancelPendingAction()">
+  </app-modal>
 </div>

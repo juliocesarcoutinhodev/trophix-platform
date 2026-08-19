@@ -1,7 +1,7 @@
 @if (isOpen) {
   <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
     <!-- Overlay com Blur -->
-    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity" (click)="onCancel()"></div>
     
     <!-- Modal Card -->
     <div class="relative w-full max-w-sm transform overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl transition-all scale-100 opacity-100">
@@ -44,8 +44,14 @@
       </div>
       
       <!-- Rodapé / Botão -->
-      <div class="bg-slate-950/50 px-6 py-4 flex justify-end">
-        <button type="button" (click)="closeModal()"
+      <div class="bg-slate-950/50 px-6 py-4 flex justify-end gap-3">
+        @if (showCancel) {
+          <button type="button" (click)="onCancel()"
+                  class="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-300 transition-colors hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-600">
+            {{ cancelText }}
+          </button>
+        }
+        <button type="button" (click)="onConfirm()"
                 class="rounded-lg px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900"
                 [class.bg-emerald-600]="type === 'success'" [class.hover:bg-emerald-500]="type === 'success'" [class.focus:ring-emerald-500]="type === 'success'"
                 [class.bg-red-600]="type === 'error'" [class.hover:bg-red-500]="type === 'error'" [class.focus:ring-red-500]="type === 'error'"

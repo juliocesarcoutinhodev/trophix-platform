@@ -1,15 +1,8 @@
-@if (isGeneratingWithAi()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm">
-    <div class="flex flex-col items-center justify-center rounded-2xl border border-violet-500/30 bg-slate-900 p-8 shadow-2xl shadow-violet-900/20">
-      <div class="relative flex h-16 w-16 items-center justify-center">
-        <div class="absolute h-full w-full animate-spin rounded-full border-4 border-violet-500/20 border-t-violet-500"></div>
-        <div class="h-8 w-8 animate-pulse rounded-full bg-violet-500"></div>
-      </div>
-      <h3 class="mt-6 text-xl font-bold text-white">✨ IA Escrevendo Guia...</h3>
-      <p class="mt-2 max-w-[280px] text-center text-sm text-slate-400">O Gemini está gerando o roadmap e a visão geral de platina. Isso leva cerca de 10 a 20 segundos.</p>
-    </div>
-  </div>
-}
+<app-ai-spinner 
+  [isVisible]="isGeneratingWithAi()" 
+  title="IA Escrevendo Guia..." 
+  message="O Gemini está gerando o roadmap e a visão geral de platina. Isso pode levar até 90 segundos.">
+</app-ai-spinner>
 
 <main 
   class="px-4 sm:px-6 lg:px-8" 
@@ -123,11 +116,12 @@
         <div class="mt-4 flex gap-2 sm:mt-0">
           @if (isAdminRoute()) {
             <button 
+              type="button"
               (click)="createAndGenerateWithAi()" 
-              [disabled]="isSubmitting()"
+              [disabled]="isSubmitting() || isGeneratingWithAi()"
               class="flex items-center gap-1.5 rounded bg-gradient-to-r from-fuchsia-600 to-violet-600 px-4 py-2 text-sm font-bold text-white transition-all hover:from-fuchsia-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-wait shadow-lg shadow-violet-900/30"
             >
-              @if (isSubmitting()) {
+              @if (isGeneratingWithAi()) {
                 <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                 Gerando...
               } @else {
@@ -137,8 +131,8 @@
           }
 
           <div class="flex rounded-lg bg-slate-900 p-1">
-            <button (click)="activeTab.set('write')" [class.bg-slate-800]="activeTab() === 'write'" [class.text-slate-200]="activeTab() === 'write'" [class.text-slate-500]="activeTab() !== 'write'" class="rounded px-3 py-1.5 text-sm font-medium transition-colors hover:text-slate-300">Escrever</button>
-            <button (click)="activeTab.set('preview')" [class.bg-slate-800]="activeTab() === 'preview'" [class.text-slate-200]="activeTab() === 'preview'" [class.text-slate-500]="activeTab() !== 'preview'" class="rounded px-3 py-1.5 text-sm font-medium transition-colors hover:text-slate-300">Visualizar</button>
+            <button type="button" (click)="activeTab.set('write')" [class.bg-slate-800]="activeTab() === 'write'" [class.text-slate-200]="activeTab() === 'write'" [class.text-slate-500]="activeTab() !== 'write'" class="rounded px-3 py-1.5 text-sm font-medium transition-colors hover:text-slate-300">Escrever</button>
+            <button type="button" (click)="activeTab.set('preview')" [class.bg-slate-800]="activeTab() === 'preview'" [class.text-slate-200]="activeTab() === 'preview'" [class.text-slate-500]="activeTab() !== 'preview'" class="rounded px-3 py-1.5 text-sm font-medium transition-colors hover:text-slate-300">Visualizar</button>
           </div>
         </div>
       </div>

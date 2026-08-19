@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
@@ -9,11 +9,13 @@ import { AdminService } from '../../../core/services/admin.service';
 import { ApiService } from '../../../core/services/api.service';
 import { GuideResponse, TrophyStatus } from '../../../core/models/api.models';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { AiSpinnerComponent } from '../../../shared/components/ai-spinner/ai-spinner.component';
 
 @Component({
   selector: 'app-admin-all-guides',
   standalone: true,
-  imports: [DatePipe, FormsModule, PaginationComponent, RouterLink],
+  imports: [CommonModule, DatePipe, FormsModule, PaginationComponent, RouterLink, ModalComponent, AiSpinnerComponent],
   templateUrl: './admin-all-guides.component.html',
 })
 export class AdminAllGuidesComponent implements OnInit, OnDestroy {
@@ -165,37 +167,68 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
       this.loading.set(false);
     }
   }
+  // Confirm Modal state
+  protected confirmModalOpen = signal(false);
+  protected confirmModalTitle = signal('');
+  protected confirmModalMessage = signal('');
+  private pendingAction: (() => Promise<void>) | null = null;
 
-  async deleteGuide(guideId: string): Promise<void> {
-    if (!confirm('Tem certeza que deseja excluir definitivamente este guia?')) return;
-    
-    this.processingId.set(guideId);
-    try {
-      await firstValueFrom(this.adminApi.deleteGuide(guideId));
-      this.guides.update(list => list.filter(g => g.id !== guideId));
-      this.successMessage.set('Guia excluído com sucesso.');
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch (e) {
-      this.error.set('Erro ao excluir guia.');
-    } finally {
-      this.processingId.set(null);
+  deleteGuide(guideId: string): void {
+    this.confirmModalTitle.set('Excluir Guia');
+    this.confirmModalMessage.set('Tem certeza que deseja excluir definitivamente este guia?');
+    this.pendingAction = async () => {
+      this.processingId.set(guideId);
+      try {
+        await firstValueFrom(this.adminApi.deleteGuide(guideId));
+        this.guides.update(list => list.filter(g => g.id !== guideId));
+        this.successMessage.set('Guia excluído com sucesso.');
+        setTimeout(() => this.successMessage.set(null), 3000);
+      } catch (e: any) {
+        console.error('Erro na API de exclusão:', e);
+        this.error.set('Erro ao excluir guia: ' + (e?.message || 'Erro desconhecido'));
+      } finally {
+        this.processingId.set(null);
+      }
+    };
+    this.confirmModalOpen.set(true);
+  }
+
+  rejectGuide(guideId: string): void {
+    this.confirmModalTitle.set('Rejeitar Guia');
+    this.confirmModalMessage.set('Tem certeza que deseja rejeitar e excluir este guia?');
+    this.pendingAction = async () => {
+      this.processingId.set(guideId);
+      try {
+        await firstValueFrom(this.adminApi.rejectGuide(guideId));
+        this.guides.update(list => list.filter(g => g.id !== guideId));
+        this.successMessage.set('Guia rejeitado e removido da fila.');
+        setTimeout(() => this.successMessage.set(null), 3000);
+      } catch (e: any) {
+        console.error('Erro na API de rejeição:', e);
+        this.error.set('Erro ao rejeitar guia: ' + (e?.message || 'Erro desconhecido'));
+      } finally {
+        this.processingId.set(null);
+      }
+    };
+    this.confirmModalOpen.set(true);
+  }
+
+  protected executePendingAction(): void {
+    console.log('executePendingAction called. pendingAction exists?', !!this.pendingAction);
+    this.confirmModalOpen.set(false);
+    if (this.pendingAction) {
+      this.pendingAction().then(() => {
+        console.log('pendingAction finished successfully');
+      }).catch(err => {
+        console.error('pendingAction error', err);
+      });
+      this.pendingAction = null;
     }
   }
 
-  async rejectGuide(guideId: string): Promise<void> {
-    if (!confirm('Tem certeza que deseja rejeitar e excluir este guia?')) return;
-    
-    this.processingId.set(guideId);
-    try {
-      await firstValueFrom(this.adminApi.rejectGuide(guideId));
-      this.guides.update(list => list.filter(g => g.id !== guideId));
-      this.successMessage.set('Guia rejeitado e removido da fila.');
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch (e) {
-      this.error.set('Erro ao rejeitar guia.');
-    } finally {
-      this.processingId.set(null);
-    }
+  protected cancelPendingAction(): void {
+    this.confirmModalOpen.set(false);
+    this.pendingAction = null;
   }
 
   async approveGuide(guideId: string): Promise<void> {
@@ -400,7 +433,7 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
   }
 
   private pollMainGuideGeneration(guideId: string, attempts = 0) {
-    if (attempts > 12) {
+    if (attempts > 30) {
       this.error.set('A geração demorou muito. Verifique novamente mais tarde ou atualize a página.');
       this.isGeneratingMainGuide.set(false);
       return;

@@ -13,10 +13,12 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
 
 import { AdminService } from '../../core/services/admin.service';
 
+import { AiSpinnerComponent } from '../../shared/components/ai-spinner/ai-spinner.component';
+
 @Component({
   selector: 'app-create-guide',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, AiSpinnerComponent],
   templateUrl: './create-guide.html',
 })
 export class CreateGuide implements OnInit {
@@ -93,7 +95,9 @@ export class CreateGuide implements OnInit {
       this.showModal('Atenção', 'Preencha os campos obrigatórios: Jogo, Título e Conteúdo (Roadmap).', 'warning');
       return;
     }
-
+    if (this.isSubmitting()) {
+      return;
+    }
     this.isSubmitting.set(true);
     try {
       await firstValueFrom(this.api.submitGameGuide(this.selectedGameId(), {
@@ -127,7 +131,9 @@ export class CreateGuide implements OnInit {
       const platformStr = game?.platform ? ` (${game.platform})` : '';
       this.title.set(`Guia de Troféus e Platina: ${gameName}${platformStr}`.replace(' ()', '').trim());
     }
-
+    if (this.isGeneratingWithAi()) {
+      return;
+    }
     this.isGeneratingWithAi.set(true);
     try {
       // 1. Criar o guia em branco
@@ -176,7 +182,7 @@ export class CreateGuide implements OnInit {
 
   private pollUntilGenerated(guideId: string, attempts = 0): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (attempts > 15) {
+      if (attempts > 38) {
         reject(new Error('Timeout esperando a IA.'));
         return;
       }

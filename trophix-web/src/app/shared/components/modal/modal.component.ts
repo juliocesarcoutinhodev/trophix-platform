@@ -13,11 +13,19 @@ export class ModalComponent {
   @Input() message = '';
   @Input() type: 'success' | 'error' | 'warning' | 'info' = 'info';
   @Input() confirmText = 'OK';
+  @Input() cancelText = 'Cancelar';
+  @Input() showCancel = false;
   
   @Output() confirm = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<void>();
 
-  closeModal() {
+  onConfirm() {
     this.isOpen = false;
     this.confirm.emit();
+  }
+
+  onCancel() {
+    this.isOpen = false;
+    this.cancel.emit();
   }
 }
