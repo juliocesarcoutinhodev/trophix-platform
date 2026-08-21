@@ -3,12 +3,15 @@ package com.trophix.api.auth.infrastructure.adapter.in.mapper;
 import com.trophix.api.auth.application.ports.in.CompleteRegistrationUseCase;
 import com.trophix.api.auth.application.ports.in.ForgotPasswordUseCase;
 import com.trophix.api.auth.application.ports.in.LoginUseCase;
+import com.trophix.api.auth.application.ports.in.LogoutUseCase;
+import com.trophix.api.auth.application.ports.in.RefreshSessionUseCase;
 import com.trophix.api.auth.application.ports.in.ResetPasswordUseCase;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.ForgotPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.LoginRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.RegistrationRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.ResetPasswordRequest;
 import com.trophix.api.auth.infrastructure.adapter.in.dto.UserResponse;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.shared.model.Role;
 import com.trophix.api.users.model.User;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,19 @@ public class AuthWebMapper {
 
     public LoginUseCase.LoginCommand toLoginCommand(LoginRequest request, String ipAddress, String userAgent) {
         return new LoginUseCase.LoginCommand(request.email(), request.password(), ipAddress, userAgent);
+    }
+
+    public RefreshSessionUseCase.RefreshCommand toRefreshCommand(
+            String refreshToken, String ipAddress, String userAgent) {
+        return new RefreshSessionUseCase.RefreshCommand(refreshToken, ipAddress, userAgent);
+    }
+
+    public LogoutUseCase.LogoutCommand toLogoutCommand(String refreshToken) {
+        return new LogoutUseCase.LogoutCommand(refreshToken);
+    }
+
+    public MessageResponse toMessageResponse(String message) {
+        return new MessageResponse(message);
     }
 
     public ForgotPasswordUseCase.ForgotPasswordCommand toForgotPasswordCommand(ForgotPasswordRequest request) {

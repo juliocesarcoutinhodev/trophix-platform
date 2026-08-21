@@ -58,12 +58,20 @@ export class AdminService {
     return this.http.put<void>(`/api/admin/guides/${guideId}`, data);
   }
 
+  getGuideById(guideId: string) {
+    return this.http.get<GuideResponse>(`/api/admin/guides/${guideId}`);
+  }
+
   generateGuideAi(guideId: string) {
     return this.http.post<void>(`/api/admin/guides/${guideId}/generate-ai`, {});
   }
 
   generateTrophyGuideAi(guideId: string, trophyId: string) {
     return this.http.post<void>(`/api/admin/guides/${guideId}/trophies/${trophyId}/generate-ai`, {});
+  }
+
+  syncGameCatalog(gameId: string) {
+    return this.http.post<void>(`/api/admin/games/${gameId}/sync-catalog`, {});
   }
 
   getGlobalSettings() {

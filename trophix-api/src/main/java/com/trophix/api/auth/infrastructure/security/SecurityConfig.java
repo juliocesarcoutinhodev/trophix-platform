@@ -60,6 +60,13 @@ public class SecurityConfig {
                 // Form login e HTTP Basic não utilizados nesta API
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                
+                // Retornar 401 ao invés de 403 para requisições não autenticadas
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                )
 
                 // Regras de autorização
                 .authorizeHttpRequests(auth -> auth

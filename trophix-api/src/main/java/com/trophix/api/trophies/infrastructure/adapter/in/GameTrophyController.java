@@ -2,10 +2,10 @@ package com.trophix.api.trophies.infrastructure.adapter.in;
 
 import com.trophix.api.games.application.ports.out.GameRepositoryPort;
 import com.trophix.api.shared.application.ports.out.SyncJobPublisher;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.shared.exception.ResourceNotFoundException;
 import com.trophix.api.trophies.application.ports.in.GetMyTrophiesUseCase;
 import com.trophix.api.trophies.application.ports.out.TrophyRepositoryPort;
-import com.trophix.api.trophies.infrastructure.adapter.in.dto.MessageResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyStatusResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.mapper.TrophyWebMapper;
@@ -37,7 +37,7 @@ public class GameTrophyController {
             @AuthenticationPrincipal String userId,
             @PathVariable UUID gameId) {
         syncJobPublisher.publishTrophySync(UUID.fromString(userId), gameId);
-        return ResponseEntity.accepted().body(new MessageResponse(
+        return ResponseEntity.accepted().body(trophyWebMapper.toMessageResponse(
                 "Sincronização de troféus iniciada. Os dados serão atualizados em segundo plano."));
     }
 

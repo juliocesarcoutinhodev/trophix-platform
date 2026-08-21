@@ -1,59 +1,66 @@
-# TrophixWeb
+# Trophix Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Este é o front-end oficial da plataforma **Trophix**, construído para consumir a API Spring Boot (Trophix API) e exibir guias de troféus da PSN, detalhes de jogos e perfis de usuários.
 
-## Development server
+## Tecnologias Principais
 
-To start a local development server, run:
+- **[Angular 22](https://angular.dev/)** — Aplicação estruturada com componentes **Standalone** e foco total em reatividade usando **Signals**.
+- **[Tailwind CSS v4](https://tailwindcss.com/)** — Estilização utilitária com suporte a tema dark e tipografia (`@tailwindcss/typography`) para renderização de Markdown.
+- **[ngx-markdown](https://github.com/jfcere/ngx-markdown)** — Para renderizar o conteúdo gerado (guias e dicas em Markdown) diretamente nas páginas.
+- **Vitest** — Runner de testes unitários.
 
-```bash
-ng serve
+## Pré-requisitos
+
+- Node.js 20+
+- Trophix API (Spring Boot) rodando localmente na porta `8080`
+- Trophix PSN Sidecar rodando na porta `3000` (consumido indiretamente pela API)
+
+## Instalação e Execução
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+2. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm start
+   ```
+
+O servidor iniciará em `http://localhost:4200/`. 
+> **Nota de Proxy:** O comando `npm start` (via `ng serve`) utiliza o arquivo `proxy.conf.json` para rotear automaticamente as chamadas da rota `/api/*` para `http://localhost:8080`, evitando problemas de CORS e garantindo que o cookie de autenticação `SameSite=Strict` funcione corretamente em desenvolvimento local.
+
+## Estrutura do Projeto
+
+O projeto segue um padrão de arquitetura focado em modularidade via diretórios (já que componentes são *standalone*):
+
+```
+src/
+└── app/
+    ├── core/          # Serviços core (Api, Auth), interceptors, guards, models e pipes globais.
+    ├── layout/        # Componentes de estrutura da página (Navbar, Sidebar, Footer).
+    └── pages/         # Componentes de páginas roteáveis (Dashboard, Login, Game Detail, etc).
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Autenticação (Cookies HttpOnly)
 
-## Code scaffolding
+Diferente de aplicações SPA tradicionais, o **Trophix Web não gerencia e nem salva tokens no LocalStorage**.
+Toda a autenticação é baseada nos cookies `trophix_jwt` e `trophix_refresh`, que são definidos pelo backend (`HttpOnly`, `SameSite=Strict`).
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Isso significa que:
+1. Ao realizar o login, a API seta os cookies automaticamente.
+2. Nas requisições subsequentes para `/api`, o navegador anexa os cookies de forma transparente.
+3. Não há necessidade de adicionar cabeçalhos `Authorization: Bearer ...` nos interceptors padrão de chamadas à API da nossa infraestrutura.
 
-```bash
-ng generate component component-name
-```
+## Tarefas Pendentes / Roadmap do Front-end
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Algumas features identificadas na documentação do backend que ainda requerem implementação no front-end:
 
-```bash
-ng generate --help
-```
+- [ ] **Interceptor de Refresh Token:** O front-end precisa interceptar respostas `401 Unauthorized` (quando o JWT expirar), e realizar uma requisição sequencial e serializada (sem chamadas simultâneas) para `POST /api/auth/refresh`, antes de retentar a chamada original. Lembre-se que reuso do refresh revoga a família inteira da sessão.
+- [ ] **Fluxo de Redefinição de Senha:** Criação da página `/reset-password?token=...` para permitir ao usuário informar a nova senha e finalizar o fluxo de recuperação.
+- [ ] **Integração das Ofertas (Roadmap Futuro):** Preparar o front para consumir as ofertas que serão automatizadas via backend.
 
-## Building
+## Scripts Úteis
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- `npm run build`: Compila o projeto para produção no diretório `dist/`. O build otimiza a aplicação com *Ahead-of-Time* (AOT) compiler.
+- `npm run test`: Roda a suíte de testes unitários com Vitest.

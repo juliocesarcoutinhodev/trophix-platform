@@ -301,7 +301,7 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
 
     this.processingId.set(guide.id);
     try {
-      await firstValueFrom(this.api.syncGameTrophies(gameId));
+      await firstValueFrom(this.adminApi.syncGameCatalog(gameId));
       
       let trophies: any[] = [];
       // Poll por até 10 segundos para dar tempo do backend processar e salvar no banco
@@ -331,8 +331,13 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
       }
       this.trophyTips.set(tipsMap);
       
-      this.successMessage.set('Troféus sincronizados com sucesso!');
-      setTimeout(() => this.successMessage.set(null), 3000);
+      if (trophies.length > 0) {
+        this.successMessage.set('Troféus sincronizados com sucesso!');
+        setTimeout(() => this.successMessage.set(null), 3000);
+      } else {
+        this.error.set('Nenhum troféu encontrado na PSN. Verifique se o ID do jogo está correto (NPWR...).');
+        setTimeout(() => this.error.set(null), 5000);
+      }
     } catch (e) {
       console.error('Falha ao sincronizar troféus', e);
       this.error.set('Erro ao sincronizar troféus com a PSN.');
@@ -441,7 +446,7 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
     
     setTimeout(async () => {
       try {
-        const guide = await firstValueFrom(this.api.getGuideById(guideId));
+        const guide = await firstValueFrom(this.adminApi.getGuideById(guideId));
         if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
           if (this.editingGuideId() === guideId) {
             this.editContent = guide.content;
@@ -519,7 +524,7 @@ export class AdminAllGuidesComponent implements OnInit, OnDestroy {
     
     setTimeout(async () => {
       try {
-        const guide = await firstValueFrom(this.api.getGuideById(guideId));
+        const guide = await firstValueFrom(this.adminApi.getGuideById(guideId));
         if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
           this.trophyTips.update(m => { 
             if (m[trophyId]) m[trophyId].content = guide.content;

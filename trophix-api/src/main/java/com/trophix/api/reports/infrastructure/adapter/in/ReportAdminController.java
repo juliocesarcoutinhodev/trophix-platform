@@ -45,8 +45,8 @@ public class ReportAdminController {
     public ResponseEntity<Void> resolve(
             @AuthenticationPrincipal String adminId,
             @PathVariable UUID reportId) {
-        moderateReportUseCase.moderate(new ModerateReportUseCase.ModerateReportCommand(
-                UUID.fromString(adminId), reportId, ModerateReportUseCase.ModerationAction.RESOLVE));
+        moderateReportUseCase.moderate(
+                reportWebMapper.toResolveCommand(UUID.fromString(adminId), reportId));
         return ResponseEntity.ok().build();
     }
 
@@ -54,8 +54,8 @@ public class ReportAdminController {
     public ResponseEntity<Void> dismiss(
             @AuthenticationPrincipal String adminId,
             @PathVariable UUID reportId) {
-        moderateReportUseCase.moderate(new ModerateReportUseCase.ModerateReportCommand(
-                UUID.fromString(adminId), reportId, ModerateReportUseCase.ModerationAction.DISMISS));
+        moderateReportUseCase.moderate(
+                reportWebMapper.toDismissCommand(UUID.fromString(adminId), reportId));
         return ResponseEntity.ok().build();
     }
 }

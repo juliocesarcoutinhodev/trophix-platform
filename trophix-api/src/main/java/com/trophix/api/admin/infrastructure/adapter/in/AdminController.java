@@ -1,6 +1,8 @@
 package com.trophix.api.admin.infrastructure.adapter.in;
 
+import com.trophix.api.guides.model.Guide;
 import com.trophix.api.admin.application.ports.in.DeleteGuideUseCase;
+import com.trophix.api.admin.application.ports.in.GetAdminGuideByIdUseCase;
 import com.trophix.api.admin.application.ports.in.GetDashboardStatsUseCase;
 import com.trophix.api.admin.application.ports.in.GetPendingGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.GetSidecarStatusUseCase;
@@ -8,6 +10,7 @@ import com.trophix.api.admin.application.ports.in.GetSystemHealthUseCase;
 import com.trophix.api.admin.application.ports.in.ListAdminUsersUseCase;
 import com.trophix.api.admin.application.ports.in.ListAllGuidesUseCase;
 import com.trophix.api.admin.application.ports.in.SetGameFeaturedUseCase;
+import com.trophix.api.admin.application.ports.in.SyncGameCatalogUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
@@ -67,8 +70,10 @@ public class AdminController {
     private final DeleteGuideUseCase deleteGuideUseCase;
     private final ReviewGuideUseCase reviewGuideUseCase;
     private final SetGameFeaturedUseCase setGameFeaturedUseCase;
+    private final SyncGameCatalogUseCase syncGameCatalogUseCase;
     private final ImportGameUseCase importGameUseCase;
     private final RequestGuideAiGenerationUseCase requestGuideAiGenerationUseCase;
+    private final GetAdminGuideByIdUseCase getAdminGuideByIdUseCase;
     private final AdminWebMapper adminWebMapper;
     private final GuideWebMapper guideWebMapper;
 
@@ -108,7 +113,7 @@ public class AdminController {
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserRolesRequest request) {
         UpdateUserRolesUseCase.UpdateUserRolesCommand command =
-                new UpdateUserRolesUseCase.UpdateUserRolesCommand(userId, request.roles());
+                adminWebMapper.toUpdateUserRolesCommand(userId, request);
         return ResponseEntity.ok(adminWebMapper.toAdminUserResponse(
                 updateUserRolesUseCase.updateRoles(command)));
     }
@@ -142,7 +147,7 @@ public class AdminController {
             @PathVariable UUID guideId) {
         String message = reviewGuideUseCase.review(UUID.fromString(adminId), guideId,
                 ReviewGuideUseCase.ReviewAction.APPROVE);
-        return ResponseEntity.ok(new MessageResponse(message));
+        return ResponseEntity.ok(adminWebMapper.toMessageResponse(message));
     }
 
     @PutMapping("/guides/{guideId}")
@@ -150,7 +155,7 @@ public class AdminController {
             @PathVariable UUID guideId,
             @Valid @RequestBody UpdateGuideRequest request) {
         updateGuideUseCase.update(adminWebMapper.toUpdateGuideCommand(guideId, request));
-        return ResponseEntity.ok(new MessageResponse("Guia atualizado com sucesso."));
+        return ResponseEntity.ok(adminWebMapper.toMessageResponse("Guia atualizado com sucesso."));
     }
 
     @DeleteMapping("/guides/{guideId}")
@@ -165,7 +170,7 @@ public class AdminController {
             @PathVariable UUID guideId) {
         String message = reviewGuideUseCase.review(UUID.fromString(adminId), guideId,
                 ReviewGuideUseCase.ReviewAction.REJECT);
-        return ResponseEntity.ok(new MessageResponse(message));
+        return ResponseEntity.ok(adminWebMapper.toMessageResponse(message));
     }
 
     @PatchMapping("/games/{gameId}/feature")
@@ -173,15 +178,27 @@ public class AdminController {
             @PathVariable UUID gameId,
             @Valid @RequestBody UpdateGameFeaturedRequest request) {
         setGameFeaturedUseCase.execute(adminWebMapper.toSetGameFeaturedCommand(gameId, request));
-        return ResponseEntity.ok(new MessageResponse("Destaque do jogo atualizado com sucesso."));
+        return ResponseEntity.ok(adminWebMapper.toMessageResponse("Destaque do jogo atualizado com sucesso."));
     }
 
     @PostMapping("/games/import")
     public ResponseEntity<MessageResponse> importGame(
             @AuthenticationPrincipal String adminId,
             @RequestParam String npCommunicationId) {
-        importGameUseCase.execute(new ImportGameUseCase.ImportGameCommand(npCommunicationId, UUID.fromString(adminId)));
-        return ResponseEntity.ok(new MessageResponse("Jogo importado da PSN com sucesso."));
+        importGameUseCase.execute(adminWebMapper.toImportGameCommand(npCommunicationId, UUID.fromString(adminId)));
+        return ResponseEntity.ok(adminWebMapper.toMessageResponse("Jogo importado da PSN com sucesso."));
+    }
+
+    @GetMapping("/guides/{guideId}")
+    public ResponseEntity<GuideResponse> getGuideById(@PathVariable UUID guideId) {
+        Guide guide = getAdminGuideByIdUseCase.getAdminGuide(guideId);
+        return ResponseEntity.ok(guideWebMapper.toGuideResponse(guide));
+    }
+
+    @PostMapping("/games/{gameId}/sync-catalog")
+    public ResponseEntity<MessageResponse> syncCatalog(@PathVariable UUID gameId) {
+        syncGameCatalogUseCase.syncCatalog(gameId);
+        return ResponseEntity.accepted().body(adminWebMapper.toMessageResponse("Sincronização do catálogo iniciada..."));
     }
 
     @PostMapping("/guides/{guideId}/generate-ai")

@@ -189,7 +189,7 @@ export class CreateGuide implements OnInit {
       
       setTimeout(async () => {
         try {
-          const guide = await firstValueFrom(this.api.getGuideById(guideId));
+          const guide = await firstValueFrom(this.adminApi.getGuideById(guideId));
           if (guide.content && guide.content.trim() !== '' && guide.content !== 'Gerando conteúdo...') {
             resolve(guide.content);
           } else {

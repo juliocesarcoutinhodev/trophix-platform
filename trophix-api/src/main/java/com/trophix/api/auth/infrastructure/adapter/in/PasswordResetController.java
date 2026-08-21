@@ -27,7 +27,7 @@ public class PasswordResetController {
     public ResponseEntity<MessageResponse> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
         forgotPasswordUseCase.requestReset(authWebMapper.toForgotPasswordCommand(request));
-        return ResponseEntity.ok(new MessageResponse(
+        return ResponseEntity.ok(authWebMapper.toMessageResponse(
                 "Se o e-mail informado estiver cadastrado, você receberá um link de redefinição de senha."));
     }
 
@@ -35,6 +35,6 @@ public class PasswordResetController {
     public ResponseEntity<MessageResponse> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
         resetPasswordUseCase.resetPassword(authWebMapper.toResetPasswordCommand(request));
-        return ResponseEntity.ok(new MessageResponse("Senha redefinida com sucesso! Faça login novamente."));
+        return ResponseEntity.ok(authWebMapper.toMessageResponse("Senha redefinida com sucesso! Faça login novamente."));
     }
 }

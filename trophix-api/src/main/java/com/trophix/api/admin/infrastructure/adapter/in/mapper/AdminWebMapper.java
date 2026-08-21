@@ -5,6 +5,7 @@ import com.trophix.api.admin.application.ports.in.GetSidecarStatusUseCase;
 import com.trophix.api.admin.application.ports.in.GetSystemHealthUseCase;
 import com.trophix.api.admin.application.ports.in.SetGameFeaturedUseCase;
 import com.trophix.api.admin.application.ports.in.UpdateGuideUseCase;
+import com.trophix.api.admin.application.ports.in.UpdateUserRolesUseCase;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminDashboardStatsResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.AdminUserResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.ModerationGuideResponse;
@@ -12,6 +13,9 @@ import com.trophix.api.admin.infrastructure.adapter.in.dto.SidecarStatusResponse
 import com.trophix.api.admin.infrastructure.adapter.in.dto.SystemHealthResponse;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGameFeaturedRequest;
 import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateGuideRequest;
+import com.trophix.api.admin.infrastructure.adapter.in.dto.UpdateUserRolesRequest;
+import com.trophix.api.games.application.ports.in.ImportGameUseCase;
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.shared.model.Role;
 import com.trophix.api.guides.model.Guide;
 import com.trophix.api.guides.model.GuideListItem;
@@ -84,6 +88,19 @@ public class AdminWebMapper {
     public SetGameFeaturedUseCase.SetGameFeaturedCommand toSetGameFeaturedCommand(
             UUID gameId, UpdateGameFeaturedRequest request) {
         return new SetGameFeaturedUseCase.SetGameFeaturedCommand(gameId, request.isFeatured());
+    }
+
+    public UpdateUserRolesUseCase.UpdateUserRolesCommand toUpdateUserRolesCommand(
+            UUID userId, UpdateUserRolesRequest request) {
+        return new UpdateUserRolesUseCase.UpdateUserRolesCommand(userId, request.roles());
+    }
+
+    public ImportGameUseCase.ImportGameCommand toImportGameCommand(String npCommunicationId, UUID adminId) {
+        return new ImportGameUseCase.ImportGameCommand(npCommunicationId, adminId);
+    }
+
+    public MessageResponse toMessageResponse(String message) {
+        return new MessageResponse(message);
     }
 
     public SidecarStatusResponse toSidecarStatusResponse(GetSidecarStatusUseCase.SidecarStatus status) {

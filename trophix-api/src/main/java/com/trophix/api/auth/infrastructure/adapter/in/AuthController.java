@@ -61,8 +61,7 @@ public class AuthController {
                 .orElseThrow(() -> new RefreshTokenException("Sessão expirada. Faça login novamente."));
         ClientMetadataReader.ClientMetadata metadata = clientMetadataReader.read(httpRequest);
         AuthTokens tokens = refreshSessionUseCase.refresh(
-                new RefreshSessionUseCase.RefreshCommand(
-                        rawRefreshToken, metadata.ipAddress(), metadata.userAgent()));
+                authWebMapper.toRefreshCommand(rawRefreshToken, metadata.ipAddress(), metadata.userAgent()));
         return ResponseEntity.ok()
                 .headers(authCookieManager.sessionHeaders(tokens))
                 .build();
@@ -71,7 +70,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest httpRequest) {
         authCookieManager.extractRefreshToken(httpRequest)
-                .ifPresent(raw -> logoutUseCase.logout(new LogoutUseCase.LogoutCommand(raw)));
+                .ifPresent(raw -> logoutUseCase.logout(authWebMapper.toLogoutCommand(raw)));
         return ResponseEntity.ok()
                 .headers(authCookieManager.logoutHeaders())
                 .build();

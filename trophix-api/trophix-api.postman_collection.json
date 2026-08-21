@@ -2138,6 +2138,48 @@
           ]
         },
         {
+          "name": "Detalhes de um Guia (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/{{guideId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "{{guideId}}"
+              ]
+            },
+            "description": "Detalhe de um guia para o painel admin, em qualquer status (PENDING/APPROVED/REJECTED/IMPORTED), inclusive os drafts IMPORTED antes da aprovacao.\n\nProtegida por ROLE_ADMIN.\n\nRespostas:\n- 200: GuideResponse (id, gameId, gameName, imageUrl, authorId, authorName, title, description, content, videoUrl, status, upvotesCount, currentUserVoted, createdAt, updatedAt)\n- 403: sem ROLE_ADMIN\n- 404: guia nao encontrado"
+          },
+          "response": [
+            {
+              "name": "Guia encontrado (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/guides/22222222-2222-2222-2222-222222222222"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"id\": \"22222222-2222-2222-2222-222222222222\",\n    \"trophyId\": null,\n    \"gameId\": \"11111111-1111-1111-1111-111111111111\",\n    \"gameName\": \"God of War Ragnarok\",\n    \"imageUrl\": \"https://exemplo.com/capa.jpg\",\n    \"authorId\": \"33333333-3333-3333-3333-333333333333\",\n    \"authorName\": \"trophix_admin\",\n    \"title\": \"Guia Oficial: God of War Ragnarok\",\n    \"description\": \"\",\n    \"content\": \"\",\n    \"videoUrl\": null,\n    \"status\": \"IMPORTED\",\n    \"upvotesCount\": 0,\n    \"currentUserVoted\": false,\n    \"createdAt\": \"2026-08-21T13:00:00Z\",\n    \"updatedAt\": \"2026-08-21T13:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
           "name": "Excluir Guia (Admin)",
           "request": {
             "method": "DELETE",
@@ -2646,6 +2688,69 @@
                 }
               ],
               "body": "{\n    \"message\": \"Jogo importado da PSN com sucesso.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sincronizar Catalogo de Trofeus (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/games/{{gameId}}/sync-catalog",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "games",
+                "{{gameId}}",
+                "sync-catalog"
+              ]
+            },
+            "description": "Sincroniza apenas o catalogo puro de trofeus de um jogo, sem depender do perfil PSN de quem clicou - evita erros quando o admin nao possui o jogo na conta.\n\nPublica o job TROPHY_CATALOG_SYNC na fila e responde 202 Accepted imediatamente; o worker popula o catalogo em segundo plano.\n\nProtegida por ROLE_ADMIN.\n\nRespostas:\n- 202: message de sucesso (job enfileirado)\n- 403: sem ROLE_ADMIN\n- 404: jogo nao encontrado"
+          },
+          "response": [
+            {
+              "name": "Job enfileirado (202)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/games/11111111-1111-1111-1111-111111111111/sync-catalog"
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"message\": \"Sincronização do catálogo iniciada...\"\n}"
+            },
+            {
+              "name": "Jogo nao encontrado (404)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/games/00000000-0000-0000-0000-000000000000/sync-catalog"
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "body": "{\n    \"timestamp\": \"2026-08-21T13:00:00Z\",\n    \"status\": 404,\n    \"message\": \"Jogo não encontrado\"\n}"
             }
           ]
         },

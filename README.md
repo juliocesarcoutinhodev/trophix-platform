@@ -319,6 +319,7 @@ POST /api/admin/guides/{id}/generate-ai ──► RabbitMQ (trophix.ai.exchange 
 | PUT | `/api/admin/users/{userId}/roles` | **ROLE_ADMIN** | Substitui os cargos do usuário (`roles: ["ROLE_USER", ...]`); revoga as sessões dele |
 | GET | `/api/admin/guides/pending?page=&size=` | **ROLE_ADMIN** | Fila de moderação: guias PENDING paginados com `authorName`/`gameName` |
 | GET | `/api/admin/guides?page=&size=&status=&search=` | **ROLE_ADMIN** | Lista paginada de guias; `status` filtra exatamente por status (PENDING/APPROVED/REJECTED/IMPORTED) e `search` busca case-insensitive no título ou nome do jogo — combináveis |
+| GET | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Detalhe de um guia para o painel (qualquer status, inclusive IMPORTED/PENDING antes da aprovação) |
 | PUT | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Edita title/description/content/videoUrl do guia (status e metadados preservados) |
 | DELETE | `/api/admin/guides/{guideId}` | **ROLE_ADMIN** | Exclui definitivamente o guia (e seus votos, via cascade) |
 | POST | `/api/admin/guides/{guideId}/approve` | **ROLE_ADMIN** | Aprova o guia (PENDING ou IMPORTED → APPROVED) |
@@ -330,6 +331,7 @@ POST /api/admin/guides/{id}/generate-ai ──► RabbitMQ (trophix.ai.exchange 
 | PUT | `/api/admin/settings` | **ROLE_ADMIN** | Salva as configurações globais (siteName, contato, redes, hero, alerta, footer, palavras proibidas, meta) |
 | PATCH | `/api/admin/games/{gameId}/feature` | **ROLE_ADMIN** | Marca/desmarca o **destaque manual** do jogo (`{"isFeatured": true/false}`) — alimenta o Trending híbrido da Home |
 | POST | `/api/admin/games/import?npCommunicationId=` | **ROLE_ADMIN** | **Importa um jogo da PSN**: busca detalhes/catálogo no sidecar, baixa capa e ícones para o MinIO e persiste `Game` + `Trophy` (idempotente). Após importar, cria automaticamente um **guia draft vazio** (`status=IMPORTED`, título "Guia Oficial: {nome}", autor = admin) para a fila de moderação — idempotente (não duplica se já existe guia do jogo) |
+| POST | `/api/admin/games/{gameId}/sync-catalog` | **ROLE_ADMIN** | **Sincroniza só o catálogo de troféus** do jogo (sem perfil PSN de quem clicou — evita erro quando o admin não tem o jogo na conta). Publica o job `TROPHY_CATALOG_SYNC` na fila e responde **202 Accepted**; o worker popula o catálogo em segundo plano |
 | POST | `/api/admin/guides/{guideId}/generate-ai` | **ROLE_ADMIN** | Dispara a **geração do roadmap/platina por IA** (Gemini + Search Grounding). Enfileira o job e responde **202 Accepted** imediatamente; o worker atualiza o `content` do guia em segundo plano, preservando o status (`IMPORTED`/`PENDING`) para revisão antes de aprovar |
 | POST | `/api/admin/guides/{guideId}/trophies/{trophyId}/generate-ai` | **ROLE_ADMIN** | Dispara a **geração de dica de um troféu por IA**. Mesmo fluxo assíncrono: 202 imediato, worker preenche o `content` do guia da dica preservando o status |
 

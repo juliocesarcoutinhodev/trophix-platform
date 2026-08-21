@@ -31,6 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((err) => {
               isRefreshing = false;
+              refreshTokenSubject.next(false);
               authService.logoutLocally();
               return throwError(() => err);
             })
@@ -40,7 +41,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return refreshTokenSubject.pipe(
             filter(result => result !== null),
             take(1),
-            switchMap(() => next(request))
+            switchMap((success) => {
+              if (success) {
+                return next(request);
+              } else {
+                return throwError(() => error);
+              }
+            })
           );
         }
       }

@@ -2,6 +2,7 @@ package com.trophix.api.reports.infrastructure.adapter.in;
 
 import com.trophix.api.reports.application.ports.in.SubmitReportUseCase;
 import com.trophix.api.reports.infrastructure.adapter.in.dto.SubmitReportRequest;
+import com.trophix.api.reports.infrastructure.adapter.in.mapper.ReportWebMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +23,14 @@ import java.util.UUID;
 public class ReportController {
 
     private final SubmitReportUseCase submitReportUseCase;
+    private final ReportWebMapper reportWebMapper;
 
     @PostMapping
     public ResponseEntity<Void> submit(
             @AuthenticationPrincipal String userId,
             @Valid @RequestBody SubmitReportRequest request) {
-        submitReportUseCase.submit(new SubmitReportUseCase.SubmitReportCommand(
-                UUID.fromString(userId), request.targetType(), request.targetId(), request.reason()));
+        submitReportUseCase.submit(
+                reportWebMapper.toSubmitReportCommand(UUID.fromString(userId), request));
         return ResponseEntity.ok().build();
     }
 }

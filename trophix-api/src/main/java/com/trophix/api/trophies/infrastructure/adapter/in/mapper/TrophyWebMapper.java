@@ -1,5 +1,6 @@
 package com.trophix.api.trophies.infrastructure.adapter.in.mapper;
 
+import com.trophix.api.shared.dto.MessageResponse;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.ActivityFeedDTO;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.MissingTrophyDTO;
 import com.trophix.api.trophies.infrastructure.adapter.in.dto.TrophyResponse;
@@ -12,6 +13,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TrophyWebMapper {
+
+    public MessageResponse toMessageResponse(String message) {
+        return new MessageResponse(message);
+    }
 
     public TrophyResponse toTrophyResponse(Trophy trophy) {
         return new TrophyResponse(

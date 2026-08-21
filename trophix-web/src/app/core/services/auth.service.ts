@@ -48,7 +48,12 @@ export class AuthService {
   }
 
   logoutLocally(): void {
+    const wasLoggedIn = this.isAuthenticated();
     this.user.set(null);
-    this.router.navigate(['/login']);
+    
+    // Só redireciona para o login se o usuário estava de fato logado antes (evita redirecionar no F5 de visitantes)
+    if (wasLoggedIn) {
+      this.router.navigate(['/login']);
+    }
   }
 }
